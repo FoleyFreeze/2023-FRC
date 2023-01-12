@@ -14,19 +14,41 @@ public class Vector {
 
     public static Vector fromXY(double x, double y){
         double length = Math.sqrt((x * x) + (y * y));
-        double angle = Math.atan(x/y);
+        double angle = Math.atan2(y, x);
 
         return new Vector(length, angle);
     }
 
     public static Vector addVectors(Vector v1, Vector v2){
 
-        double x = (Math.cos(v1.theta) * v1.r) + (Math.cos(v2.theta) * v2.r);
-        double y = (Math.sin(v1.theta) * v1.r) + (Math.sin(v2.theta) * v2.r);
+        double x = v1.getX() + v2.getX();
+        double y = v1.getY() + v2.getY();
 
         double length = Math.sqrt((x * x) + (y * y));
-        double angle = Math.atan(x/y);
+        double angle = Math.atan2(y, x);
 
         return new Vector(length, angle);
+    }
+
+    public Vector negate(){
+        r = -r;
+        return this;
+    }
+
+    public Vector add(Vector v){
+        double x = getX() + v.getX();
+        double y = getY() + v.getY();
+        theta = Math.atan2(y,x);
+        r = Math.sqrt(x*x + y*y);
+        
+        return this;
+    }
+
+    public double getX(){
+        return r * Math.cos(theta);
+    }
+
+    public double getY(){
+        return r * Math.sin(theta);
     }
 }
