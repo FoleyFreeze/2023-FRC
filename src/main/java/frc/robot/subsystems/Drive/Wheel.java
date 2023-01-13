@@ -29,6 +29,7 @@ public class Wheel {
         encoder = new AnalogInput(cal.encoderChannel);
     }
 
+    //Uses the drive vector obtained from the drive command in DriveTrain
     public void drive(){
         double tgtAng = driveVec.theta;
         double currAng = encoder.getVoltage() * cal.swerveRotationsPerRev * 2 * Math.PI;

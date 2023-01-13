@@ -1,7 +1,6 @@
 package frc.robot.subsystems.Drive;
 
 import frc.robot.util.Vector;
-import frc.robot.util.Motor.Motor;
 import frc.robot.util.Motor.MotorCal;
 import frc.robot.util.Motor.MotorCal.MotorType;
 

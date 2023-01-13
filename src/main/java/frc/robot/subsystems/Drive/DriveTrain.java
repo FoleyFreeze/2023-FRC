@@ -13,6 +13,10 @@ public class DriveTrain extends SubsystemBase {
 
     Wheel[] wheels;
 
+    /* For driving, our 0 degrees point is facing forward
+     * Clockwise turning is assumed to be a positive rotPwr input
+     */
+
     public DriveTrain(RobotContainer r, DriveCal cals){
         if(disabled) return;
         this.r = r;
@@ -24,7 +28,7 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    //divide all numbers by the maximum so we stay at a maximum of 1.0 power
+    //divide all numbers by the maximum so we stay at a max of 1.0 power applied to wheels
     void normalize(double max){
         if(disabled) return;
         for(Wheel w: wheels){
@@ -40,6 +44,9 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
+    /* Takes in an x and y position, along with 
+     * rotation power to be applied to the wheels
+     */
     public void driveSwerve(double x, double y, double rotPwr){
         if(disabled) return;
         Vector xy = Vector.fromXY(x, y);
