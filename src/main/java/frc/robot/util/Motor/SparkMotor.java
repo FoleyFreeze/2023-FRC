@@ -12,6 +12,7 @@ public class SparkMotor implements Motor{
     SparkMaxPIDController PIDController;
 
     public SparkMotor(MotorCal cal){
+        motor = new CANSparkMax(cal.channel);
         encoder = motor.getEncoder();
         PIDController = motor.getPIDController();
 

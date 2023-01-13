@@ -1,9 +1,6 @@
 package frc.robot.subsystems.Drive;
 
-import com.revrobotics.AbsoluteEncoder;
-
 import edu.wpi.first.wpilibj.AnalogInput;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;

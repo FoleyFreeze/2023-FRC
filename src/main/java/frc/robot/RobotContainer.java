@@ -5,8 +5,11 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.CmdDrive;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
+import frc.robot.subsystems.Inputs.InputCal;
+import frc.robot.subsystems.Inputs.Inputs;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -18,17 +21,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  
-  public DriveCal driveCal = new DriveCal();
 
   // The robot's subsystems and commands are defined here...
   public DriveTrain driveTrain;
+  public Inputs inputs;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-    driveTrain = new DriveTrain(this, driveCal);
+    
+    inputs = new Inputs(this, new InputCal());
+    driveTrain = new DriveTrain(this, new DriveCal());
   }
 
   /**
@@ -40,6 +44,7 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  
   private void configureBindings() {
     
   }
