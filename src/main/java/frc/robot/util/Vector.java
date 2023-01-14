@@ -30,6 +30,10 @@ public class Vector {
         return new Vector(length, angle);
     }
 
+    public String toString(){
+        return String.format("%.1f, %.1f", getX(), getY());
+    }
+
     public Vector negate(){
         r = -r;
         return this;

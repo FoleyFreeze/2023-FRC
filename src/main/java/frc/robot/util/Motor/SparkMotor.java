@@ -3,9 +3,8 @@ package frc.robot.util.Motor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class SparkMotor implements Motor{
     
@@ -27,7 +26,7 @@ public class SparkMotor implements Motor{
 
     @Override
     public void setPower(double power) {
-        motor.setVoltage(power);
+        motor.set(power);
     }
 
     @Override
@@ -37,7 +36,7 @@ public class SparkMotor implements Motor{
 
     @Override
     public void setPosition(double position){
-        encoder.setPosition(position);//in rotations
+        PIDController.setReference(position, ControlType.kPosition);//in rotations
     }
 
     @Override

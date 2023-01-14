@@ -10,6 +10,7 @@ public class CmdDrive extends CommandBase{
 
     public CmdDrive(RobotContainer r){
         this.r = r;
+        addRequirements(r.driveTrain);
     }
 
     @Override
@@ -20,7 +21,11 @@ public class CmdDrive extends CommandBase{
     @Override
     public void execute(){
         //x and y are flipped between because of the way our axes work; x is forward (0 degrees)
+<<<<<<< HEAD
         Vector xy = r.inputs.getJoystickXY();
+=======
+        Vector xy = Vector.fromXY(-r.inputs.getJoystickY(), -r.inputs.getJoystickX());
+>>>>>>> e1655b29cc68c35a2a03e1471a99cc7d139746a8
         r.driveTrain.driveSwerve(xy, r.inputs.getJoystickZR());
     }
 
