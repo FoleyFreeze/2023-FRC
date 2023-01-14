@@ -32,8 +32,8 @@ public class DriveTrain extends SubsystemBase {
     void normalize(double max){
         if(disabled) return;
         for(Wheel w: wheels){
-            if(max != 0){
-                w.driveVec.r /= max;
+            if(max != 0 && Math.abs(max) > 1.0){
+                w.driveVec.r /= Math.abs(max);
             }
         }
     }
@@ -57,7 +57,6 @@ public class DriveTrain extends SubsystemBase {
             maxWheelDist = Math.max(maxWheelDist, w.wheelLocation.r);
         }
 
-        boolean allZero = true;
         double max = 0;
         for(Wheel w: wheels){
             //Finding the perpendicular angle from the wheel location points
@@ -75,9 +74,6 @@ public class DriveTrain extends SubsystemBase {
             if(w.driveVec.r > max){
                 max = w.driveVec.r;
             }
-            if(w.driveVec.r != 0){
-                allZero = false;
-            }
         }
 
         normalize(max);
@@ -89,6 +85,5 @@ public class DriveTrain extends SubsystemBase {
 
     public void periodic(){
         if(disabled) return;
-        
     }
 }

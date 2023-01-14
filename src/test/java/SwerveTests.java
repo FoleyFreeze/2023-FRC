@@ -4,6 +4,7 @@ import java.beans.Transient;
 
 import org.junit.jupiter.api.Test;
 
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class SwerveTests {
@@ -24,7 +25,7 @@ public class SwerveTests {
     @Test
     void normalizeTest(){
         
-        assertEquals();
+        System.out.println("tgtAng: " + tgtAng + "   r: " + r);
     }
 
 }

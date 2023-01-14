@@ -13,40 +13,54 @@ public class DriveCal {
         public MotorCal swerveMotor;
         public int encoderChannel;
 
-        Vector wheelLocation;
+        public Vector wheelLocation;
 
         public final double swerveRotationsPerRev = 0;
         public final double driveRotationsPerRev = 0;
+
+        int idx;
     }
     
     //TODO: Find motor channel inputs
-    public WheelCal lFWheel = new WheelCal();{
-        lFWheel.driveMotor = new MotorCal(MotorType.SPARK, 0);
-        lFWheel.swerveMotor = new MotorCal(MotorType.SPARK, 0);
+    public WheelCal FLWheel = new WheelCal();{
+        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 0);
+        FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 1);
 
-        lFWheel.wheelLocation = new Vector(0, 0);
+        FLWheel.wheelLocation = new Vector(14, 15);
+        FLWheel.encoderChannel = 0;
+
+        FLWheel.idx = 0;
     }
 
-    public WheelCal rFWheel = new WheelCal();{
-        rFWheel.driveMotor = new MotorCal(MotorType.SPARK, 0);
-        rFWheel.swerveMotor = new MotorCal(MotorType.SPARK, 0);
+    public WheelCal FRWheel = new WheelCal();{
+        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 2);
+        FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 3);
 
-        rFWheel.wheelLocation = new Vector(0, 0);
+        FRWheel.wheelLocation = new Vector(14, -15);
+        FRWheel.encoderChannel = 1;
+
+        FRWheel.idx = 1;
     }
 
-    public WheelCal lRWheel = new WheelCal();{
-        lRWheel.driveMotor = new MotorCal(MotorType.SPARK, 0);
-        lRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 0);
+    public WheelCal RLWheel = new WheelCal();{
+        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 4);
+        RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 5);
 
-        lRWheel.wheelLocation = new Vector(0, 0);
+        RLWheel.wheelLocation = new Vector(-14, -15);
+        RLWheel.encoderChannel = 2;
+
+        RLWheel.idx = 2;
     }
 
-    public WheelCal rRWheel = new WheelCal();{
-        rRWheel.driveMotor = new MotorCal(MotorType.SPARK, 0);
-        rRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 0);
+    public WheelCal RRWheel = new WheelCal();{
+        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 6);
+        RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7);
 
-        rRWheel.wheelLocation = new Vector(0, 0);
+        RRWheel.wheelLocation = new Vector(-14, 15);
+        RRWheel.encoderChannel = 3;
+
+        RRWheel.idx = 3;
     }
 
-    public WheelCal[] wheelCals = {lFWheel, rFWheel, lRWheel, rRWheel};
+    public WheelCal[] wheelCals = {FLWheel, FRWheel, RLWheel, RRWheel};
 }

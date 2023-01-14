@@ -10,6 +10,7 @@ public class Inputs extends SubsystemBase{
     InputCal cal;
 
     Joystick controller;
+    Joystick cBoard;
 
     public enum controllerTypes{
         FLYSKY, GAMEPAD, NONE
@@ -21,15 +22,14 @@ public class Inputs extends SubsystemBase{
         this.cal = cal;
 
         controller = new Joystick(0);
+        cBoard = new Joystick(1);
     }
 
     public void periodic(){
-        if(controller != null){
-            if(controller.getName().contains("flysky")){
-                type = controllerTypes.FLYSKY;
-            } else {
-                type = controllerTypes.GAMEPAD;
-            }
+        if(controller.getName().contains("NV14")){
+            type = controllerTypes.FLYSKY;
+        } else if(controller.getName().contains("gamepad")) {
+            type = controllerTypes.GAMEPAD;
         } else {
             type = controllerTypes.NONE;
         }
@@ -40,14 +40,14 @@ public class Inputs extends SubsystemBase{
     }
 
     public double getJoystickX(){
-        return controller.getRawAxis(cal.L_JOYSTICK[type.ordinal()]);
+        return controller.getRawAxis(cal.L_JOYSTICK_X[type.ordinal()]);
     }
 
     public double getJoystickY(){
-        return controller.getRawAxis(cal.L_JOYSTICK[type.ordinal()]);
+        return controller.getRawAxis(cal.L_JOYSTICK_Y[type.ordinal()]);
     }
 
     public double getJoystickZR(){
-        return 0;
+        return controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
     }
 }
