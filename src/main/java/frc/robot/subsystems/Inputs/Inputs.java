@@ -3,6 +3,7 @@ package frc.robot.subsystems.Inputs;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.util.Vector;
 
 public class Inputs extends SubsystemBase{
     
@@ -45,6 +46,10 @@ public class Inputs extends SubsystemBase{
 
     public double getJoystickY(){
         return controller.getRawAxis(cal.L_JOYSTICK[type.ordinal()]);
+    }
+
+    public Vector getJoystickXY(){
+        return Vector.fromXY(getJoystickX(), getJoystickY());
     }
 
     public double getJoystickZR(){

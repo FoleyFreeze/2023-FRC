@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
+import frc.robot.util.Vector;
 
 public class CmdDrive extends CommandBase{
     
@@ -19,7 +20,8 @@ public class CmdDrive extends CommandBase{
     @Override
     public void execute(){
         //x and y are flipped between because of the way our axes work; x is forward (0 degrees)
-        r.driveTrain.driveSwerve(r.inputs.getJoystickY(), r.inputs.getJoystickX(), r.inputs.getJoystickZR());
+        Vector xy = r.inputs.getJoystickXY();
+        r.driveTrain.driveSwerve(xy, r.inputs.getJoystickZR());
     }
 
     @Override

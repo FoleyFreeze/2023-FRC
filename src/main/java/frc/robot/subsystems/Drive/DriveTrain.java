@@ -87,6 +87,10 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
+    public Vector getPosition(){
+        return null; //TODO: finish
+    }
+
     public void periodic(){
         if(disabled) return;
         

@@ -24,7 +24,7 @@ public class SwerveTests {
     @Test
     void normalizeTest(){
         
-        assertEquals();
+        //assertEquals();
     }
 
 }
