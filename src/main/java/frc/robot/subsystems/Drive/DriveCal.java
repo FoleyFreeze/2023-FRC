@@ -7,6 +7,8 @@ import frc.robot.util.Motor.MotorCal.MotorType;
 public class DriveCal {
 
     public class WheelCal{
+        //wheelcal contains all of the necessary information for each individual drive wheel to be set to
+        
         public MotorCal driveMotor;
         public MotorCal swerveMotor;
         public int encoderChannel;

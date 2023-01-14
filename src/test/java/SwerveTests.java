@@ -1,5 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.beans.Transient;
+
 import org.junit.jupiter.api.Test;
 
 import frc.robot.util.Vector;
@@ -17,6 +19,12 @@ public class SwerveTests {
         assertEquals(-1, v.getX(), DELTA);
         assertEquals(7, v.getY(), DELTA);
         
+    }
+
+    @Test
+    void normalizeTest(){
+        
+        assertEquals();
     }
 
 }

@@ -32,7 +32,9 @@ public class DriveTrain extends SubsystemBase {
     void normalize(double max){
         if(disabled) return;
         for(Wheel w: wheels){
-            w.driveVec.r /= max;
+            if(max != 0){
+                w.driveVec.r /= max;
+            }
         }
     }
 
@@ -44,22 +46,25 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    /* Takes in an x and y position, along with 
-     * rotation power to be applied to the wheels
+    /* Takes in x and y power values and a z power, 
+     * which is a rotation pwr between -1 and 1
      */
-    public void driveSwerve(double x, double y, double rotPwr){
+    public void driveSwerve(Vector xy, double z){
         if(disabled) return;
-        Vector xy = Vector.fromXY(x, y);
 
+        double maxWheelDist = 0;
+        for(Wheel w: wheels){
+            maxWheelDist = Math.max(maxWheelDist, w.wheelLocation.r);
+        }
+
+        boolean allZero = true;
         double max = 0;
         for(Wheel w: wheels){
-            double rotAng = w.wheelLocation.theta;
             //Finding the perpendicular angle from the wheel location points
-            if(rotPwr > 0){
-                rotAng += Math.PI/2;
-            } else {
-                rotAng -= Math.PI/2;
-            }
+            double rotAng = w.wheelLocation.theta += Math.PI/2;
+
+            //normalize rotation vector's power based on distance from center of rot
+            double rotPwr = (w.wheelLocation.r / maxWheelDist) * z;
 
             //Formulating vector for rotating around the center of rotation
             Vector rotVec = new Vector(rotPwr, rotAng);
@@ -69,6 +74,9 @@ public class DriveTrain extends SubsystemBase {
 
             if(w.driveVec.r > max){
                 max = w.driveVec.r;
+            }
+            if(w.driveVec.r != 0){
+                allZero = false;
             }
         }
 

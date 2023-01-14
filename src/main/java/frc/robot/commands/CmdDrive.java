@@ -18,7 +18,8 @@ public class CmdDrive extends CommandBase{
 
     @Override
     public void execute(){
-        r.driveTrain.driveSwerve(r.inputs.getJoystickX(), r.inputs.getJoystickY(), r.inputs.getJoystickZR());
+        //x and y are flipped between because of the way our axes work; x is forward (0 degrees)
+        r.driveTrain.driveSwerve(r.inputs.getJoystickY(), r.inputs.getJoystickX(), r.inputs.getJoystickZR());
     }
 
     @Override

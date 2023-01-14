@@ -3,6 +3,9 @@ package frc.robot.util.Motor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class SparkMotor implements Motor{
     
@@ -12,7 +15,7 @@ public class SparkMotor implements Motor{
     SparkMaxPIDController PIDController;
 
     public SparkMotor(MotorCal cal){
-        motor = new CANSparkMax(cal.channel);
+        motor = new CANSparkMax(cal.channel, MotorType.kBrushless);
         encoder = motor.getEncoder();
         PIDController = motor.getPIDController();
 

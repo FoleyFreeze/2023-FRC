@@ -19,6 +19,8 @@ public class Inputs extends SubsystemBase{
     public Inputs(RobotContainer r, InputCal cal){
         this.r = r;
         this.cal = cal;
+
+        controller = new Joystick(0);
     }
 
     public void periodic(){
@@ -31,10 +33,14 @@ public class Inputs extends SubsystemBase{
         } else {
             type = controllerTypes.NONE;
         }
+    } 
+
+    public boolean getFieldOrient(){
+        return controller.getRawButton(cal.FIELD_ORIENT[type.ordinal()]);
     }
 
     public double getJoystickX(){
-        return controller.getRawAxis(type.ordinal());
+        return controller.getRawAxis(cal.L_JOYSTICK[type.ordinal()]);
     }
 
     public double getJoystickY(){
