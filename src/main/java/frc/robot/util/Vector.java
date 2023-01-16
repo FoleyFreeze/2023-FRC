@@ -30,8 +30,17 @@ public class Vector {
         return new Vector(length, angle);
     }
 
-    public String toString(){
+    public String toStringXY(){
         return String.format("%.1f, %.1f", getX(), getY());
+    }
+
+    public String toStringPolar(){
+        return String.format("%.1f, %.1f", r, theta);
+    }
+
+    @Override
+    public String toString(){
+        return toStringXY();
     }
 
     public Vector negate(){

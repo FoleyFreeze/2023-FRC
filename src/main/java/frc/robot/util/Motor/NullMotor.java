@@ -25,4 +25,9 @@ public class NullMotor implements Motor{
     public void invert(boolean inverted) {
         
     }
+
+    @Override
+    public void resetPosition(double position) {
+        
+    }
 }

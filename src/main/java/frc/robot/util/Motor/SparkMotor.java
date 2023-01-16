@@ -44,4 +44,9 @@ public class SparkMotor implements Motor{
         motor.setInverted(inverted);
     }
 
+    @Override
+    public void resetPosition(double position) {
+        encoder.setPosition(position);
+    }
+
 }

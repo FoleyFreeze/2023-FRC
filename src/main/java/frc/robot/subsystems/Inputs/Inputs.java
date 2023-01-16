@@ -24,6 +24,7 @@ public class Inputs extends SubsystemBase{
 
         controller = new Joystick(0);
         cBoard = new Joystick(1);
+
     }
 
     public void periodic(){
@@ -41,11 +42,15 @@ public class Inputs extends SubsystemBase{
     }
 
     public double getJoystickX(){
-        return controller.getRawAxis(cal.L_JOYSTICK_X[type.ordinal()]);
+        double value = controller.getRawAxis(cal.L_JOYSTICK_X[type.ordinal()]);
+        if(Math.abs(value) < 0.08) value = 0;
+        return value;
     }
 
     public double getJoystickY(){
-        return controller.getRawAxis(cal.L_JOYSTICK_Y[type.ordinal()]);
+        double value = controller.getRawAxis(cal.L_JOYSTICK_Y[type.ordinal()]);
+        if(Math.abs(value) < 0.08) value = 0;
+        return value;
     }
 
     public Vector getJoystickXY(){
@@ -53,6 +58,8 @@ public class Inputs extends SubsystemBase{
     }
 
     public double getJoystickZR(){
-        return controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
+        double value = controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
+        if(Math.abs(value) < 0.08) value = 0;
+        return value;
     }
 }

@@ -23,11 +23,11 @@ public class Angle {
         }
     }
 
-    public static double tooRad(double ang){
-        return (ang/360) * Math.PI / 2;
+    public static double toRad(double ang){
+        return (ang/360.0) * Math.PI * 2;
     }
 
     public static double toDeg(double ang){
-        return (ang/(Math.PI/2)) * 360;
+        return (ang/Math.PI/2.0) * 360;
     }
 }

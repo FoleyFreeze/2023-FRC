@@ -36,7 +36,7 @@ public class RobotContainer {
     driveTrain = new DriveTrain(this, new DriveCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();
-    cs.registerSubsystem(inputs, driveTrain);
+    //cs.registerSubsystem(inputs, driveTrain);
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
   }
 

@@ -25,5 +25,6 @@ public interface Motor {
     public abstract void setPower(double power);
     public abstract double getPosition();
     public abstract void setPosition(double position);
+    public abstract void resetPosition(double position);
     public abstract void invert(boolean inverted);
 }
