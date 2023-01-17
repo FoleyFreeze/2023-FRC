@@ -1,7 +1,10 @@
 package frc.robot.subsystems.Inputs;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
 import frc.robot.util.Vector;
 
@@ -10,7 +13,7 @@ public class Inputs extends SubsystemBase{
     RobotContainer r;
     InputCal cal;
 
-    Joystick controller;
+    public Joystick controller;
     Joystick cBoard;
 
     public enum controllerTypes{
@@ -58,8 +61,14 @@ public class Inputs extends SubsystemBase{
     }
 
     public double getJoystickZR(){
-        double value = controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
+        double value = -controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
         if(Math.abs(value) < 0.08) value = 0;
         return value;
     }
+
+    public Trigger resetSwerveZeros = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            return controller.getRawButton(10);
+        }
+    });
 }

@@ -10,13 +10,14 @@ public class MotorCal {
 
     public int channel;
 
-    public boolean inverted;
+    public boolean inverted = false;
 
     public double p = 0;
     public double i = 0;
     public double d = 0;
     public double ff = 0;
     public double dFilt = 0;
+    public double pidLim = 1;
 
     public MotorCal(MotorType type, int channel){
         this.type = type;
@@ -33,6 +34,11 @@ public class MotorCal {
         this.i = i;
         this.d = d;
         ff = f;
+        return this;
+    }
+
+    public MotorCal setPIDPwrLim(double lim){
+        pidLim = lim;
         return this;
     }
 }

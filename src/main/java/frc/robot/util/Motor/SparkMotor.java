@@ -18,10 +18,14 @@ public class SparkMotor implements Motor{
         encoder = motor.getEncoder();
         PIDController = motor.getPIDController();
 
+        motor.setInverted(cal.inverted);
+
         PIDController.setP(cal.p);
         PIDController.setI(cal.i);
         PIDController.setD(cal.d);
         PIDController.setFF(cal.ff);
+
+        PIDController.setOutputRange(-cal.pidLim,cal.pidLim);
     }
 
     @Override
@@ -37,11 +41,6 @@ public class SparkMotor implements Motor{
     @Override
     public void setPosition(double position){
         PIDController.setReference(position, ControlType.kPosition);//in rotations
-    }
-
-    @Override
-    public void invert(boolean inverted) {
-        motor.setInverted(inverted);
     }
 
     @Override

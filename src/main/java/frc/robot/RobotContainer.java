@@ -12,6 +12,7 @@ import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -29,15 +30,15 @@ public class RobotContainer {
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-    
     inputs = new Inputs(this, new InputCal());
     driveTrain = new DriveTrain(this, new DriveCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();
     //cs.registerSubsystem(inputs, driveTrain);
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
+
+    // Configure the trigger bindings
+    configureBindings();
   }
 
   /**
@@ -51,7 +52,7 @@ public class RobotContainer {
    */
   
   private void configureBindings() {
-    
+    inputs.resetSwerveZeros.whileTrue(new InstantCommand(driveTrain::writeAbsOffset).ignoringDisable(true));
   }
 
   /**

@@ -46,13 +46,13 @@ public class Wheel {
 
     public void setEncAngOffset(double voltOffset){
         swerveMotor.resetPosition(0.0);
-        encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI;
+        encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI /*- Math.PI / 2.0*/;
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain
     public void drive(){
         double rawRelEnc = swerveMotor.getPosition();
-        double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
+        double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI - encAngOffset;
 
         //Make sure we go the shortest way
         double delta = (driveVec.theta - currAng) % (2 * Math.PI);
@@ -79,7 +79,7 @@ public class Wheel {
         // if the wheel doesnt need to move, dont move it
         if(outputPower != 0){
             swerveMotor.setPosition(targetRelEnc);
-            driveMotor.setPower(outputPower);
+            driveMotor.setPower(outputPower * 0.3);//TODO: better power limiting
         } else {
             driveMotor.setPower(0);
         }
