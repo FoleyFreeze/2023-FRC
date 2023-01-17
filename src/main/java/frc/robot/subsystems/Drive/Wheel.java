@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Drive;
 
+import java.beans.beancontext.BeanContextChildSupport;
+
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,7 +48,7 @@ public class Wheel {
 
     public void setEncAngOffset(double voltOffset){
         swerveMotor.resetPosition(0.0);
-        encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI /*- Math.PI / 2.0*/;
+        encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain
@@ -79,7 +81,7 @@ public class Wheel {
         // if the wheel doesnt need to move, dont move it
         if(outputPower != 0){
             swerveMotor.setPosition(targetRelEnc);
-            driveMotor.setPower(outputPower * 0.3);//TODO: better power limiting
+            driveMotor.setPower(outputPower * cal.drivePwr);
         } else {
             driveMotor.setPower(0);
         }
@@ -89,10 +91,12 @@ public class Wheel {
         SmartDashboard.putNumber(cal.name + " power", outputPower);
     }
 
+    //returns drive wheel's distance in inches
     public double getDist(){
         return driveMotor.getPosition() / cal.driveRotationsPerIn + swerveMotor.getPosition() * cal.driveInPerSwerveRotation;
     }
 
+    //returns the current motor angle in radians
     public double getAng(){
         return swerveMotor.getPosition() / cal.swerveRotationsPerRev * 2 * Math.PI;
     }

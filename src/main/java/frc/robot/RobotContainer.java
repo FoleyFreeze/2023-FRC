@@ -10,6 +10,8 @@ import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
+import frc.robot.subsystems.Sensors.SensorCal;
+import frc.robot.subsystems.Sensors.Sensors;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -26,11 +28,13 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   public Inputs inputs;
+  public Sensors sensors;
   public DriveTrain driveTrain;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     inputs = new Inputs(this, new InputCal());
+    sensors = new Sensors(this, new SensorCal());
     driveTrain = new DriveTrain(this, new DriveCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();

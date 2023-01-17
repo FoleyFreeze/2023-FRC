@@ -15,10 +15,12 @@ public class DriveCal {
 
         public Vector wheelLocation;
 
+        public double drivePwr = 0.3;
+
         public final double swerveRotationsPerRev = 60.0;
         public final double driveRotationsPerIn = 64/18.0 * 18/32.0 * 45/15.0 / 4.0 / Math.PI;
 
-        public final double driveInPerSwerveRotation = -32/18.0 * 15/45.0 * 4*Math.PI;
+        public final double driveInPerSwerveRotation = -32/18.0 * 15/45.0 * 4 * Math.PI;
 
         int idx;
         public String name;
@@ -54,7 +56,7 @@ public class DriveCal {
     }
 
     public WheelCal RLWheel = new WheelCal();{
-        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 14).invert();
+        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 14);
         RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 10).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         RLWheel.wheelLocation = Vector.fromXY(-14, 15);
@@ -65,7 +67,7 @@ public class DriveCal {
     }
 
     public WheelCal RRWheel = new WheelCal();{
-        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 15).invert();
+        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 15);
         RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 11).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         RRWheel.wheelLocation = Vector.fromXY(-14, -15);

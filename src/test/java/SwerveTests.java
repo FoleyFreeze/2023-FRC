@@ -25,7 +25,6 @@ public class SwerveTests {
     @Test
     void normalizeTest(){
         
-        System.out.println("tgtAng: " + tgtAng + "   r: " + r);
     }
 
 }
