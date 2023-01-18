@@ -5,14 +5,6 @@ import frc.robot.RobotContainer;
 import frc.robot.util.Vector;
 import frc.robot.commands.Auton.AutonCal;
 
-DriveMotionProfile d;
-
-DriveMotionProfile d2;
-
-DriveMotionProfile d3;
-
-DriveMotionProfile d4(r,v1,v2);
-
 public class DriveMotionProfile extends CommandBase{
     public RobotContainer r;
     private Vector startLoc;
