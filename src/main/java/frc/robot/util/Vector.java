@@ -34,6 +34,20 @@ public class Vector {
         return v.negate().add(v1);
     }
 
+    public static Vector averageVectors(Vector... vecs){
+        double x = 0;
+        double y = 0;
+        for(Vector v: vecs){
+            x += v.getX();
+            y += v.getY();
+        }
+
+        x = x / vecs.length;
+        y = y / vecs.length;
+
+        return Vector.fromXY(x, y);
+    }
+
     public String toStringXY(){
         return String.format("%.1f, %.1f", getX(), getY());
     }
