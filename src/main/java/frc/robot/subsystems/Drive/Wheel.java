@@ -19,7 +19,7 @@ public class Wheel {
      * drive function.
      */
 
-    WheelCal cal;
+    public WheelCal cal;
 
     Motor driveMotor;
     Motor swerveMotor;

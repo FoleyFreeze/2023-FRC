@@ -11,9 +11,9 @@ public class DriveTrain extends SubsystemBase {
     public final boolean disabled = false;
 
     RobotContainer r;
-    DriveCal cals;
+    public DriveCal cals;
 
-    Wheel[] wheels;
+    public Wheel[] wheels;
 
     FileManager fm = new FileManager("/home/lvuser/WheelEncoderOffsets.txt");
 
@@ -26,13 +26,12 @@ public class DriveTrain extends SubsystemBase {
         this.r = r;
         this.cals = cals;
 
-        wheels = new Wheel[cals.wheelCals.length];//There are four wheels in the drivetrain and always will be
+        wheels = new Wheel[cals.wheelCals.length];
         for(int i = 0; i < cals.wheelCals.length; i++){
             wheels[i] = new Wheel(cals.wheelCals[i]);
         }
 
         readAbsOffset();
-
     }
 
     /* Takes in x and y power values and a z power, 
@@ -40,6 +39,10 @@ public class DriveTrain extends SubsystemBase {
      */
     public void driveSwerve(Vector xy, double z){
         if(disabled) return;
+
+        if(r.inputs.getFieldOrient()){
+            xy.theta -= r.sensors.getNavXAng();
+        }
 
         double maxWheelDist = 0;
         for(Wheel w: wheels){
@@ -72,6 +75,7 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
+    //Reads the wheel positions file, using our file manager logic from last year
     public void readAbsOffset(){
         try{
             if(fm.exists()){
@@ -96,6 +100,7 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
+    //Writes to the wheel positions file, using our file manager logic from last year
     public void writeAbsOffset(){
         try{
             System.out.println("Saving new wheel locations:");
@@ -131,6 +136,7 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
+    //get all four wheel vectors
     public Vector[] getWheelState(){
         Vector[] wheelVectors = new Vector[cals.wheelCals.length];
         for(int i = 0; i < wheelVectors.length; i++){

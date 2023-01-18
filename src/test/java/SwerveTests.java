@@ -23,8 +23,13 @@ public class SwerveTests {
     }
 
     @Test
-    void normalizeTest(){
-        
+    void vectorAverage(){
+        Vector[] v = new Vector[2];
+        v[0] = Vector.fromXY(3, 4);
+        v[1] = Vector.fromXY(7, 8);
+
+        Vector expected = Vector.fromXY(6, 8);
+        Vector result = Vector.averageVectors(v);
     }
 
 }
