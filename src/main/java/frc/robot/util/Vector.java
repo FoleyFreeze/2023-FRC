@@ -12,6 +12,11 @@ public class Vector {
         //OH YEAHHHH
     }
 
+    public Vector(Vector v){
+        r = v.r;
+        theta = v.theta;
+    }
+
     public static Vector fromXY(double x, double y){
         double length = Math.sqrt((x * x) + (y * y));
         double angle = Math.atan2(y, x);
@@ -20,14 +25,13 @@ public class Vector {
     }
 
     public static Vector addVectors(Vector v1, Vector v2){
+        Vector v = new Vector(v2);
+        return v.add(v1);
+    }
 
-        double x = v1.getX() + v2.getX();
-        double y = v1.getY() + v2.getY();
-
-        double length = Math.sqrt((x * x) + (y * y));
-        double angle = Math.atan2(y, x);
-
-        return new Vector(length, angle);
+    public static Vector subVector(Vector v1, Vector v2){
+        Vector v = new Vector(v2);
+        return v.negate().add(v1);
     }
 
     public String toStringXY(){
