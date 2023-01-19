@@ -3,7 +3,6 @@ package frc.robot.commands.Auton;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Vector;
-import frc.robot.commands.Auton.AutonCal;
 
 public class DriveMotionProfile extends CommandBase{
     public RobotContainer r;

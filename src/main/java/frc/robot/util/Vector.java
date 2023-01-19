@@ -37,13 +37,20 @@ public class Vector {
     public static Vector averageVectors(Vector... vecs){
         double x = 0;
         double y = 0;
-        for(Vector v: vecs){
-            x += v.getX();
-            y += v.getY();
-        }
 
-        x = x / vecs.length;
-        y = y / vecs.length;
+        int nulls = 0;
+        for(Vector v: vecs){
+            if(v != null){
+                x += v.getX();
+                y += v.getY();
+            } else {
+                nulls += 1;
+            }
+        }
+        int length = vecs.length - nulls;
+
+        x = x / length;
+        y = y / length;
 
         return Vector.fromXY(x, y);
     }

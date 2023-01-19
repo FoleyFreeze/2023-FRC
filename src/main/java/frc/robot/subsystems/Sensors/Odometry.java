@@ -1,12 +1,9 @@
 package frc.robot.subsystems.Sensors;
 
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drive.DriveCal;
-import frc.robot.subsystems.Drive.Wheel;
-import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Vector;
 
-public class Odometry {
+public class Odometry implements AutoCloseable {
     
     OdometryCals cals;
     public DriveCal driveCals;
@@ -29,6 +26,7 @@ public class Odometry {
         //formulate actual vectors based on angle and distance traveled
         Vector[] strafeVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
+            //based on whether we want to take an average of the current and previous wheel angles or just use the current
             double wheelAngle;
             if(cals.averageWheelAng){
                 wheelAngle = (wheelStates[i].theta - prevWheelStates[i].theta) / 2.0;
@@ -62,8 +60,32 @@ public class Odometry {
         botLocation = location;
     }
 
-    Vector[] checkVCriteria(Vector[] vecs){
-        //TODO: Make criteria
-        return vecs;
+    public Vector[] checkVCriteria(Vector[] vecs){
+        Vector[] output = vecs;
+
+        double average = 0;
+        for(Vector v: output){
+            average += v.r;
+        }
+        average = average / output.length;
+
+        double sum = 0;
+        for(Vector v: output){
+            sum += (v.r - average) * (v.r - average);
+        }
+        double stanDeviation = Math.sqrt(sum / output.length);
+
+        for(int i = 0; i < output.length; i++){
+            if(Math.abs(average - output[i].r) > Math.abs(stanDeviation * cals.maxStandardDeviations)){
+                output[i] = null;
+            }
+        }
+
+        return output;
+    }
+
+    @Override
+    public void close(){
+
     }
 }
