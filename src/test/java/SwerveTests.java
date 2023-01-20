@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import frc.robot.subsystems.Drive.DriveCal;
+import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.subsystems.Sensors.OdometryCals;
 import frc.robot.util.Angle;
@@ -19,7 +20,10 @@ public class SwerveTests {
 
     @BeforeEach
     void setup(){
-        odometry = new Odometry(new OdometryCals(), new DriveCal());
+        OdometryCals cals = new OdometryCals();
+        //cals.maxStandardDeviations = 1.7;
+        WheelCal[] wCal = new WheelCal[4];
+        odometry = new Odometry(cals, wCal);
     }
 
     @AfterEach
@@ -50,9 +54,9 @@ public class SwerveTests {
 
     @Test
     void odometryTest(){
-        Vector[] v = {new Vector(4, 0), new Vector(4, 0), new Vector(4, 0), new Vector(-10, 0)};
+        Vector[] v = {Vector.fromXY(5, 5), Vector.fromXY(5, 5), Vector.fromXY(5, 5), Vector.fromXY(5.1, 5)};
 
         Vector[] result = odometry.checkVCriteria(v);
-        System.out.println("result: " + result[0] + " " + result[1] + " " + result[2] + " " + result[3]);
+        System.out.println("result: " + result[0] + " | " + result[1] + " | " + result[2] + " | " + result[3]);
     }
 }

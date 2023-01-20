@@ -1,18 +1,21 @@
 package frc.robot.subsystems.Sensors;
 
 import frc.robot.subsystems.Drive.DriveCal;
+import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Vector;
 
 public class Odometry implements AutoCloseable {
     
     OdometryCals cals;
-    public DriveCal driveCals;
+    public WheelCal[] wCal;
 
     public Vector botLocation;
 
-    public Odometry(OdometryCals cals, DriveCal driveCals){
+    public Odometry(OdometryCals cals, WheelCal[] wCal){
         this.cals = cals;
-        this.driveCals = driveCals;
+        this.wCal = wCal;
+
+        setBotLocation(Vector.fromXY(0, 0));
     }
 
     private Vector[] prevWheelStates;
@@ -39,8 +42,8 @@ public class Odometry implements AutoCloseable {
         //back-calculate rotation vectors based on wheel locations and delta angle from navX
         Vector[] rotVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
-            double rotAng = driveCals.wheelCals[i].wheelLocation.theta + Math.PI / 2.0;
-            double r = driveCals.wheelCals[i].wheelLocation.r * deltaAng;
+            double rotAng = wCal[i].wheelLocation.theta + Math.PI / 2.0;
+            double r = wCal[i].wheelLocation.r * deltaAng;
             rotVecs[i] = new Vector(r, rotAng);
         }
 
@@ -63,20 +66,31 @@ public class Odometry implements AutoCloseable {
     public Vector[] checkVCriteria(Vector[] vecs){
         Vector[] output = vecs;
 
-        double average = 0;
+        //calculate mean
+        double averageX = 0;
+        double averageY = 0;
         for(Vector v: output){
-            average += v.r;
+            averageX += v.getX();
+            averageY += v.getY();
         }
-        average = average / output.length;
+        averageX = averageX / output.length;
+        averageY = averageY / output.length;
 
-        double sum = 0;
+        //calculate standard deviation
+        double sumX = 0;
+        double sumY = 0;
         for(Vector v: output){
-            sum += (v.r - average) * (v.r - average);
+            sumX += (v.getX() - averageX) * (v.getX() - averageX);
+            sumY += (v.getY() - averageY) * (v.getY() - averageY);
         }
-        double stanDeviation = Math.sqrt(sum / output.length);
+        double stanDeviationX = Math.sqrt(sumX / output.length);
+        double stanDeviationY = Math.sqrt(sumY / output.length);
 
+        //weed out bad wheels by checking how many standard deviations they are away from the mean
+        double devX = stanDeviationX * cals.maxStandardDeviations;
+        double devY = stanDeviationY * cals.maxStandardDeviations;
         for(int i = 0; i < output.length; i++){
-            if(Math.abs(average - output[i].r) > Math.abs(stanDeviation * cals.maxStandardDeviations)){
+            if(Math.abs(averageX - output[i].getX()) > devX || averageY - output[i].getY() > devY){
                 output[i] = null;
             }
         }

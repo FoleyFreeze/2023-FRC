@@ -24,7 +24,7 @@ public class Sensors extends SubsystemBase{
         this.cal = cal;
 
         navX = new AHRS();
-        odo = new Odometry(new OdometryCals(), r.driveTrain.cals);
+        odo = new Odometry(new OdometryCals(), r.dCal.wheelCals);
     }
 
     public double getNavXAng(){
@@ -37,6 +37,16 @@ public class Sensors extends SubsystemBase{
 
     public double getNavXRoll(){
         return navX.getRoll() * 180 * Math.PI;
+    }
+
+    public void resetNavXAng(){
+        navX.reset();
+        System.out.println("angle has been reset");
+    }
+
+    public void resetBotPos(){
+        odo.setBotLocation(Vector.fromXY(0, 0));
+        System.out.println("position has been reset");
     }
 
     @Override
