@@ -1,21 +1,21 @@
 package frc.robot.subsystems.Sensors;
 
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drive.DriveCal;
-import frc.robot.subsystems.Drive.Wheel;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Vector;
 
-public class Odometry {
+public class Odometry implements AutoCloseable {
     
     OdometryCals cals;
-    public DriveCal driveCals;
+    public WheelCal[] wCal;
 
     public Vector botLocation;
 
-    public Odometry(OdometryCals cals, DriveCal driveCals){
+    public Odometry(OdometryCals cals, WheelCal[] wCal){
         this.cals = cals;
-        this.driveCals = driveCals;
+        this.wCal = wCal;
+
+        setBotLocation(Vector.fromXY(0, 0));
     }
 
     private Vector[] prevWheelStates;
@@ -29,6 +29,7 @@ public class Odometry {
         //formulate actual vectors based on angle and distance traveled
         Vector[] strafeVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
+            //based on whether we want to take an average of the current and previous wheel angles or just use the current
             double wheelAngle;
             if(cals.averageWheelAng){
                 wheelAngle = (wheelStates[i].theta - prevWheelStates[i].theta) / 2.0;
@@ -41,8 +42,8 @@ public class Odometry {
         //back-calculate rotation vectors based on wheel locations and delta angle from navX
         Vector[] rotVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
-            double rotAng = driveCals.wheelCals[i].wheelLocation.theta + Math.PI / 2.0;
-            double r = driveCals.wheelCals[i].wheelLocation.r * deltaAng;
+            double rotAng = wCal[i].wheelLocation.theta + Math.PI / 2.0;
+            double r = wCal[i].wheelLocation.r * deltaAng;
             rotVecs[i] = new Vector(r, rotAng);
         }
 
@@ -62,8 +63,43 @@ public class Odometry {
         botLocation = location;
     }
 
-    Vector[] checkVCriteria(Vector[] vecs){
-        //TODO: Make criteria
-        return vecs;
+    public Vector[] checkVCriteria(Vector[] vecs){
+        Vector[] output = vecs;
+
+        //calculate mean
+        double averageX = 0;
+        double averageY = 0;
+        for(Vector v: output){
+            averageX += v.getX();
+            averageY += v.getY();
+        }
+        averageX = averageX / output.length;
+        averageY = averageY / output.length;
+
+        //calculate standard deviation
+        double sumX = 0;
+        double sumY = 0;
+        for(Vector v: output){
+            sumX += (v.getX() - averageX) * (v.getX() - averageX);
+            sumY += (v.getY() - averageY) * (v.getY() - averageY);
+        }
+        double stanDeviationX = Math.sqrt(sumX / output.length);
+        double stanDeviationY = Math.sqrt(sumY / output.length);
+
+        //weed out bad wheels by checking how many standard deviations they are away from the mean
+        double devX = stanDeviationX * cals.maxStandardDeviations;
+        double devY = stanDeviationY * cals.maxStandardDeviations;
+        for(int i = 0; i < output.length; i++){
+            if(Math.abs(averageX - output[i].getX()) > devX || averageY - output[i].getY() > devY){
+                output[i] = null;
+            }
+        }
+
+        return output;
+    }
+
+    @Override
+    public void close(){
+
     }
 }

@@ -5,8 +5,6 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Drive.DriveCal;
-import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Vector;
 
 public class Sensors extends SubsystemBase{
@@ -26,7 +24,7 @@ public class Sensors extends SubsystemBase{
         this.cal = cal;
 
         navX = new AHRS();
-        odo = new Odometry(new OdometryCals(), r.driveTrain.cals);
+        odo = new Odometry(new OdometryCals(), r.dCal.wheelCals);
     }
 
     public double getNavXAng(){
@@ -39,6 +37,16 @@ public class Sensors extends SubsystemBase{
 
     public double getNavXRoll(){
         return navX.getRoll() * 180 * Math.PI;
+    }
+
+    public void resetNavXAng(){
+        navX.reset();
+        System.out.println("angle has been reset");
+    }
+
+    public void resetBotPos(){
+        odo.setBotLocation(Vector.fromXY(0, 0));
+        System.out.println("position has been reset");
     }
 
     @Override

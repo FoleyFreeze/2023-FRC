@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CmdDrive;
+import frc.robot.commands.ResetSwerveAngs;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Inputs.InputCal;
@@ -30,15 +30,18 @@ public class RobotContainer {
   public Inputs inputs;
   public Sensors sensors;
   public DriveTrain driveTrain;
+
+  public DriveCal dCal;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    dCal = new DriveCal();
+    
     inputs = new Inputs(this, new InputCal());
     sensors = new Sensors(this, new SensorCal());
-    driveTrain = new DriveTrain(this, new DriveCal());
+    driveTrain = new DriveTrain(this, dCal);
 
     CommandScheduler cs = CommandScheduler.getInstance();
-    //cs.registerSubsystem(inputs, driveTrain);
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
 
     // Configure the trigger bindings
@@ -56,7 +59,9 @@ public class RobotContainer {
    */
   
   private void configureBindings() {
-    inputs.resetSwerveZeros.whileTrue(new InstantCommand(driveTrain::writeAbsOffset).ignoringDisable(true));
+    inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on the left blue jog doo-hickey
+    inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetNavXAng).ignoringDisable(true));//up on the left blue jog doo-hickey
+    inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
   }
 
   /**
@@ -64,6 +69,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
   public Command getAutonomousCommand() {
     return null;
   }
