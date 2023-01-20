@@ -3,6 +3,7 @@ package frc.robot.subsystems.Drive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Auton.AutonCal;
 import frc.robot.util.FileManager;
 import frc.robot.util.Vector;
 
@@ -73,6 +74,12 @@ public class DriveTrain extends SubsystemBase {
         for(Wheel w: wheels){
             w.drive();
         }
+    }
+
+    public void swerveMP(Vector velocity, double accel){
+        Vector Power = new Vector(velocity.r, velocity.theta);
+        Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS; 
+        driveSwerve(Power, 0);
     }
 
     //Reads the wheel positions file, using our file manager logic from last year
