@@ -153,7 +153,7 @@ public class DriveTrain extends SubsystemBase {
         if(disabled) return;
 
         for(Wheel w : wheels){
-            SmartDashboard.putNumber(w.cal.idx + " enc v", w.absEncoder.getVoltage());
+            //SmartDashboard.putNumber(w.cal.idx + " enc v", w.absEncoder.getVoltage());
         }
     }
 }

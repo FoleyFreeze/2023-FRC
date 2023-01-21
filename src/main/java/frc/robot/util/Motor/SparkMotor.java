@@ -1,6 +1,7 @@
 package frc.robot.util.Motor;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -45,7 +46,10 @@ public class SparkMotor implements Motor{
 
     @Override
     public void resetPosition(double position) {
-        encoder.setPosition(position);
+        REVLibError err = encoder.setPosition(position);
+        if(!err.equals(REVLibError.kOk)){
+            System.out.println("Error resetting wheel: " + err.toString());
+        }
     }
 
 }

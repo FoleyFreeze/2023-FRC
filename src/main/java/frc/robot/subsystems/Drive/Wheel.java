@@ -49,12 +49,15 @@ public class Wheel {
     public void setEncAngOffset(double voltOffset){
         swerveMotor.resetPosition(0.0);
         encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
+        System.out.println(cal.name + " angle offset: " + Angle.toDeg(encAngOffset));
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain
     public void drive(){
         double rawRelEnc = swerveMotor.getPosition();
-        double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI - encAngOffset;
+        double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
+        SmartDashboard.putNumber(cal.name + " currAng", Angle.toDeg(currAng));
+        SmartDashboard.putNumber(cal.name + " rawEnc", rawRelEnc);
 
         //Make sure we go the shortest way
         double delta = (driveVec.theta - currAng) % (2 * Math.PI);
@@ -93,7 +96,7 @@ public class Wheel {
 
     //returns drive wheel's distance in inches
     public double getDist(){
-        return driveMotor.getPosition() / cal.driveRotationsPerIn + swerveMotor.getPosition() * cal.driveInPerSwerveRotation;
+        return driveMotor.getPosition() / cal.driveRotationsPerIn + swerveMotor.getPosition() / cal.driveInPerSwerveRotation;
     }
 
     //returns the current motor angle in radians

@@ -39,7 +39,7 @@ public class DriveCal {
         FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 20);
         FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 5).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
-        FLWheel.wheelLocation = Vector.fromXY(14, 15);
+        FLWheel.wheelLocation = Vector.fromXY(12.5, 10.75);
         FLWheel.encoderChannel = 1;
 
         FLWheel.idx = 0;
@@ -50,7 +50,7 @@ public class DriveCal {
         FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 1);
         FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 4).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
-        FRWheel.wheelLocation = Vector.fromXY(14, -15);
+        FRWheel.wheelLocation = Vector.fromXY(12.5, -10.75);
         FRWheel.encoderChannel = 2;
 
         FRWheel.idx = 1;
@@ -61,7 +61,7 @@ public class DriveCal {
         RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 14);
         RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 10).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
-        RLWheel.wheelLocation = Vector.fromXY(-14, 15);
+        RLWheel.wheelLocation = Vector.fromXY(-12.5, 10.75);
         RLWheel.encoderChannel = 0;
 
         RLWheel.idx = 2;
@@ -72,7 +72,7 @@ public class DriveCal {
         RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 15);
         RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 11).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
-        RRWheel.wheelLocation = Vector.fromXY(-14, -15);
+        RRWheel.wheelLocation = Vector.fromXY(-12.5, -10.75);
         RRWheel.encoderChannel = 3;
 
         RRWheel.idx = 3;

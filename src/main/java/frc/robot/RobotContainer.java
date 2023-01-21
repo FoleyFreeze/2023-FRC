@@ -42,7 +42,7 @@ public class RobotContainer {
     driveTrain = new DriveTrain(this, dCal);
 
     CommandScheduler cs = CommandScheduler.getInstance();
-    cs.setDefaultCommand(driveTrain, new CmdDrive(this));
+    cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
 
     // Configure the trigger bindings
     configureBindings();

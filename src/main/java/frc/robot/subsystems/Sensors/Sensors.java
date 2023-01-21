@@ -51,9 +51,7 @@ public class Sensors extends SubsystemBase{
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("navX Yaw", navX.getYaw());
-        SmartDashboard.putNumber("navX Pitch", navX.getPitch());
-        SmartDashboard.putNumber("navX Roll", navX.getRoll());
+        SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 
         double robotYaw = navX.getYaw();
         Vector[] wheelStates = r.driveTrain.getWheelState();
