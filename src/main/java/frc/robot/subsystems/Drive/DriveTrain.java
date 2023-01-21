@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Drive;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
@@ -30,6 +29,7 @@ public class DriveTrain extends SubsystemBase {
         wheels = new Wheel[cals.wheelCals.length];
         for(int i = 0; i < cals.wheelCals.length; i++){
             wheels[i] = new Wheel(cals.wheelCals[i]);
+            wheels[i].resetPosition(0);
         }
 
         readAbsOffset();
@@ -40,10 +40,6 @@ public class DriveTrain extends SubsystemBase {
      */
     public void driveSwerve(Vector xy, double z){
         if(disabled) return;
-
-        if(r.inputs.getFieldOrient()){
-            xy.theta -= r.sensors.getNavXAng();
-        }
 
         double maxWheelDist = 0;
         for(Wheel w: wheels){
@@ -64,8 +60,8 @@ public class DriveTrain extends SubsystemBase {
             //Combining drive and rotate vectors
             w.driveVec = Vector.addVectors(xy, rotVec);
 
-            if(w.driveVec.r > max){
-                max = w.driveVec.r;
+            if(Math.abs(w.driveVec.r) > max){
+                max = Math.abs(w.driveVec.r);
             }
         }
 
@@ -128,8 +124,8 @@ public class DriveTrain extends SubsystemBase {
     //divide all numbers by the maximum so we stay at a max of 1.0 power applied to wheels
     void normalize(double max){
         if(disabled) return;
-        for(Wheel w: wheels){
-            if(max != 0 && Math.abs(max) > 1.0){
+        if(Math.abs(max) > 1.0){
+            for(Wheel w: wheels){
                 w.driveVec.r /= Math.abs(max);
             }
         }

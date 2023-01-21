@@ -16,6 +16,9 @@ public class SparkMotor implements Motor{
 
     public SparkMotor(MotorCal cal){
         motor = new CANSparkMax(cal.channel, MotorType.kBrushless);
+
+        motor.restoreFactoryDefaults();
+
         encoder = motor.getEncoder();
         PIDController = motor.getPIDController();
 

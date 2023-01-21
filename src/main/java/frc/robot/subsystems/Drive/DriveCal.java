@@ -36,44 +36,44 @@ public class DriveCal {
 
     //TODO: Find motor channel inputs
     public WheelCal FLWheel = new WheelCal();{
-        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 20);
+        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 20).invert();
         FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 5).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         FLWheel.wheelLocation = Vector.fromXY(12.5, 10.75);
-        FLWheel.encoderChannel = 1;
+        FLWheel.encoderChannel = 2;
 
         FLWheel.idx = 0;
         FLWheel.name = "FLWheel";
     }
 
     public WheelCal FRWheel = new WheelCal();{
-        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 1);
+        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 1).invert();
         FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 4).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         FRWheel.wheelLocation = Vector.fromXY(12.5, -10.75);
-        FRWheel.encoderChannel = 2;
+        FRWheel.encoderChannel = 1;
 
         FRWheel.idx = 1;
         FRWheel.name = "FRWheel";
     }
 
     public WheelCal RLWheel = new WheelCal();{
-        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 14);
+        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 14).invert();
         RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 10).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         RLWheel.wheelLocation = Vector.fromXY(-12.5, 10.75);
-        RLWheel.encoderChannel = 0;
+        RLWheel.encoderChannel = 3;
 
         RLWheel.idx = 2;
         RLWheel.name = "RLWheel";
     }
 
     public WheelCal RRWheel = new WheelCal();{
-        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 15);
+        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 15).invert();
         RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 11).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setPIDPwrLim(swerveLim);
 
         RRWheel.wheelLocation = Vector.fromXY(-12.5, -10.75);
-        RRWheel.encoderChannel = 3;
+        RRWheel.encoderChannel = 0;
 
         RRWheel.idx = 3;
         RRWheel.name = "RRWheel";

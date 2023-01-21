@@ -1,7 +1,11 @@
 package frc.robot.subsystems.Sensors;
 
+import java.nio.charset.StandardCharsets;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class Odometry implements AutoCloseable {
@@ -18,13 +22,17 @@ public class Odometry implements AutoCloseable {
         setBotLocation(Vector.fromXY(0, 0));
     }
 
+    public int badWheels = 0;
     private Vector[] prevWheelStates;
     private double prevBotAng;
     public void update(double botAng, Vector[] wheelStates){
-        if(prevWheelStates == null) prevWheelStates = wheelStates;
+        if(prevWheelStates == null) {
+            prevWheelStates = wheelStates;
+            prevBotAng = botAng;
+        }
         int wheelNum = wheelStates.length;
 
-        double deltaAng = botAng - prevBotAng;
+        double deltaAng = Angle.toRad(botAng - prevBotAng);
         
         //formulate actual vectors based on angle and distance traveled
         Vector[] strafeVecs = new Vector[wheelNum];
@@ -53,10 +61,19 @@ public class Odometry implements AutoCloseable {
             resultVecs[i] = Vector.addVectors(strafeVecs[i], rotVecs[i].negate());
         }
 
-        Vector[] finalVecs = checkVCriteria(resultVecs);
-        botLocation.add(Vector.averageVectors(finalVecs));
+        Vector[] final1Vecs = checkVCriteria(resultVecs);
+        Vector[] final2Vecs = new Vector[final1Vecs.length];
+        for(int i = 0; i < final1Vecs.length; i++){
+            if(final1Vecs[i] != null){
+                final2Vecs[i] = final1Vecs[i];
+            } else {
+                badWheels++;
+            }
+        }
+        botLocation.add(Vector.averageVectors(final2Vecs));
 
         prevWheelStates = wheelStates;
+        prevBotAng = botAng;
     }
 
     public void setBotLocation(Vector location){
@@ -85,6 +102,9 @@ public class Odometry implements AutoCloseable {
         }
         double stanDeviationX = Math.sqrt(sumX / output.length);
         double stanDeviationY = Math.sqrt(sumY / output.length);
+
+        SmartDashboard.putNumber("stDev X: ", stanDeviationX);
+        SmartDashboard.putNumber("stDev Y: ", stanDeviationY);
 
         //weed out bad wheels by checking how many standard deviations they are away from the mean
         double devX = stanDeviationX * cals.maxStandardDeviations;

@@ -50,14 +50,19 @@ public class Wheel {
         swerveMotor.resetPosition(0.0);
         encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
         System.out.println(cal.name + " angle offset: " + Angle.toDeg(encAngOffset));
+        System.out.println(cal.name + " voltage: " + absEncoder.getVoltage());
+    }
+
+    public void resetPosition(double offset){
+        driveMotor.resetPosition(offset);
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain
     public void drive(){
         double rawRelEnc = swerveMotor.getPosition();
         double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
-        SmartDashboard.putNumber(cal.name + " currAng", Angle.toDeg(currAng));
-        SmartDashboard.putNumber(cal.name + " rawEnc", rawRelEnc);
+        //SmartDashboard.putNumber(cal.name + " currAng", Angle.toDeg(currAng) % 360);
+        //SmartDashboard.putNumber(cal.name + " rawEnc", rawRelEnc);
 
         //Make sure we go the shortest way
         double delta = (driveVec.theta - currAng) % (2 * Math.PI);
@@ -89,9 +94,9 @@ public class Wheel {
             driveMotor.setPower(0);
         }
 
-        SmartDashboard.putNumber(cal.name + " angle", Angle.toDeg(driveVec.theta));
-        SmartDashboard.putNumber(cal.name + " delta", Angle.toDeg(delta));
-        SmartDashboard.putNumber(cal.name + " power", outputPower);
+        //SmartDashboard.putString(cal.name + " drive vec", driveVec.toStringPolar());
+        //SmartDashboard.putNumber(cal.name + " delta", Angle.toDeg(delta));
+        //SmartDashboard.putNumber(cal.name + " power", outputPower);
     }
 
     //returns drive wheel's distance in inches
@@ -101,6 +106,6 @@ public class Wheel {
 
     //returns the current motor angle in radians
     public double getAng(){
-        return swerveMotor.getPosition() / cal.swerveRotationsPerRev * 2 * Math.PI;
+        return swerveMotor.getPosition() / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
     }
 }

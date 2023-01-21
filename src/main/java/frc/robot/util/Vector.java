@@ -48,9 +48,10 @@ public class Vector {
             }
         }
         int length = vecs.length - nulls;
-
-        x = x / length;
-        y = y / length;
+        if(length != 0){
+            x = x / length;
+            y = y / length;
+        }
 
         return Vector.fromXY(x, y);
     }
@@ -60,7 +61,7 @@ public class Vector {
     }
 
     public String toStringPolar(){
-        return String.format("%.1f, %.1f", r, theta);
+        return String.format("%.1f, %.1f", r, Angle.toDeg(theta));
     }
 
     @Override
