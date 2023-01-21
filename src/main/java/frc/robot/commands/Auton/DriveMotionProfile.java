@@ -69,10 +69,13 @@ public class DriveMotionProfile extends CommandBase{
             //stage 2
             targetAccel = 0;
             targetVel.r = AutonCal.maxVel;
-            //targetPos.r = 
+            targetPos.r = ((runTime - accelTime) * targetVel.r) + accelDist;
         } else if (runTime < decelTime) { 
             //stage 3
-
+            double t = runTime - decelTime;
+            targetAccel = -AutonCal.maxAccel;
+            targetPos.r = 0.5 * targetAccel * t * t + totalDistance.r;
+            targetVel.r = t * targetAccel;
         } else { 
             //end
             targetPos.r = totalDistance.r;
@@ -81,10 +84,14 @@ public class DriveMotionProfile extends CommandBase{
         }
         
         //PID
-        
+        Vector currentPos = r.driveTrain.getPosition();
+        targetPos.add(startLoc).negate().add(currentPos).negate();
+        targetPos.r *= AutonCal.kP_MP;
+        targetVel.add(targetPos);
+
 
         //output
-        //r.driveTrain.swerveMP(targetVel, targetAccel);
+        r.driveTrain.swerveMP(targetVel, targetAccel);
     }
 
     public boolean isFinished(){
