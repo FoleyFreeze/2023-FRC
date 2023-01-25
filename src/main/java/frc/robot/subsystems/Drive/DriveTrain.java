@@ -148,10 +148,6 @@ public class DriveTrain extends SubsystemBase {
         return wheelVectors;
     }
 
-    public Vector getPosition(){
-        return null; //TODO: finish
-    }
-
     public void periodic(){
         if(disabled) return;
 

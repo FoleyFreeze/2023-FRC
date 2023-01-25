@@ -14,12 +14,17 @@ public class Odometry implements AutoCloseable {
     public WheelCal[] wCal;
 
     public Vector botLocation;
+    public double botAngle;//TODO: use this in place of navX angle in all places it matters
 
     public Odometry(OdometryCals cals, WheelCal[] wCal){
         this.cals = cals;
         this.wCal = wCal;
 
         setBotLocation(Vector.fromXY(0, 0));
+    }
+
+    public void setBotLocation(Vector location){
+        botLocation = location;
     }
 
     public int badWheels = 0;
@@ -32,20 +37,87 @@ public class Odometry implements AutoCloseable {
         }
         int wheelNum = wheelStates.length;
 
-        double deltaAng = Angle.toRad(botAng - prevBotAng);
-        
         //formulate actual vectors based on angle and distance traveled
-        Vector[] strafeVecs = new Vector[wheelNum];
+        Vector[] realVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
             //based on whether we want to take an average of the current and previous wheel angles or just use the current
             double wheelAngle;
             if(cals.averageWheelAng){
-                wheelAngle = (wheelStates[i].theta - prevWheelStates[i].theta) / 2.0;
+                wheelAngle = ((wheelStates[i].theta + botAng) + (prevWheelStates[i].theta + prevBotAng)) / 2.0;
             } else {
-                wheelAngle = wheelStates[i].theta;
+                wheelAngle = wheelStates[i].theta + botAng;
             }
-            strafeVecs[i] = new Vector(wheelStates[i].r - prevWheelStates[i].r, wheelAngle);
+            realVecs[i] = new Vector(wheelStates[i].r - prevWheelStates[i].r, wheelAngle);
         }
+
+        getWheelDiffsOdo(botAng, realVecs);
+        //getStdDevOdo(botAng, realVecs);
+        
+        prevWheelStates = wheelStates;
+        prevBotAng = botAng;
+    }
+
+    //all possible wheel combo groups (as indexes)
+    int[][] groups = {{0,1},
+                      {1,2},
+                      {2,3},
+                      {3,0},
+                      {0,2},
+                      {1,3},
+                      {0,1,2},
+                      {1,2,3},
+                      {2,3,0},
+                      {3,0,1},
+                      {0,1,2,3}
+                    };
+    
+    public double totalError = 0;
+    public void getWheelDiffsOdo(double botAng, Vector[] realVecs){
+        
+        double minError = Double.POSITIVE_INFINITY;//Yuh
+        double error = 0;
+        Vector bestStrafe = new Vector(0, 0);
+        double bestAngle = 0;
+        for(int[] group : groups){
+
+            Vector strafeAverage = Vector.averageSomeVectors(realVecs, group);//Get strafe value from averaging every wheel vector in the group
+
+            double totalRotError = 0;//Total group of error values based on residual vs. actual rotation
+            double rotationAngles = 0;//Total group of angle arcs combined (will be averaged later)
+            for(int i : group){
+                Vector angFromWheels = Vector.addVectors(realVecs[i], strafeAverage.negate());//subtract the strafe from the real wheel angles to get rotation vectors
+                double angError = Math.abs(angFromWheels.theta - (wCal[i].wheelLocation.theta + Math.PI / 2));
+                totalRotError += Math.sin(angError) * angFromWheels.r;
+
+                rotationAngles += angFromWheels.r / wCal[i].wheelLocation.r;
+            }
+
+            double avgRotationAngles = rotationAngles / group.length;
+            double avgRotAngError = totalRotError / group.length;
+
+            //Save all values of the group based on how good we think it is
+            if(avgRotAngError < minError){
+                minError = avgRotAngError;
+                bestStrafe = strafeAverage;
+                bestAngle = avgRotationAngles;
+            }
+
+            error = totalRotError;//Save this to the outer scope
+        }
+        
+        //Send out a total error for a +- value
+        totalError += error;
+        SmartDashboard.putNumber("Rotation Error", error);
+
+        //Set the global values
+        bestStrafe.theta += botAngle;//Convert to field relative
+        botAngle += bestAngle;
+        botLocation.add(bestStrafe);
+    }
+
+    public void getStdDevOdo(double botAng, Vector[] realVecs){
+        int wheelNum = 4;
+        double deltaAng = botAng - prevBotAng;
 
         //back-calculate rotation vectors based on wheel locations and delta angle from navX
         Vector[] rotVecs = new Vector[wheelNum];
@@ -58,7 +130,7 @@ public class Odometry implements AutoCloseable {
         //subtract the rotation vectors away from the originals
         Vector[] resultVecs = new Vector[wheelNum];
         for(int i = 0; i < wheelNum; i++){
-            resultVecs[i] = Vector.addVectors(strafeVecs[i], rotVecs[i].negate());
+            resultVecs[i] = Vector.addVectors(realVecs[i], rotVecs[i].negate());
         }
 
         Vector[] final1Vecs = checkVCriteria(resultVecs);
@@ -71,13 +143,6 @@ public class Odometry implements AutoCloseable {
             }
         }
         botLocation.add(Vector.averageVectors(final2Vecs));
-
-        prevWheelStates = wheelStates;
-        prevBotAng = botAng;
-    }
-
-    public void setBotLocation(Vector location){
-        botLocation = location;
     }
 
     public Vector[] checkVCriteria(Vector[] vecs){
