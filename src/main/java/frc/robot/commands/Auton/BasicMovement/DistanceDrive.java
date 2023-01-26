@@ -17,16 +17,16 @@ public class DistanceDrive extends CommandBase {
         this.distance = distance;
 
         addRequirements(r.driveTrain);
-    } 
+    }
 
     @Override
     public void initialize(){
-        endPosition = r.driveTrain.getPosition();
+        endPosition = Vector.addVectors(r.sensors.odo.botLocation, distance);
     }
 
     @Override
     public void execute(){
-        Vector currPos = r.driveTrain.getPosition();
+        Vector currPos = r.sensors.odo.botLocation;
         Vector direction = Vector.addVectors(endPosition, currPos.negate());
         direction.r = 0.3;
         r.driveTrain.driveSwerve(direction, 0);
@@ -34,7 +34,7 @@ public class DistanceDrive extends CommandBase {
 
     @Override
     public boolean isFinished(){
-        Vector currPos = r.driveTrain.getPosition();
+        Vector currPos = r.sensors.odo.botLocation;
         Vector distanceToTrgt = Vector.addVectors(endPosition, currPos.negate());
         return distanceToTrgt.r < 4;
     }

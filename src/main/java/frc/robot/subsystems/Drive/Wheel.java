@@ -1,10 +1,6 @@
 package frc.robot.subsystems.Drive;
 
-import java.beans.beancontext.BeanContextChildSupport;
-
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -48,6 +44,7 @@ public class Wheel {
 
     public void setEncAngOffset(double voltOffset){
         swerveMotor.resetPosition(0.0);
+        //subtract the offset from learned volt offsets; convert to 
         encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
         System.out.println(cal.name + " angle offset: " + Angle.toDeg(encAngOffset));
         System.out.println(cal.name + " voltage: " + absEncoder.getVoltage());
@@ -61,8 +58,6 @@ public class Wheel {
     public void drive(){
         double rawRelEnc = swerveMotor.getPosition();
         double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
-        //SmartDashboard.putNumber(cal.name + " currAng", Angle.toDeg(currAng) % 360);
-        //SmartDashboard.putNumber(cal.name + " rawEnc", rawRelEnc);
 
         //Make sure we go the shortest way
         double delta = (driveVec.theta - currAng) % (2 * Math.PI);
@@ -93,10 +88,6 @@ public class Wheel {
         } else {
             driveMotor.setPower(0);
         }
-
-        //SmartDashboard.putString(cal.name + " drive vec", driveVec.toStringPolar());
-        //SmartDashboard.putNumber(cal.name + " delta", Angle.toDeg(delta));
-        //SmartDashboard.putNumber(cal.name + " power", outputPower);
     }
 
     //returns drive wheel's distance in inches

@@ -15,6 +15,7 @@ public class Sensors extends SubsystemBase{
     public Odometry odo;
 
     public AHRS navX;
+    private double navXOffset = 0;
 
     public double prevAng;
     public double prevWheelPos;
@@ -28,20 +29,17 @@ public class Sensors extends SubsystemBase{
     }
 
     public double getNavXAng(){
-        return navX.getYaw() * 180 * Math.PI - 90;
+        return -(navX.getYaw() + navXOffset) / 360 * Math.PI * 2;//returns in radians (-pi -> pi)
     }
 
-    public double getNavXPitch(){
-        return navX.getPitch() * 180 * Math.PI;
-    }
-
-    public double getNavXRoll(){
-        return navX.getRoll() * 180 * Math.PI;
+    public void resetNavXAng(double ang){
+        navX.reset();
+        navXOffset = ang;
+        System.out.println("angle has been reset");
     }
 
     public void resetNavXAng(){
-        navX.reset();
-        System.out.println("angle has been reset");
+        resetNavXAng(0);
     }
 
     public void resetBotPos(){
@@ -51,13 +49,11 @@ public class Sensors extends SubsystemBase{
 
     @Override
     public void periodic(){
-        
-
-        double robotYaw = navX.getYaw();
+        double robotYaw = getNavXAng();
         Vector[] wheelStates = r.driveTrain.getWheelState();
         odo.update(robotYaw, wheelStates);
 
-        SmartDashboard.putNumber("Robot Ang", robotYaw);
+        SmartDashboard.putNumber("Robot Ang: ", robotYaw);
         SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 
         SmartDashboard.putNumber("Wheel Slips", odo.badWheels);

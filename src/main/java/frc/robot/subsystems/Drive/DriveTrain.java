@@ -41,6 +41,11 @@ public class DriveTrain extends SubsystemBase {
     public void driveSwerve(Vector xy, double z){
         if(disabled) return;
 
+        //convert to field oriented movement
+        if(r.inputs.getFieldOrient() == true){
+            xy.theta -= r.sensors.odo.botAngle;
+        }
+
         double maxWheelDist = 0;
         for(Wheel w: wheels){
             maxWheelDist = Math.max(maxWheelDist, w.wheelLocation.r);
@@ -78,7 +83,7 @@ public class DriveTrain extends SubsystemBase {
         driveSwerve(Power, 0);
     }
 
-    //Reads the wheel positions file, using our file manager logic from last year
+    //Reads the wheel positions file, using our file manager logic from 2022
     public void readAbsOffset(){
         try{
             if(fm.exists()){
@@ -103,7 +108,7 @@ public class DriveTrain extends SubsystemBase {
         }
     }
 
-    //Writes to the wheel positions file, using our file manager logic from last year
+    //Writes to the wheel positions file, using our file manager logic from 2022
     public void writeAbsOffset(){
         try{
             System.out.println("Saving new wheel locations:");
@@ -148,15 +153,7 @@ public class DriveTrain extends SubsystemBase {
         return wheelVectors;
     }
 
-    public Vector getPosition(){
-        return null; //TODO: finish
-    }
-
     public void periodic(){
         if(disabled) return;
-
-        for(Wheel w : wheels){
-            //SmartDashboard.putNumber(w.cal.idx + " enc v", w.absEncoder.getVoltage());
-        }
     }
 }

@@ -84,7 +84,7 @@ public class DriveMotionProfile extends CommandBase{
         }
         
         //PID
-        Vector currentPos = r.driveTrain.getPosition();
+        Vector currentPos = r.sensors.odo.botLocation;
         targetPos.add(startLoc).negate().add(currentPos).negate();
         targetPos.r *= AutonCal.kP_MP;
         targetVel.add(targetPos);

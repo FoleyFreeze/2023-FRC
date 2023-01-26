@@ -34,15 +34,15 @@ public class Vector {
         return v.negate().add(v1);
     }
 
-    public static Vector averageVectors(Vector... vecs){
+    public static Vector averageSomeVectors(Vector[] vecs, int[] amt){
         double x = 0;
         double y = 0;
 
         int nulls = 0;
-        for(Vector v: vecs){
-            if(v != null){
-                x += v.getX();
-                y += v.getY();
+        for(int i : amt){
+            if(vecs[i] != null){
+                x += vecs[i].getX();
+                y += vecs[i].getY();
             } else {
                 nulls += 1;
             }
@@ -54,6 +54,14 @@ public class Vector {
         }
 
         return Vector.fromXY(x, y);
+    }
+
+    public static Vector averageVectors(Vector... vecs){
+        int[] group = new int[vecs.length];
+        for(int i=0;i<vecs.length;i++){
+            group[i] = i;
+        }
+        return averageSomeVectors(vecs, group);
     }
 
     public String toStringXY(){
