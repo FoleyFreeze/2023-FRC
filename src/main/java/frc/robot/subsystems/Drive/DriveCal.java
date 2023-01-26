@@ -32,7 +32,7 @@ public class DriveCal {
     double swerveKf = 0;
     double swerveLim = 0.5;
 
-    public double resetAngleDelay = 5;
+    public double resetAngleDelay = 3;
 
     //TODO: Find motor channel inputs
     public WheelCal FLWheel = new WheelCal();{
