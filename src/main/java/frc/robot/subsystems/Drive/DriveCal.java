@@ -42,7 +42,7 @@ public class DriveCal {
         FLWheel.wheelLocation = Vector.fromXY(12.5, 10.75);
         FLWheel.encoderChannel = 2;
 
-        FLWheel.idx = 0;
+        FLWheel.idx = 1;
         FLWheel.name = "FLWheel";
     }
 
@@ -53,7 +53,7 @@ public class DriveCal {
         FRWheel.wheelLocation = Vector.fromXY(12.5, -10.75);
         FRWheel.encoderChannel = 1;
 
-        FRWheel.idx = 1;
+        FRWheel.idx = 0;
         FRWheel.name = "FRWheel";
     }
 
@@ -79,5 +79,5 @@ public class DriveCal {
         RRWheel.name = "RRWheel";
     }
 
-    public WheelCal[] wheelCals = {FLWheel, FRWheel, RLWheel, RRWheel};
+    public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
 }

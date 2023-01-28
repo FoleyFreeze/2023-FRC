@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.subsystems.Sensors.OdometryCals;
@@ -12,19 +13,19 @@ import frc.robot.util.Vector;
 public class SwerveTests {
 
     static final double DELTA = 1e-6;
-    Odometry odometry;
+    //Odometry odometry;
 
     @BeforeEach
     void setup(){
-        OdometryCals cals = new OdometryCals();
+        //OdometryCals cals = new OdometryCals();
         //cals.maxStandardDeviations = 1.7;
-        WheelCal[] wCal = new WheelCal[4];
-        odometry = new Odometry(cals, wCal);
+        //WheelCal[] wCal = new WheelCal[4];
+        //odometry = new Odometry(cals, wCal);
     }
 
     @AfterEach
     void shutdown() throws Exception {
-        odometry.close();
+        
     }
 
     @Test
@@ -50,9 +51,20 @@ public class SwerveTests {
 
     @Test
     void odometryTest(){
-        Vector[] v = {Vector.fromXY(5, 5), Vector.fromXY(5, 5), Vector.fromXY(5, 5), Vector.fromXY(5.1, 5)};
+        Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
 
-        Vector[] result = odometry.checkVStDevCriteria(v);
-        System.out.println("result: " + result[0] + " | " + result[1] + " | " + result[2] + " | " + result[3]);
+        Vector xy = Vector.fromXY(0.0, 0.0);
+        double zPwr = 0.5;
+        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+        System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
+
+        double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
+        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
+        double bestAngle = bestValues[2];
+        double error = bestValues[3];
+
+        System.out.println("Best Strafe: " + bestStrafe.toStringXY());
+        System.out.println("Best Angle: " + bestAngle);
+        System.out.println("Error: " + error);
     }
 }
