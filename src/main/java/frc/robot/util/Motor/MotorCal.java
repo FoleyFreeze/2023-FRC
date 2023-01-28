@@ -19,6 +19,8 @@ public class MotorCal {
     public double dFilt = 0;
     public double pidLim = 1;
 
+    public double gearRatio = 1;
+
     public MotorCal(MotorType type, int channel){
         this.type = type;
         this.channel = channel;
@@ -39,6 +41,10 @@ public class MotorCal {
 
     public MotorCal setPIDPwrLim(double lim){
         pidLim = lim;
+        return this;
+    }
+    public MotorCal setRatio(double ratio){
+        gearRatio = ratio;
         return this;
     }
 }

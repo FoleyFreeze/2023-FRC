@@ -9,12 +9,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class SparkMotor implements Motor{
     
+    MotorCal cal;
     CANSparkMax motor;
 
     RelativeEncoder encoder;
     SparkMaxPIDController PIDController;
 
     public SparkMotor(MotorCal cal){
+        this.cal = cal;
         motor = new CANSparkMax(cal.channel, MotorType.kBrushless);
 
         motor.restoreFactoryDefaults();
@@ -39,17 +41,17 @@ public class SparkMotor implements Motor{
 
     @Override
     public double getPosition() {
-        return encoder.getPosition();//in rotations
+        return encoder.getPosition() * cal.gearRatio;//in rotations
     }
 
     @Override
     public void setPosition(double position){
-        PIDController.setReference(position, ControlType.kPosition);//in rotations
+        PIDController.setReference(position / cal.gearRatio, ControlType.kPosition);//in rotations
     }
 
     @Override
     public void resetPosition(double position) {
-        REVLibError err = encoder.setPosition(position);
+        REVLibError err = encoder.setPosition(position / cal.gearRatio);
         if(!err.equals(REVLibError.kOk)){
             System.out.println("Error resetting wheel: " + err.toString());
         }
