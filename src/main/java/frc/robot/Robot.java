@@ -99,22 +99,25 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
-      Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
+    Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
 
-        Vector xy = Vector.fromXY(0, 0);
-        double zPwr = 0.5;
-        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
-        
-        System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
+      Vector xy = Vector.fromXY(0, 0.5);
+      double zPwr = 0.0;
+      Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
 
-        double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
-        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
-        double bestAngle = bestValues[2];
-        double error = bestValues[3];
+      driveVecs[0] = new Vector(100, 1.5);
+      driveVecs[1] = new Vector(50, 0.85);
+      
+      System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
 
-        System.out.println("Best Strafe: " + bestStrafe.toStringXY());
-        System.out.println("Best Angle: " + bestAngle);
-        System.out.println("Error: " + error);
+      double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
+      Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
+      double bestAngle = bestValues[2];
+      double error = bestValues[3];
+
+      System.out.println("Best Strafe: " + bestStrafe.toStringXY());
+      System.out.println("Best Angle: " + bestAngle);
+      System.out.println("Error: " + error);
   }
 
   /** This function is called periodically whilst in simulation. */

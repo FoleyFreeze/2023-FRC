@@ -9,7 +9,7 @@ import java.lang.Math;
 public class DriveMotionProfile extends CommandBase{
     public RobotContainer r;
     private Vector startLoc;
-    private Vector endLoc; 
+    private Vector endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
 
     public DriveMotionProfile(RobotContainer r, Vector startLoc, Vector endLoc){

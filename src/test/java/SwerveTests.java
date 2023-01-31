@@ -33,7 +33,7 @@ public class SwerveTests {
         Vector v = Vector.fromXY(-3, 10);
         v.add(Vector.fromXY(2, -3));
 
-        System.out.println(v.getX() + " " + v.getY());
+        //System.out.println(v.getX() + " " + v.getY());
         assertEquals(-1, v.getX(), DELTA);
         assertEquals(7, v.getY(), DELTA);
         
@@ -53,18 +53,22 @@ public class SwerveTests {
     void odometryTest(){
         Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
 
-        Vector xy = Vector.fromXY(0.0, 0.0);
-        double zPwr = 0.5;
+        Vector xy = Vector.fromXY(0, 0);
+        double zPwr = 1.0;
         Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
-        System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
 
+        driveVecs[0] = new Vector(1.16, 0);
+        driveVecs[1] = new Vector(1.15, 0);
+      
+        System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
+      
         double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
         double bestAngle = bestValues[2];
         double error = bestValues[3];
 
         System.out.println("Best Strafe: " + bestStrafe.toStringXY());
-        System.out.println("Best Angle: " + bestAngle);
+        System.out.println("Best Angle: " + Math.toDegrees(bestAngle));
         System.out.println("Error: " + error);
     }
 }

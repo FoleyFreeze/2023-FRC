@@ -2,6 +2,7 @@ package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class Odometry implements AutoCloseable {
@@ -83,33 +84,28 @@ public class Odometry implements AutoCloseable {
         if(Math.abs(navXBotAng - prevNavXBotAng) + cals.maxNavXWheelAngDiff < Math.abs(bestAngle)){
             botAngle += bestAngle;
         } else {
-            botAngle += (navXBotAng - prevNavXBotAng); 
+            botAngle += (navXBotAng - prevNavXBotAng);
         }
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;
     }
 
+    static int[][] groups = {{0,1},
+                             {1,2},
+                             {2,3},
+                             {3,0},
+                             {0,2},
+                             {1,3},
+                             {0,1,2},
+                             {1,2,3},
+                             {2,3,0},
+                             {3,0,1},
+                             {0,1,2,3}
+                            };
+    
     //Returns r, theta, angle, error
     public static double[] formulateBestValues(Vector[] realVecs, Vector[] wheelLocations){
-    
-        //all possible wheel combo groups (as indexes)
-        int[][] groups = {{0,1},
-                          {1,2},
-                          {2,3},
-                          {3,0},
-                          {0,2},
-                          {1,3},
-                          {0,1,2},
-                          {1,2,3},
-                          {2,3,0},
-                          {3,0,1},
-                          {0,1,2,3}
-                         };
-
-        //This changes indexes to go in order for the sake of odometry calculations and wheel diffs
-        //Vector[] realVecsInOrder = {realVecs[1], realVecs[0], realVecs[2], realVecs[3]};
-
         double error = 0;
 
         double minError = Double.POSITIVE_INFINITY;//Yuh
@@ -117,8 +113,6 @@ public class Odometry implements AutoCloseable {
         double bestAngle = 0;
 
         for(int[] group : groups){
-
-            double[] wheelDiffsError = new double[group.length];
 
             //Gets new wheel positions by adding the vector from the center and how far the wheel actually moved
             Vector[] wheelPos = new Vector[group.length];
@@ -131,16 +125,8 @@ public class Odometry implements AutoCloseable {
             Vector[] realWheelDiffs = new Vector[group.length];
             int prevIdx = group.length - 1;
             for(int i = 0; i < group.length; i++){
-                wheelDiffs[i] = Vector.addVectors(wheelPos[i], wheelPos[prevIdx].negate());
-                wheelPos[prevIdx].negate();
-
-                realWheelDiffs[i] = Vector.addVectors(wheelLocations[group[i]], wheelLocations[group[prevIdx]].negate());
-                wheelLocations[group[prevIdx]].negate();
-                wheelDiffsError[i] = Math.abs(wheelDiffs[i].r - realWheelDiffs[i].r);
-
-                double r = (0.5 * wheelDiffsError[i]) / Math.cos((realVecs[group[i]]).theta - wheelDiffs[i].theta);
-                //Vector offset = new Vector(r, realVecs[group[i]]).theta - Math.PI / 2);
-                //wheelPos[i].add(offset);
+                wheelDiffs[i] = Vector.subVector(wheelPos[i], wheelPos[prevIdx]);
+                realWheelDiffs[i] = Vector.subVector(wheelLocations[group[i]], wheelLocations[group[prevIdx]]);
 
                 prevIdx = i;
             }
@@ -152,27 +138,47 @@ public class Odometry implements AutoCloseable {
             Vector[] strafes = new Vector[group.length];
             double[] angles = new double[group.length];
             for(int i = 0; i < group.length; i++){
-                newWheelLocations[i] = new Vector(wheelLocations[group[i]].r, wheelLocations[i].theta + (wheelDiffs[i].theta - realWheelDiffs[i].theta));
+                newWheelLocations[i] = new Vector(wheelLocations[group[i]].r, wheelLocations[group[i]].theta + (wheelDiffs[i].theta - realWheelDiffs[i].theta));
 
-                strafes[i] = Vector.addVectors(wheelPos[i], newWheelLocations[i].negate());
-                newWheelLocations[i].negate();
+                strafes[i] = Vector.subVector(wheelPos[i], newWheelLocations[i]);
 
                 angles[i] = wheelDiffs[i].theta - realWheelDiffs[i].theta;
             }
 
             //Put these all into one double by adding all of them
             double finalAng = 0;
-            double finalWheelDiffsError = 0;
             for(int i = 0; i < group.length; i++){
                 finalAng += angles[i];
-                finalWheelDiffsError += wheelDiffsError[i];
             }
 
+            int prevErrorIdx = group.length - 1;
+            double wheelError = 0;
+            int i = 0;
+            for( ; i < group.length - 1; i++){
+                wheelError += Vector.averageVectors(strafes[i], strafes[prevErrorIdx]).r;
+
+                prevErrorIdx = i;
+            }
+            wheelError /= i;
+
+            
+            String s = "";
+            for(int iii : group){
+                s += iii + " ";
+            }
+            System.out.println("Group: " + s);
+            System.out.println("Strafe: " + Vector.averageVectors(strafes));
+            System.out.println("Angle: " + finalAng / group.length);
+            System.out.println("Wheel Error: " + wheelError);
+            System.out.println();
+
             //Set the best values based on error calculation
-            if(finalWheelDiffsError < minError){
+            if(wheelError < minError){
                 bestStrafe = Vector.averageVectors(strafes);
-                bestAngle = finalAng / group.length;
-                error = finalWheelDiffsError / group.length;
+                bestAngle = Angle.normRad(finalAng) / group.length;
+                error = wheelError / group.length;
+
+                minError = wheelError;
             }
         }
 
