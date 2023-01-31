@@ -6,6 +6,8 @@ package frc.robot;
 
 import frc.robot.commands.CmdDrive;
 import frc.robot.commands.ResetSwerveAngs;
+import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Arm.ArmCal;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Inputs.InputCal;
@@ -26,10 +28,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
+  private static final ArmCal ArmCal = null;
   // The robot's subsystems and commands are defined here...
   public Inputs inputs;
   public Sensors sensors;
   public DriveTrain driveTrain;
+  public Arm arm;
 
   public DriveCal dCal;
   
@@ -40,6 +44,7 @@ public class RobotContainer {
     inputs = new Inputs(this, new InputCal());
     sensors = new Sensors(this, new SensorCal());
     driveTrain = new DriveTrain(this, dCal);
+    arm = new Arm(this, ArmCal);
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
