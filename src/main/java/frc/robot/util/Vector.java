@@ -29,6 +29,14 @@ public class Vector {
         return v.add(v1);
     }
 
+    public static Vector addVectors(Vector... vecs){
+        Vector result = new Vector(0, 0);
+        for(Vector v: vecs){
+            result.add(v);
+        }
+        return result;
+    }
+
     public static Vector subVector(Vector v1, Vector v2){
         Vector v = new Vector(v2);
         return v.negate().add(v1);
@@ -38,19 +46,17 @@ public class Vector {
         double x = 0;
         double y = 0;
 
-        int nulls = 0;
+        int valid = 0;
         for(int i : amt){
             if(vecs[i] != null){
                 x += vecs[i].getX();
                 y += vecs[i].getY();
-            } else {
-                nulls += 1;
+                valid++;
             }
         }
-        int length = vecs.length - nulls;
-        if(length != 0){
-            x = x / length;
-            y = y / length;
+        if(valid != 0){
+            x = x / valid;
+            y = y / valid;
         }
 
         return Vector.fromXY(x, y);

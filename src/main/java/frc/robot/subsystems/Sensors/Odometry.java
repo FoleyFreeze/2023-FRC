@@ -54,27 +54,7 @@ public class Odometry implements AutoCloseable {
         prevBotAng = botAng;
     }
 
-    //all possible wheel combo groups (as indexes)
-    int[][] groups = {{0,1},
-                      {1,2},
-                      {2,3},
-                      {3,0},
-                      {0,2},
-                      {1,3},
-                      {0,1,2},
-                      {1,2,3},
-                      {2,3,0},
-                      {3,0,1},
-                      {0,1,2,3}
-                    };
-    
-    /* This iteration of odometry logic looks at our physical wheel distances and
-     * angles, and it figures out a rotation vector for each wheel. It looks through
-     * every possible grouping of wheels, and the group that has the least error
-     * rotationally is used. This error value is found from the difference between 
-     * what the real wheel rotation says vs. how much of that is actually able to 
-     * rotate the robot (line perpendicular to the center of rotation). With this, 
-     * bad wheels should be inherently removed in choosing the right group.
+    /* TODO: Put some info here, idk
      */
     public double totalError = 0;
     double prevAng = 999;
@@ -82,44 +62,16 @@ public class Odometry implements AutoCloseable {
         if(prevAng == 999){
             prevAng = botAngle;
         }
-        
-        double error = 0;
 
-        double minError = Double.POSITIVE_INFINITY;//Yuh
-        Vector bestStrafe = new Vector(0, 0);
-        double bestAngle = 0;
-
-        for(int[] group : groups){
-
-            //Get strafe value from averaging every wheel vector in the group
-            Vector strafeAverage = Vector.averageSomeVectors(realVecs, group);
-
-            //These get averaged later
-            double totalRotError = 0;//Total of error values based on residual vectors vs. how much rotation those actually gave
-            double rotationAngles = 0;//Total of rotation arcs combined
-            for(int i : group){
-                //subtract the strafe from the real wheel angles to get rotation vectors
-                Vector angFromWheels = Vector.addVectors(realVecs[i], strafeAverage.negate());
-                //calculate error of residual vs. how much it rotated the robot
-                double angError = Math.abs(angFromWheels.theta - (wCal[i].wheelLocation.theta + Math.PI / 2));
-                totalRotError += Math.sin(angError) * angFromWheels.r;
-
-                rotationAngles += angFromWheels.r / wCal[i].wheelLocation.r;
-            }
-
-            double avgRotationAngles = rotationAngles / group.length;
-            double avgRotAngError = totalRotError / group.length;
-
-            //Save all values of the group based on how good we think it is
-            if(avgRotAngError < minError){
-                minError = avgRotAngError;
-                bestStrafe = strafeAverage;
-                bestAngle = avgRotationAngles;
-
-                //Save error to the outer scope
-                error = totalRotError;
-            }
+        Vector[] wheelLocations = new Vector[realVecs.length];
+        for(int i = 0; i < wheelLocations.length; i++){
+            wheelLocations[i] = wCal[i].wheelLocation;
         }
+
+        double[] bestValues = formulateBestValues(realVecs, wheelLocations);
+        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
+        double bestAngle = bestValues[2];
+        double error = bestValues[3];
         
         //Send out a total error for a +- value
         totalError += error;
@@ -136,6 +88,95 @@ public class Odometry implements AutoCloseable {
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;
+    }
+
+    //Returns r, theta, angle, error
+    public static double[] formulateBestValues(Vector[] realVecs, Vector[] wheelLocations){
+    
+        //all possible wheel combo groups (as indexes)
+        int[][] groups = {{0,1},
+                          {1,2},
+                          {2,3},
+                          {3,0},
+                          {0,2},
+                          {1,3},
+                          {0,1,2},
+                          {1,2,3},
+                          {2,3,0},
+                          {3,0,1},
+                          {0,1,2,3}
+                         };
+
+        //This changes indexes to go in order for the sake of odometry calculations and wheel diffs
+        //Vector[] realVecsInOrder = {realVecs[1], realVecs[0], realVecs[2], realVecs[3]};
+
+        double error = 0;
+
+        double minError = Double.POSITIVE_INFINITY;//Yuh
+        Vector bestStrafe = new Vector(0, 0);
+        double bestAngle = 0;
+
+        for(int[] group : groups){
+
+            double[] wheelDiffsError = new double[group.length];
+
+            //Gets new wheel positions by adding the vector from the center and how far the wheel actually moved
+            Vector[] wheelPos = new Vector[group.length];
+            for(int i = 0; i < group.length; i++){
+                wheelPos[i] = Vector.addVectors(wheelLocations[group[i]], realVecs[group[i]]);
+            }
+            
+            //Difference between that index and the wheel directly before it
+            Vector[] wheelDiffs = new Vector[group.length];
+            Vector[] realWheelDiffs = new Vector[group.length];
+            int prevIdx = group.length - 1;
+            for(int i = 0; i < group.length; i++){
+                wheelDiffs[i] = Vector.addVectors(wheelPos[i], wheelPos[prevIdx].negate());
+                wheelPos[prevIdx].negate();
+
+                realWheelDiffs[i] = Vector.addVectors(wheelLocations[group[i]], wheelLocations[group[prevIdx]].negate());
+                wheelLocations[group[prevIdx]].negate();
+                wheelDiffsError[i] = Math.abs(wheelDiffs[i].r - realWheelDiffs[i].r);
+
+                double r = (0.5 * wheelDiffsError[i]) / Math.cos((realVecs[group[i]]).theta - wheelDiffs[i].theta);
+                //Vector offset = new Vector(r, realVecs[group[i]]).theta - Math.PI / 2);
+                //wheelPos[i].add(offset);
+
+                prevIdx = i;
+            }
+
+            //Formulates new wheel locations based on an adjusted robot center
+            //Then makes individually calculated strafes and angles for each wheel's movement
+            Vector[] newWheelLocations = new Vector[group.length];
+
+            Vector[] strafes = new Vector[group.length];
+            double[] angles = new double[group.length];
+            for(int i = 0; i < group.length; i++){
+                newWheelLocations[i] = new Vector(wheelLocations[group[i]].r, wheelLocations[i].theta + (wheelDiffs[i].theta - realWheelDiffs[i].theta));
+
+                strafes[i] = Vector.addVectors(wheelPos[i], newWheelLocations[i].negate());
+                newWheelLocations[i].negate();
+
+                angles[i] = wheelDiffs[i].theta - realWheelDiffs[i].theta;
+            }
+
+            //Put these all into one double by adding all of them
+            double finalAng = 0;
+            double finalWheelDiffsError = 0;
+            for(int i = 0; i < group.length; i++){
+                finalAng += angles[i];
+                finalWheelDiffsError += wheelDiffsError[i];
+            }
+
+            //Set the best values based on error calculation
+            if(finalWheelDiffsError < minError){
+                bestStrafe = Vector.averageVectors(strafes);
+                bestAngle = finalAng / group.length;
+                error = finalWheelDiffsError / group.length;
+            }
+        }
+
+        return new double[] {bestStrafe.r, bestStrafe.theta, bestAngle, error};
     }
 
     /* This iteration of odometry looks at the wheels as a whole and how much they

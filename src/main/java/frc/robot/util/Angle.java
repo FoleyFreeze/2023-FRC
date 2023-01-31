@@ -3,23 +3,25 @@ package frc.robot.util;
 public class Angle {
     
     public static double normRad(double ang){
-        if(ang > 2 * Math.PI){
-            return ang - 2 * Math.PI;
-        } else if(ang < 0){
-            return ang + 2 * Math.PI;
-        } else {
-            return ang;
+        ang %= 2 * Math.PI;
+        if(ang > Math.PI){
+            ang -= 2 * Math.PI;
+        } else if(ang < -Math.PI){
+            ang += 2 * Math.PI;
         }
+
+        return ang;
     }
 
     public static double normDeg(double ang){
-        if(ang > 360){
-            return ang - 360;
-        } else if(ang < 0){
-            return ang + 360;
-        } else {
-            return ang;
+        ang %= 360;
+        if(ang > 180){
+            ang -= 360;
+        } else if(ang < -180){
+            ang += 360;
         }
+
+        return ang;
     }
 
     public static double toRad(double ang){

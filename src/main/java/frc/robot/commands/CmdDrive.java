@@ -22,6 +22,9 @@ public class CmdDrive extends CommandBase{
     public void execute(){
         //x and y are flipped between because of the way our axes work; x is forward (0 degrees)
         Vector xy = Vector.fromXY(-r.inputs.getJoystickY(), -r.inputs.getJoystickX());
+        if(r.inputs.getFieldOrient()){
+            xy.theta -= r.sensors.odo.botAngle;
+        }
         r.driveTrain.driveSwerve(xy, r.inputs.getJoystickZR());
     }
 

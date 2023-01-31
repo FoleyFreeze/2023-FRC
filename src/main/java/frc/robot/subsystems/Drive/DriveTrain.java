@@ -41,40 +41,59 @@ public class DriveTrain extends SubsystemBase {
     public void driveSwerve(Vector xy, double z){
         if(disabled) return;
 
-        //convert to field oriented movement
-        if(r.inputs.getFieldOrient() == true){
-            xy.theta -= r.sensors.odo.botAngle;
+        //Grabs the calculated drive vectors and sets it into the actual wheel array
+        Vector[] wheelLocations = new Vector[wheels.length];
+        for(int i = 0; i < wheels.length; i++){
+            wheelLocations[i] = wheels[i].wheelLocation;
         }
 
-        double maxWheelDist = 0;
+        Vector[] driveVecs = formulateDriveVecs(xy, z, wheels.length, wheelLocations);
+        for(int i = 0; i < wheels.length; i++){
+            wheels[i].driveVec = driveVecs[i];
+        }
+
         for(Wheel w: wheels){
-            maxWheelDist = Math.max(maxWheelDist, w.wheelLocation.r);
+            w.drive();
+        }
+    }
+
+    //This guy separates math from setting values to actual wheels
+    public static Vector[] formulateDriveVecs(Vector xy, double z, int wheelLength, Vector[] wheelLocations)
+    {
+        Vector[] driveVecs = new Vector[wheelLength];
+
+        double maxWheelDist = 0;
+        for(int i = 0; i < wheelLength; i++){
+            maxWheelDist = Math.max(maxWheelDist, wheelLocations[i].r);
         }
 
         double max = 0;
-        for(Wheel w: wheels){
+        for(int i = 0; i < wheelLength; i++){
             //Finding the perpendicular angle from the wheel location points
-            double rotAng = w.wheelLocation.theta + Math.PI/2;
+            double rotAng = wheelLocations[i].theta + Math.PI/2;
 
             //normalize rotation vector's power based on distance from center of rot
-            double rotPwr = (w.wheelLocation.r / maxWheelDist) * z;
+            double rotPwr = (wheelLocations[i].r / maxWheelDist) * z;
 
             //Formulating vector for rotating around the center of rotation
             Vector rotVec = new Vector(rotPwr, rotAng);
 
             //Combining drive and rotate vectors
-            w.driveVec = Vector.addVectors(xy, rotVec);
+            driveVecs[i] = Vector.addVectors(xy, rotVec);
 
-            if(Math.abs(w.driveVec.r) > max){
-                max = Math.abs(w.driveVec.r);
+            if(Math.abs(driveVecs[i].r) > max){
+                max = Math.abs(driveVecs[i].r);
             }
         }
 
-        normalize(max);
-
-        for(Wheel w: wheels){
-            w.drive();
+        //divide all numbers by the maximum so we stay at a max of 1.0 power applied to wheels
+        if(Math.abs(max) > 1.0){
+            for(int i = 0; i < driveVecs.length; i++){
+                driveVecs[i].r /= Math.abs(max);
+            }
         }
+
+        return driveVecs;
     }
 
     public void swerveMP(Vector velocity, double accel){
@@ -123,16 +142,6 @@ public class DriveTrain extends SubsystemBase {
             System.out.println("Error while saving wheel locations:");
             System.out.println(e.toString());
             e.printStackTrace();
-        }
-    }
-
-    //divide all numbers by the maximum so we stay at a max of 1.0 power applied to wheels
-    void normalize(double max){
-        if(disabled) return;
-        if(Math.abs(max) > 1.0){
-            for(Wheel w: wheels){
-                w.driveVec.r /= Math.abs(max);
-            }
         }
     }
 
