@@ -18,9 +18,9 @@ public class Arm extends SubsystemBase {
     boolean isAngleOnly = false;
 
     public Arm(RobotContainer r, ArmCal cals){
-        if(cals.disabled) return;
         this.r = r;
         this.cals = cals;
+        if(cals.disabled) return;
 
         angleMotor = Motor.create(cals.angleMotor);
         stendoMotor = Motor.create(cals.lengthMotor);

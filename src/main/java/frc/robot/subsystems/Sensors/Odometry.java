@@ -55,7 +55,9 @@ public class Odometry implements AutoCloseable {
         prevBotAng = botAng;
     }
 
-    /* TODO: Put some info here, idk
+    /* This iteration of odometry looks at the real wheel values and formulates
+     * a rigidbody between the various wheels. It measures error by the difference 
+     * between what each wheel thinks the center point is.
      */
     public double totalError = 0;
     double prevAng = 999;
@@ -151,6 +153,7 @@ public class Odometry implements AutoCloseable {
                 finalAng += angles[i];
             }
 
+            //calculate error by formulating every possible vector between the wheels in the group
             int prevErrorIdx = group.length - 1;
             double wheelError = 0;
             int i = 0;
@@ -161,16 +164,15 @@ public class Odometry implements AutoCloseable {
             }
             wheelError /= i;
 
-            
-            String s = "";
-            for(int iii : group){
-                s += iii + " ";
-            }
-            System.out.println("Group: " + s);
-            System.out.println("Strafe: " + Vector.averageVectors(strafes));
-            System.out.println("Angle: " + finalAng / group.length);
-            System.out.println("Wheel Error: " + wheelError);
-            System.out.println();
+            //String s = "";
+            //for(int iii : group){
+            //    s += iii + " ";
+            //}
+            //System.out.println("Group: " + s);
+            //System.out.println("Strafe: " + Vector.averageVectors(strafes));
+            //System.out.println("Angle: " + finalAng / group.length);
+            //System.out.println("Wheel Error: " + wheelError);
+            //System.out.println();
 
             //Set the best values based on error calculation
             if(wheelError < minError){

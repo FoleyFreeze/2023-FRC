@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
-  private static final ArmCal ArmCal = null;
   // The robot's subsystems and commands are defined here...
   public Inputs inputs;
   public Sensors sensors;
@@ -44,7 +43,7 @@ public class RobotContainer {
     inputs = new Inputs(this, new InputCal());
     sensors = new Sensors(this, new SensorCal());
     driveTrain = new DriveTrain(this, dCal);
-    arm = new Arm(this, ArmCal);
+    arm = new Arm(this, new ArmCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
