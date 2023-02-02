@@ -57,4 +57,14 @@ public class SparkMotor implements Motor{
         }
     }
 
+    @Override
+    public void setSpeed(double rpm){
+        PIDController.setReference(rpm / cal.gearRatio, ControlType.kVelocity);
+    }
+
+    @Override
+    public double getCurrent(){
+        return motor.getOutputCurrent();
+    }
+
 }

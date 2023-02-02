@@ -10,6 +10,8 @@ import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.ArmCal;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
+import frc.robot.subsystems.Gripper.Gripper;
+import frc.robot.subsystems.Gripper.GripperCal;
 import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import frc.robot.subsystems.Sensors.SensorCal;
@@ -33,6 +35,7 @@ public class RobotContainer {
   public Sensors sensors;
   public DriveTrain driveTrain;
   public Arm arm;
+  public Gripper gripper;
 
   public DriveCal dCal;
   
@@ -44,6 +47,7 @@ public class RobotContainer {
     sensors = new Sensors(this, new SensorCal());
     driveTrain = new DriveTrain(this, dCal);
     arm = new Arm(this, new ArmCal());
+    gripper = new Gripper(this, new GripperCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));

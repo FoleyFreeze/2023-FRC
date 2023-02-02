@@ -46,7 +46,7 @@ public class Arm extends SubsystemBase {
         if(setPoint != null){
             double currentAngle = angleMotor.getPosition();
 
-            //CANT REMEBER WHAT INTERP DOES
+            //interpolate (view)
             double lengthMax = Util.interp(cals.angleAxis, cals.lengthMax, currentAngle);
 
             //only letting stendo and angle move to their min/max
