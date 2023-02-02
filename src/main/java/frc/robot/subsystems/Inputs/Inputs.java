@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
@@ -17,64 +18,87 @@ public class Inputs extends SubsystemBase{
     public Joystick controller;
     public Joystick cBoard;
 
-    public boolean joyStickConnected = false;
-    public boolean cBoardConnected = false;
-
-    public enum controllerTypes{
-        FLYSKY, GAMEPAD, NONE
+    public enum joystickTypes{
+        FLYSKY, GAMEPAD, NONE, CONTROL_BOARD
     }
-    public controllerTypes type = controllerTypes.NONE;
+    public joystickTypes controllerType = joystickTypes.NONE;//differs between flysky vs. gamepad
 
     public Inputs(RobotContainer r, InputCal cal){
         this.r = r;
         this.cal = cal;
     }
 
-    int prevIdx = -1;
-    int controllerIdx = -1;
+    joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
+    joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
 
         //joystick auto-detection logic
-        int i = 0;
-        for( ; i < 3; i++){
-            if(DriverStation.isJoystickConnected(i)){
-                controllerIdx = i;
-                if(controller.getName().contains("NV14")){
-                    controller = new Joystick(i);
-
-                    type = controllerTypes.FLYSKY;
-                    System.out.println("Flysky detected at port " + i);
-                } else if(controller.getName().contains("Control board or sumthin idk") && cBoardConnected == false){
-                    cBoard = new Joystick(i);
-
-                    System.out.println("Control Board detected at port: " + i);
-                } else {
-                    controller = new Joystick(i);
-
-                    type = controllerTypes.GAMEPAD;
-                    System.out.println("Gamepad detected at port " + i);
+        for(int i = 0; i < 3; i++){
+            if(DriverStation.getJoystickName(i).contains("NV14")){
+                controllerType = joystickTypes.FLYSKY;
+                portStatus[i] = joystickTypes.FLYSKY;
+            }else if(DriverStation.getJoystickName(i).contains("Gamepad or sumthin idk")){
+                controllerType = joystickTypes.GAMEPAD;
+                portStatus[i] = joystickTypes.GAMEPAD;
+            } else if(DriverStation.getJoystickName(i).contains("Control board or sumthin idk")){
+                portStatus[i] = joystickTypes.CONTROL_BOARD;
+            } else{
+                portStatus[i] = joystickTypes.NONE;
+            }
+            if(portStatus[i] != prevPortStatus[i]){
+                switch(portStatus[i]){
+                    case FLYSKY:
+                        System.out.println("Flysky detected at port " + i);
+                        controller = new Joystick(i);
+                    case GAMEPAD:
+                        System.out.println("Gamepad detected at port " + i);
+                        controller = new Joystick(i);
+                    case CONTROL_BOARD:
+                        System.out.println("Control Board detected at port " + i);
+                        cBoard = new Joystick(i);
+                    case NONE:
+                        if(controller.getPort() == i){
+                            controller = null;
+                        } else if(cBoard.getPort() == i){
+                            cBoard = null;
+                        }
                 }
             }
         }
+        prevPortStatus = portStatus;
+
+        scorePosition();
     } 
 
 
     // ------------- Drive inputs ------------- //
 
     public boolean getFieldOrient(){
-        return controller.getRawButton(cal.FIELD_ORIENT[type.ordinal()]);
+        if(controller != null){
+            return controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
     }
 
     public double getJoystickX(){
-        double value = controller.getRawAxis(cal.L_JOYSTICK_X[type.ordinal()]);
-        if(Math.abs(value) < 0.08) value = 0;
-        return value;
+        if(controller != null){
+            double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]);
+            if(Math.abs(value) < 0.08) value = 0;
+            return value;
+        } else {
+            return 0;
+        }
     }
 
     public double getJoystickY(){
-        double value = controller.getRawAxis(cal.L_JOYSTICK_Y[type.ordinal()]);
-        if(Math.abs(value) < 0.08) value = 0;
-        return value;
+        if(controller != null){
+            double value = controller.getRawAxis(cal.L_JOYSTICK_Y[controllerType.ordinal()]);
+            if(Math.abs(value) < 0.08) value = 0;
+            return value;
+        } else {
+            return 0;
+        }
     }
 
     public Vector getJoystickXY(){
@@ -82,27 +106,43 @@ public class Inputs extends SubsystemBase{
     }
 
     public double getJoystickZR(){
-        double value = -controller.getRawAxis(cal.R_JOYSTICK_X[type.ordinal()]);
-        //Added deadband 
-        if(Math.abs(value) < 0.08) value = 0;
-        return value;
+        if(controller != null){
+            double value = -controller.getRawAxis(cal.R_JOYSTICK_X[controllerType.ordinal()]);
+            //Added deadband 
+            if(Math.abs(value) < 0.08) value = 0;
+            return value;
+        } else {
+            return 0;
+        }
     }
 
     public Trigger resetSwerveZeros = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return controller.getRawButton(cal.RESET_WHEELS[type.ordinal()]);
+            if(controller != null){
+                return controller.getRawButton(cal.RESET_WHEELS[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger resetAngle = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return controller.getRawButton(cal.RESET_ANG[type.ordinal()]);
+            if(controller != null){
+                return controller.getRawButton(cal.RESET_ANG[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger resetPosition = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return controller.getRawButton(cal.RESET_POS[type.ordinal()]);
+            if(controller != null){
+                return controller.getRawButton(cal.RESET_POS[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
         }
     });
 
@@ -119,58 +159,100 @@ public class Inputs extends SubsystemBase{
     // ------------- Control Board inputs ------------- //
     
     public boolean getFieldMode(){//TODO: Make a standard global way of controlling drive power
-        return cBoard.getRawButton(cal.FIELD_MODE);
+        if(cBoard != null){
+            return cBoard.getRawButton(cal.FIELD_MODE);
+        } else {
+            return false;
+        }
     }
 
     public boolean shift(){
-        return cBoard.getRawButton(cal.SHIFT);
+        if(cBoard != null){
+            return cBoard.getRawButton(cal.SHIFT);
+        } else {
+            return false;
+        }
     }
 
     public boolean isCube(){
-        return cBoard.getRawButton(cal.CUBE_V_CONE);
+        if(cBoard != null){
+            return cBoard.getRawButton(cal.CUBE_V_CONE);
+        } else {
+            return false;
+        }
     }
 
     public boolean isShelf(){
-        return cBoard.getRawButton(cal.SHELF_V_FLOOR);
+        if(cBoard != null){
+            return cBoard.getRawButton(cal.SHELF_V_FLOOR);
+        } else {
+            return false;
+        }
     }
 
     public Trigger intake = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.INTAKE);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.INTAKE);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger gather = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.GATHER);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.GATHER);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger jogUp = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.JOG_UP);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.JOG_UP);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger jogDown = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.JOG_DOWN);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.JOG_DOWN);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger jogLeft = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.JOG_LEFT);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.JOG_LEFT);
+            } else {
+                return false;
+            }
         }
     });
 
     public Trigger jogRight = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            return cBoard.getRawButton(cal.JOG_RIGHT);
+            if(cBoard != null){
+                return cBoard.getRawButton(cal.JOG_RIGHT);
+            } else {
+                return false;
+            }
         }
     });
 
-    /*                 (Driver Station)
+    /* This is the temporary indexing to the physical positions
+     * 
+     *                 (Driver Station)
      * ---- ---- ----   ---- ---- ----   ---- ---- ----
      * |01| |02| |03|   |04| |05| |06|   |07| |08| |09|
      * ---- ---- ----   ---- ---- ----   ---- ---- ----
@@ -181,23 +263,71 @@ public class Inputs extends SubsystemBase{
      * |19| |20| |21|   |22| |23| |24|   |25| |26| |27|
      * ---- ---- ----   ---- ---- ----   ---- ---- ----
      * 
-     * This is the temporary indexing to the physical positions
-     * 
      */
 
-    public int selectedScoreLevel = 0;
-    public int selectedZone = 0;
-    public int selected;
+    public enum Level {NONE, BOTTOM, MIDDLE, TOP};
+    public enum Zone {NONE, LEFT, COMMUNITY, RIGHT};
+    public enum Position {NONE, LEFT, CENTER, RIGHT};
+    public enum GamePiece {EITHER, CONE, CUBE};
+
+    public Level selectedLevel = Level.NONE;
+    public Zone selectedZone = Zone.NONE;
+    public Position selectedPosition = Position.NONE;
+    public GamePiece selectedGamePiece = GamePiece.EITHER;
 
     public void scorePosition(){
         int idx = -1;
         for(int i = 0; i < cal.SCORE_POS_IDX.length; i++){
-            if(cBoard.getRawButton(cal.SCORE_POS_IDX[i]) == true){
+            if(cBoard != null && cBoard.getRawButton(cal.SCORE_POS_IDX[i]) == true){
                 idx = i;
             }
         }
-        int buttonAssignment = idx + 1;
 
+        int buttonAssignment = idx + 1;
+        if(buttonAssignment >= 1 && buttonAssignment <= 27){
+
+            //level logic
+            if(buttonAssignment <= 9){
+                selectedLevel = Level.TOP;
+            } else if(buttonAssignment > 9 && buttonAssignment < 19){
+                selectedLevel = Level.MIDDLE;
+            } else {
+                selectedLevel = Level.BOTTOM;
+            }
+
+            //zone logic
+            int horizontalIdx = buttonAssignment % 9;
+            if(horizontalIdx <= 3){
+                selectedZone = Zone.LEFT;
+            } else if(horizontalIdx > 3 && horizontalIdx < 7) {
+                selectedZone = Zone.COMMUNITY;
+            } else {
+                selectedZone = Zone.RIGHT;
+            }
+
+            //position logic
+            int positionIdx = buttonAssignment % 3;
+            selectedPosition = Position.values()[positionIdx];
+
+            //game piece logic
+            if(positionIdx % 2 == 0){
+                selectedGamePiece = GamePiece.CUBE;
+            } else {
+                selectedGamePiece = GamePiece.CONE;
+            }
+
+
+            //check for discrepancy between the switch and what we actually have
+            if(isCube() != (selectedGamePiece == GamePiece.CUBE)){
+                //TODO: add logic for when we are choosing the wrong position based on what is selected on the control board
+                
+            }
+            
+        } else {
+            selectedLevel = Level.NONE;
+            selectedZone = Zone.NONE;
+            selectedPosition = Position.NONE;
+        }
     }
 
     // ------------- End control board inputs ------------- //
