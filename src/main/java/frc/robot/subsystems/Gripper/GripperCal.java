@@ -10,4 +10,15 @@ public class GripperCal{
     public MotorCal rGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1);
     public MotorCal lGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1);
     public int servoChannel = 0;
+
+    public double cubePickUpPower = .3;
+    public double cubePickUpSpeed = 2000;
+
+    public double conePickUpPower = .4;
+    public double conePickUpSpeed = 3000;
+
+    public double eject = -2000;
+
+    public double coneStallCurrent = 30;
+    public double cubeStalllCurrent = 30;
 }
