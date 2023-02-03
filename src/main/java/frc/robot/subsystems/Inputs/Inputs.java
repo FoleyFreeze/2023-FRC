@@ -4,7 +4,6 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
@@ -275,6 +274,7 @@ public class Inputs extends SubsystemBase{
     public Position selectedPosition = Position.NONE;
     public GamePiece selectedGamePiece = GamePiece.EITHER;
 
+    //
     public void scorePosition(){
         int idx = -1;
         for(int i = 0; i < cal.SCORE_POS_IDX.length; i++){
@@ -304,10 +304,8 @@ public class Inputs extends SubsystemBase{
             } else {
                 selectedZone = Zone.RIGHT;
             }
-
-            //position logic
+            
             int positionIdx = buttonAssignment % 3;
-            selectedPosition = Position.values()[positionIdx];
 
             //game piece logic
             if(positionIdx % 2 == 0){
@@ -316,11 +314,25 @@ public class Inputs extends SubsystemBase{
                 selectedGamePiece = GamePiece.CONE;
             }
 
-
             //check for discrepancy between the switch and what we actually have
-            if(isCube() != (selectedGamePiece == GamePiece.CUBE)){
-                //TODO: add logic for when we are choosing the wrong position based on what is selected on the control board
-                
+            if(isCube() != (selectedGamePiece == GamePiece.CUBE) && selectedGamePiece != GamePiece.EITHER){
+                //Selects the nearest available score position on the same level in the same zone
+
+                int fixedPositionIdx;
+                //fix the coneVCube thing and change the index
+                if(selectedGamePiece == GamePiece.CUBE){
+                    selectedGamePiece = GamePiece.CONE;
+
+                    fixedPositionIdx = positionIdx + 1;
+                } else {
+                    selectedGamePiece = GamePiece.CUBE;
+
+                    fixedPositionIdx = 2;
+                }
+
+                selectedPosition = Position.values()[fixedPositionIdx];
+            } else {
+                selectedPosition = Position.values()[positionIdx];
             }
             
         } else {

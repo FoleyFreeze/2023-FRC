@@ -97,7 +97,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void swerveMP(Vector velocity, double accel){
-        Vector Power = new Vector(velocity.r, velocity.theta);
+        Vector Power = new Vector(velocity);
         Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS; 
         driveSwerve(Power, 0);
     }

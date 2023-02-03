@@ -16,6 +16,7 @@ import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -38,6 +39,9 @@ public class RobotContainer {
   public Gripper gripper;
 
   public DriveCal dCal;
+
+  public SendableChooser<Integer> startPosChooser;
+  public SendableChooser<Integer> actionChooser;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -51,6 +55,26 @@ public class RobotContainer {
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
+
+    //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading
+    startPosChooser = new SendableChooser<>();
+    startPosChooser.addOption("Right-Right", 0);
+    startPosChooser.addOption("Right-Middle", 1);
+    startPosChooser.addOption("Right-Left", 2);
+    startPosChooser.addOption("Community-Right", 3);
+    startPosChooser.addOption("Community-Middle", 4);
+    startPosChooser.addOption("Community-Left", 5);
+    startPosChooser.addOption("Left-Right", 6);
+    startPosChooser.addOption("Left-Middle", 7);
+    startPosChooser.addOption("Left-Left", 8);
+
+    actionChooser = new SendableChooser<>();
+    actionChooser.addOption("Do Nothing", 0);
+    actionChooser.addOption("Drive", 1);
+    actionChooser.addOption("1-Ball Drive", 2);
+    actionChooser.addOption("1-Ball Park", 3);
+    actionChooser.addOption("2-Ball", 4);
+    actionChooser.addOption("2-Ball Park", 5);
 
     // Configure the trigger bindings
     configureBindings();

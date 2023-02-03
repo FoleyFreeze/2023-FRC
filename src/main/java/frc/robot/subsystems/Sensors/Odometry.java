@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.Auton.AutonCal.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -23,6 +24,15 @@ public class Odometry implements AutoCloseable {
 
     public void setBotLocation(Vector location){
         botLocation = location;
+    }
+
+    public void setBotAngle(double angle){
+        botAngle = angle;
+    }
+
+    public void setBotPose(AutonPos pos){
+        setBotLocation(pos.xy);
+        setBotAngle(pos.theta);
     }
 
     public int badWheels = 0;
