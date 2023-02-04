@@ -1,7 +1,5 @@
 package frc.robot.commands.arm;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 
 public class ArmGoHome extends ArmMove{
@@ -10,7 +8,7 @@ public class ArmGoHome extends ArmMove{
         super(r, r.arm.cals.positionHome);
     }
 
-    //home position (angle only)
+    //home position (angle motor only)
     @Override
     public void end(boolean interrupted){
         if(!interrupted){

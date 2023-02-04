@@ -12,6 +12,8 @@ import frc.robot.util.Vector;
 
 public class AutoBalance {
 
+
+    //Based on time
     public static Command getAutoBalanceCommand(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.driveTrain);
@@ -41,7 +43,7 @@ public class AutoBalance {
 
 
 
-    
+    //Based on distance
     public static Command getAutoBalanceDistCommand(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.driveTrain);
