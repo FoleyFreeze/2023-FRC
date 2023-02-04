@@ -1,7 +1,7 @@
 package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.Auton.AutonCal.AutonPos;
+import frc.robot.commands.Auton.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;

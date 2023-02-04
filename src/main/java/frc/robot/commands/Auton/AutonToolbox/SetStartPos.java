@@ -2,21 +2,21 @@ package frc.robot.commands.Auton.AutonToolbox;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
-import frc.robot.commands.Auton.AutonCal.AutonPos;
+import frc.robot.commands.Auton.AutonPos;
 
 public class SetStartPos extends CommandBase{
     
     RobotContainer r;
-    AutonPos startPos;
+    AutonPos pos;
 
-    public SetStartPos(RobotContainer r, AutonPos startPos){
+    public SetStartPos(RobotContainer r, AutonPos pos){
         this.r = r;
-        this.startPos = startPos;
+        this.pos = pos;
     }
 
     @Override
     public void execute(){
-        r.sensors.odo.setBotPose(startPos);
+        r.sensors.odo.setBotPose(pos);
     }
 
     @Override

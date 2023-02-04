@@ -39,7 +39,7 @@ public class Inputs extends SubsystemBase{
             }else if(DriverStation.getJoystickName(i).contains("Gamepad or sumthin idk")){
                 controllerType = joystickTypes.GAMEPAD;
                 portStatus[i] = joystickTypes.GAMEPAD;
-            } else if(DriverStation.getJoystickName(i).contains("Control board or sumthin idk")){
+            } else if(DriverStation.getJoystickName(i).contains("I-PAC")){
                 portStatus[i] = joystickTypes.CONTROL_BOARD;
             } else{
                 portStatus[i] = joystickTypes.NONE;
