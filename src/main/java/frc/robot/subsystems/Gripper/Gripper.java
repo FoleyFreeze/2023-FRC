@@ -25,24 +25,29 @@ public class Gripper extends SubsystemBase{
         choiceGrip = new Servo(0);
     }
 
+    //intake speed in rpm
     public void setIntakeSpeed(double rpm){
         rGrip.setSpeed(rpm);
         lGrip.setSpeed(rpm);
     }
 
+    //intake speed -1 to 1
     public void setIntakePower(double power){
         rGrip.setPower(power);
         lGrip.setPower(power);
     }
 
+    //open gripper
     public void open(){
         choiceGrip.set(0);
     }
 
+    //close gripper
     public void close(){
         choiceGrip.set(1);
     }
 
+    //get electric current of both motors
     public double getIntakeCurrent(){
         return lGrip.getCurrent() + rGrip.getCurrent();
     }

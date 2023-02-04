@@ -8,12 +8,27 @@ public class ArmMove extends CommandBase{
  
     RobotContainer r;
     Vector position;
+    PositionProvider provider;
     
     public ArmMove(RobotContainer r, Vector position){
         this.r = r;
         this.position = position;
 
         addRequirements(r.arm);
+    }
+
+    public ArmMove(RobotContainer r, PositionProvider provider){
+        this.r = r;
+        this.provider = provider;
+
+        addRequirements(r.arm);
+    }
+
+    @Override
+    public void initialize(){
+        if(provider != null){
+            position = provider.getPosition();
+        }
     }
 
 
