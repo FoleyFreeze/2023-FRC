@@ -49,46 +49,35 @@ public class AutonPos {
     public static final AutonPos APRIL_BLUE_SUBSTATION = new AutonPos(0, 0, 0);
 
 
-    public static final AutonPos[][] DRIVE_POSITIONS = {
-        {//Scoring positions
-            new AutonPos(0, 0, 0),//closest to wall
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//
-            new AutonPos(0, 0, 0),//closest to substation
-        },
+    public static final AutonPos[] SCORING_POSITIONS = {
+        new AutonPos(0, 0, 0),//closest to wall
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//
+        new AutonPos(0, 0, 0),//closest to substation
+    };
+        
 
-        {//First drive
-            new AutonPos(0, 0, 0),//left of charge station
-            new AutonPos(0, 0, 0),//in front of charge station
-            new AutonPos(0, 0, 0),//right of charge station
-        },
-
-        {//In front of mid-field game pieces
-            new AutonPos(0, 0, 0),//left piece
-            new AutonPos(0, 0, 0),//left middle
-            new AutonPos(0, 0, 0),//right middle
-            new AutonPos(0, 0, 0),//right piece
-        },
-
-        {//Just drive out of the community zone
-            new AutonPos(0, 0, 0),//left of charge station
-            new AutonPos(0, 0, 0),//over charge station
-            new AutonPos(0, 0, 0),//right of charge station
-        }
+    public static final AutonPos[] FIRST_DRIVE = {
+        new AutonPos(0, 0, 0),//left of charge station
+        new AutonPos(0, 0, 0),//in front of charge station
+        new AutonPos(0, 0, 0),//right of charge station
     };
 
-    public static final AutonPos[][] DRIVE_ONLY = {DRIVE_POSITIONS[1], DRIVE_POSITIONS[3]};
+    public static final AutonPos[] MID_FIELD_POS = {
+        new AutonPos(0, 0, 0),//left piece
+        new AutonPos(0, 0, 0),//left middle
+        new AutonPos(0, 0, 0),//right middle
+        new AutonPos(0, 0, 0),//right piece
+    };
 
-    public static final AutonPos[][] ONE_BALL_PARK = {{DRIVE_POSITIONS[1][1]}};
-
-    public static final AutonPos[][] TWO_BALL = {DRIVE_POSITIONS[1],//first drive, first part
-                                          DRIVE_POSITIONS[2],//first drive, drive to piece
-                                          DRIVE_POSITIONS[1],//second drive, first part
-                                          DRIVE_POSITIONS[0],//second drive, drive to score position
-                                         };
+    public static final AutonPos[] JUST_DRIVE_OUT = {
+        new AutonPos(0, 0, 0),//left of charge station
+        new AutonPos(0, 0, 0),//over charge station
+        new AutonPos(0, 0, 0),//right of charge station
+    };
 }

@@ -28,4 +28,5 @@ public interface Motor {
     public abstract void resetPosition(double position);
     public abstract void setSpeed(double rpm);
     public abstract double getCurrent();
+    public abstract double getTemp();
 }

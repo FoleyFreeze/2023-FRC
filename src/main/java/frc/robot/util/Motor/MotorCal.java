@@ -21,6 +21,8 @@ public class MotorCal {
 
     public double gearRatio = 1;
 
+    public double currLim = 0;
+
     public MotorCal(MotorType type, int channel){
         this.type = type;
         this.channel = channel;
@@ -45,6 +47,11 @@ public class MotorCal {
     }
     public MotorCal setRatio(double ratio){
         gearRatio = ratio;
+        return this;
+    }
+
+    public MotorCal setCurrLim(double lim){
+        currLim = lim;
         return this;
     }
 }

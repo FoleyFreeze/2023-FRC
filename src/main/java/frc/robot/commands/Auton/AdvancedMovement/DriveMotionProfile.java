@@ -13,9 +13,8 @@ public class DriveMotionProfile extends CommandBase{
     private Vector endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
 
-    public DriveMotionProfile(RobotContainer r, Vector startLoc, Vector endLoc){
+    public DriveMotionProfile(RobotContainer r, Vector endLoc){
         this.r = r;
-        this.startLoc = startLoc;
         this.endLoc = endLoc;
         addRequirements(r.driveTrain);
     }
@@ -31,6 +30,8 @@ public class DriveMotionProfile extends CommandBase{
     private double decelDist;
     private double maxVelDist;
     public void initialize(){
+
+        startLoc = r.sensors.odo.botLocation;
         
         totalDistance =  Vector.subVector(endLoc, startLoc);
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;

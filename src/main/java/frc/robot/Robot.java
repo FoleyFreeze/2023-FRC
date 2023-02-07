@@ -58,6 +58,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+
+    
+    /*
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
     int startPos = r.startPosChooser.getSelected();
@@ -79,7 +82,7 @@ public class Robot extends TimedRobot {
                                                   piece);
     }
 
-
+*/
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

@@ -32,6 +32,11 @@ public class SparkMotor implements Motor{
         PIDController.setFF(cal.ff);
 
         PIDController.setOutputRange(-cal.pidLim,cal.pidLim);
+
+        if(cal.currLim != 0){
+            motor.setSmartCurrentLimit((int) cal.currLim);
+            motor.setSecondaryCurrentLimit(cal.currLim);
+        }
     }
 
     @Override
@@ -65,6 +70,11 @@ public class SparkMotor implements Motor{
     @Override
     public double getCurrent(){
         return motor.getOutputCurrent();
+    }
+
+    @Override
+    public double getTemp(){
+        return motor.getMotorTemperature();
     }
 
 }

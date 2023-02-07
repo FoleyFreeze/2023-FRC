@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Drive;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
@@ -164,5 +165,9 @@ public class DriveTrain extends SubsystemBase {
 
     public void periodic(){
         if(disabled) return;
+
+        for(Wheel w : wheels){
+            SmartDashboard.putNumber("WheelTemp " + w.idx, w.swerveMotor.getTemp());
+        }
     }
 }
