@@ -150,7 +150,13 @@ public class Inputs extends SubsystemBase{
 
     // ------------- Manipulator inputs ------------- //
 
-
+    public Vector getGatherPosition(){
+        if (isShelf()){
+            return r.arm.cals.positionGatherShelf;
+        }else{
+            return r.arm.cals.positionGatherFloor;}
+        }
+    
 
     // ------------- End manipulator inputs ------------- //
 
