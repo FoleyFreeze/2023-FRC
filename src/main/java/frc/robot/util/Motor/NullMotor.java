@@ -37,4 +37,9 @@ public class NullMotor implements Motor{
         // TODO Auto-generated method stub
         return 0;
     }
+
+    @Override
+    public double getTemp(){
+        return 0;
+    }
 }

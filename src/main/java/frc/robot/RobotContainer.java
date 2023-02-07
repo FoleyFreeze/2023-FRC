@@ -63,6 +63,8 @@ public class RobotContainer {
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
 
+    specialAutonChooser = new SendableChooser<>();
+
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
     startPosChooser = new SendableChooser<>();
     startPosChooser.addOption("Right-Right", 0);

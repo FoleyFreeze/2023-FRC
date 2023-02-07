@@ -31,6 +31,9 @@ public class Inputs extends SubsystemBase{
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
 
+        controller = new Joystick(0);
+        controllerType = joystickTypes.FLYSKY;
+        /*
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
             if(DriverStation.getJoystickName(i).contains("NV14")){
@@ -63,8 +66,9 @@ public class Inputs extends SubsystemBase{
                         }
                 }
             }
+            prevPortStatus[i] = portStatus[i];
         }
-        prevPortStatus = portStatus;
+        */
 
         scorePosition();
     } 
