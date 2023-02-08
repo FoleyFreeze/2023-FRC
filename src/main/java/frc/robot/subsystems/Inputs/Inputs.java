@@ -112,7 +112,7 @@ public class Inputs extends SubsystemBase{
         if(controller != null){
             double value = -controller.getRawAxis(cal.R_JOYSTICK_X[controllerType.ordinal()]);
             //Added deadband 
-            if(Math.abs(value) < 0.08) value = 0;
+            if(Math.abs(value) < 0.12) value = 0;
             return value;
         } else {
             return 0;
