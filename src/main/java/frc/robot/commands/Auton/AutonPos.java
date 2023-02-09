@@ -4,21 +4,32 @@ import frc.robot.util.Vector;
 
 public class AutonPos {
     public Vector xy;
-    public double theta;
+    public double value;
 
     public AutonPos(Vector xy, double theta){
         this.xy = xy;
-        this.theta = theta;
+        this.value = theta;
     }
 
-    public AutonPos(double x, double y, double theta){
+    public AutonPos(double x, double y, double value){
         this.xy = Vector.fromXY(x, y);
+    }
+
+    public AutonPos (AutonPos pos){
+        this.xy = pos.xy;
+        this.value = pos.value;
     }
 
     public AutonPos offset(double xOffset, double yOffset, double thetaOffset){
         xy.add(Vector.fromXY(xOffset, 0));
         xy.add(Vector.fromXY(0, yOffset));
-        theta += thetaOffset;
+        value += thetaOffset;
+
+        return this;
+    }
+
+    public AutonPos mirrorY(boolean mirror){
+        xy = Vector.subVector(xy, Vector.fromXY(0, 2 * xy.getY()));
 
         return this;
     }

@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.Auton.AutonBuilder;
+import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
@@ -128,25 +130,18 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
-    Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
+    /*Vector startPoint = Vector.fromXY(0, 0);
+    AutonPos[] waypoints = {new AutonPos(54, 0, 0), new AutonPos(54, 108, 0)};
 
-      Vector xy = Vector.fromXY(0, 0.5);
-      double zPwr = 0.0;
-      Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+    AutonPos[] vecs = MultiDimensionalMotionProfile.formulateArcs(16, startPoint, waypoints);
 
-      driveVecs[0] = new Vector(100, 1.5);
-      driveVecs[1] = new Vector(50, 0.85);
-      
-      System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
+    System.out.println("First Point: " + vecs[0].xy.toStringXY());
+    System.out.println("Second Point: " + vecs[1].xy.toStringXY());
+    System.out.println("Third Point: " + vecs[2].xy.toStringXY());
 
-      double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
-      Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
-      double bestAngle = bestValues[2];
-      double error = bestValues[3];
-
-      System.out.println("Best Strafe: " + bestStrafe.toStringXY());
-      System.out.println("Best Angle: " + bestAngle);
-      System.out.println("Error: " + error);
+    System.out.println("First Length: " + vecs[0].value);
+    System.out.println("Second Length: " + vecs[1].value);
+    System.out.println("Third Length: " + vecs[2].value);*/
   }
 
   /** This function is called periodically whilst in simulation. */

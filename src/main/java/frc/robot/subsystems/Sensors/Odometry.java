@@ -32,7 +32,7 @@ public class Odometry implements AutoCloseable {
 
     public void setBotPose(AutonPos pos){
         setBotLocation(pos.xy);
-        setBotAngle(pos.theta);
+        setBotAngle(pos.value);
     }
 
     public int badWheels = 0;
