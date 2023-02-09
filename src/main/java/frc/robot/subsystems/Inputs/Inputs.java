@@ -84,6 +84,15 @@ public class Inputs extends SubsystemBase{
         }
     }
 
+    public boolean getFieldAlign(){
+        if(controller != null){
+            //TODO: make this
+            return false;//controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
     public double getJoystickX(){
         if(controller != null){
             double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]);
@@ -112,7 +121,7 @@ public class Inputs extends SubsystemBase{
         if(controller != null){
             double value = -controller.getRawAxis(cal.R_JOYSTICK_X[controllerType.ordinal()]);
             //Added deadband 
-            if(Math.abs(value) < 0.08) value = 0;
+            if(Math.abs(value) < 0.12) value = 0;
             return value;
         } else {
             return 0;
@@ -154,7 +163,13 @@ public class Inputs extends SubsystemBase{
 
     // ------------- Manipulator inputs ------------- //
 
-
+    public Vector getGatherPosition(){
+        if (isShelf()){
+            return r.arm.cals.positionGatherShelf;
+        }else{
+            return r.arm.cals.positionGatherFloor;}
+        }
+    
 
     // ------------- End manipulator inputs ------------- //
 
