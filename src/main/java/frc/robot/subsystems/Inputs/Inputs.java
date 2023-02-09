@@ -84,6 +84,15 @@ public class Inputs extends SubsystemBase{
         }
     }
 
+    public boolean getFieldAlign(){
+        if(controller != null){
+            //TODO: make this
+            return false;//controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
     public double getJoystickX(){
         if(controller != null){
             double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]);
