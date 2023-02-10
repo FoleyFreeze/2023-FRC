@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
-import frc.robot.commands.arm.ArmGoHome;
-import frc.robot.commands.arm.ArmMove;
+import frc.robot.commands.Arm.ArmGoHome;
+import frc.robot.commands.Arm.ArmMove;
 
 public class GatherCommand {
     

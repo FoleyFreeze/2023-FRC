@@ -49,7 +49,7 @@ public class AutonBuilder {
                         secondScorePos = 7;//We default to the other way if the way we chose is not possible
                     }
                 } else {
-                    secondScorePos --;
+                    secondScorePos--;
                     if(secondScorePos < 0){
                         secondScorePos = 1;//We default to the other way if the way we chose is not possible
                     }

@@ -89,6 +89,8 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
     //the distances are individual
     //but the times are cumulative
+    double totalDistStrafe = 0;
+    double totalDistAng = 0;
     double totalDist = 0;
     AutonPos[] locations;
     double startTime;
@@ -103,8 +105,11 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         locations = formulateArcs(MIN_R, startLoc, wayPoints);
 
         for(int i = 0; i < locations.length; i++){
-            totalDist += locations[i].value;
+            totalDistStrafe += locations[i].value;
         }
+        totalDistAng += locations[locations.length-1].value * MIN_R;
+
+        totalDist = totalDistAng + totalDistStrafe;
 
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
        
@@ -130,10 +135,10 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
     int interpIdx = 0;
     //returns the theta of our drive vector
-    double interpWaypoints(double minR, Vector currPos, double travelledDist, double totalDist, AutonPos[] locations){
+    double interpWaypoints(double minR, Vector currPos, double expectedLoc, double totalDist, AutonPos[] locations){
 
         for(; interpIdx < locations.length - 2; interpIdx++){
-            if(locations[interpIdx].value <= (totalDist - travelledDist) && (totalDist - travelledDist) < locations[interpIdx+1].value) break;
+            if(locations[interpIdx].value <= (totalDist - expectedLoc) && (totalDist - expectedLoc) < locations[interpIdx+1].value) break;
         }
         
         double tgtAng;
@@ -161,50 +166,76 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
         return tgtAng;
     }
-
-    double interpBotAng(double travelledDist, double totalDist){
-
-    }
     
     public void execute (){
         double runTime = Timer.getFPGATimestamp() - startTime;
+        Vector currentPos = r.sensors.odo.botLocation;
+        double currentAng = r.sensors.odo.botAngle;
         
-        Vector targetPos = new Vector(0,totalDistance.theta);
-        double targetAng;
-        Vector targetVel = new Vector(0,totalDistance.theta);
+        double targetPosR;
+        double targetVelR;
         double targetAccel;
-        if (runTime < accelTime){ 
+        if (runTime < accelTime){
             //stage 1
             targetAccel = AutonCal.maxAccel;
-            targetPos.r = 0.5 * targetAccel * runTime * runTime;
-            targetVel.r = targetAccel * runTime;
+            targetPosR = 0.5 * targetAccel * runTime * runTime;
+            targetVelR = targetAccel * runTime;
         } else if (runTime < maxVelTime) { 
             //stage 2
             targetAccel = 0;
-            targetVel.r = AutonCal.maxVel;
-            targetPos.r = ((runTime - accelTime) * targetVel.r) + accelDist;
+            targetVelR = AutonCal.maxVel;
+            targetPosR = ((runTime - accelTime) * targetVelR) + accelDist;
         } else if (runTime < decelTime) { 
             //stage 3
             double t = runTime - decelTime;
             targetAccel = -AutonCal.maxAccel;
-            targetPos.r = 0.5 * targetAccel * t * t + totalDist;
-            targetVel.r = t * targetAccel;
+            targetPosR = 0.5 * targetAccel * t * t + totalDist;
+            targetVelR = t * targetAccel;
         } else { 
             //end
-            targetPos.r = totalDist;
-            targetVel.r = 0;
+            targetPosR = totalDist;
+            targetVelR = 0;
             targetAccel = 0;
         }
+
+
+        //strafe
+        double strafeRatio = totalDistStrafe / totalDist;
+
+        double strafeRPos = targetPosR * strafeRatio;
+        double strafeRVel = targetVelR * strafeRatio;
+        double strafeRAcc = targetAccel * strafeRatio;
+
+        double strafeAng = interpWaypoints(MIN_R, currentPos, strafeRPos, totalDist, locations);
+        Vector targetPosStrafe = new Vector(strafeRPos, strafeAng);
+        Vector targetVelStrafe = new Vector(strafeRVel, strafeAng);
+
+        //PID
+        targetPosStrafe.add(currentPos).negate();//error value
+        targetPosStrafe.r *= AutonCal.kP_MP;
+        targetVelStrafe.add(targetPosStrafe);
+
+
+        //angle
+        double angRatio = totalDistAng / totalDist;
+
+        double angleRPos = targetPosR * angRatio;
+        double angleRVel = targetVelR * angRatio;
+        double angleRAcc = targetAccel * angRatio;
         
         //PID
-        Vector currentPos = r.sensors.odo.botLocation;
-        targetPos.add(startLoc).negate().add(currentPos).negate();
-        targetPos.r *= AutonCal.kP_MP;
-        targetVel.add(targetPos);
+        double angleError = angleRPos - currentAng;
+        angleError *= AutonCal.kP_MP;
+        angleRVel += angleError;
 
 
         //output
-        r.driveTrain.swerveMP(targetVel, targetAccel);
+        Vector drivePwr = new Vector(targetVelStrafe);
+        drivePwr.r = (AutonCal.kA * strafeRAcc) + (AutonCal.kV * targetVelStrafe.r) + AutonCal.kS;
+
+        double anglePwr = (AutonCal.kA * angleRAcc) + (AutonCal.kV * angleRVel) + AutonCal.kS;
+        
+        r.driveTrain.driveSwerve(drivePwr, anglePwr);
     }
 
     public boolean isFinished(){

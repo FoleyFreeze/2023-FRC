@@ -30,10 +30,7 @@ public class Inputs extends SubsystemBase{
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
-
-        controller = new Joystick(0);
-        controllerType = joystickTypes.FLYSKY;
-        /*
+        
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
             if(DriverStation.getJoystickName(i).contains("NV14")){
@@ -52,23 +49,27 @@ public class Inputs extends SubsystemBase{
                     case FLYSKY:
                         System.out.println("Flysky detected at port " + i);
                         controller = new Joystick(i);
+                        break;
                     case GAMEPAD:
                         System.out.println("Gamepad detected at port " + i);
                         controller = new Joystick(i);
+                        break;
                     case CONTROL_BOARD:
                         System.out.println("Control Board detected at port " + i);
                         cBoard = new Joystick(i);
+                        break;
                     case NONE:
                         if(controller.getPort() == i){
                             controller = null;
                         } else if(cBoard.getPort() == i){
                             cBoard = null;
                         }
+                        break;
                 }
             }
             prevPortStatus[i] = portStatus[i];
         }
-        */
+        
 
         scorePosition();
     } 
