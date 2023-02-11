@@ -34,7 +34,7 @@ public class Sensors extends SubsystemBase{
 
     public void resetNavXAng(double ang){
         navX.reset();
-        navXOffset = ang;
+        navXOffset = ang - navX.getFusedHeading();
         System.out.println("angle has been reset");
     }
 

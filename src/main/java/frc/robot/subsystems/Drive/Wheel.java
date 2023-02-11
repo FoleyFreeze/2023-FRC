@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Drive;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -84,7 +85,11 @@ public class Wheel {
         // if the wheel doesnt need to move, dont move it
         if(outputPower != 0){
             swerveMotor.setPosition(targetRelEnc);
-            driveMotor.setPower(outputPower * cal.drivePwr);
+            if(DriverStation.isAutonomous()){
+                driveMotor.setPower(outputPower);
+            } else {
+                driveMotor.setPower(outputPower * cal.drivePwr);
+            }
         } else {
             driveMotor.setPower(0);
         }
