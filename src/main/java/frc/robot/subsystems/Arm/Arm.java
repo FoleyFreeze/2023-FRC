@@ -15,7 +15,10 @@ public class Arm extends SubsystemBase {
     Motor stendoMotor; 
     
     Vector setPoint;
+    Vector setPointTwo;
     boolean isAngleOnly = false;
+
+    Vector jogOffset = new Vector(0,0);
 
     public Arm(RobotContainer r, ArmCal cals){
         this.r = r;
@@ -38,6 +41,21 @@ public class Arm extends SubsystemBase {
         isAngleOnly = true;
     }
 
+    public void jogUp(){
+        jogOffset.incrmntX(-r.arm.cals.jogUpDist);
+    }
+
+    public void jogDown(){
+        jogOffset.incrmntX(r.arm.cals.jogUpDist);
+    }
+
+    public void jogIn(){
+        jogOffset.incrmntY(-r.arm.cals.jogOutDist);
+    }
+
+    public void jogOut(){
+        jogOffset.incrmntX(r.arm.cals.jogOutDist);
+    }
     
     @Override
     public void periodic(){
@@ -45,13 +63,14 @@ public class Arm extends SubsystemBase {
 
         if(setPoint != null){
             double currentAngle = angleMotor.getPosition();
+            setPointTwo = Vector.addVectors(setPoint, jogOffset);
 
             //interpolate (view)
             double lengthMax = Util.interp(cals.angleAxis, cals.lengthMax, currentAngle);
 
             //only letting stendo and angle move to their min/max
-            double angleSetpoint = Util.bound(setPoint.theta, cals.angleMin, cals.angleMax);
-            double lengthSetpoint = Util.bound(setPoint.theta, cals.lengthMin, lengthMax);
+            double angleSetpoint = Util.bound(setPointTwo.theta, cals.angleMin, cals.angleMax);
+            double lengthSetpoint = Util.bound(setPointTwo.r, cals.lengthMin, lengthMax);
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
@@ -63,10 +82,10 @@ public class Arm extends SubsystemBase {
         }
     }
 
-    //mathy for error
+    //mathify for error
     public double getError(){
-        double error = Math.abs(setPoint.theta - angleMotor.getPosition());
-        error +=  Math.abs(setPoint.r - stendoMotor.getPosition()*4);
+        double error = Math.abs(setPointTwo.theta - angleMotor.getPosition());
+        error +=  Math.abs(setPointTwo.r - stendoMotor.getPosition()*4);
         return error;
     }
 

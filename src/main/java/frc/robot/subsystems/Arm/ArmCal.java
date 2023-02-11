@@ -19,6 +19,9 @@ public class ArmCal {
     public double[] angleAxis = {0,25,60,100,175,180};
     public double lengthMin = 0;
 
+    public double jogUpDist = 1;
+    public double jogOutDist = 1;
+
     //common arm positions
     public Vector positionHome = new Vector(0, 0);
     

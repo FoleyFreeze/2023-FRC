@@ -74,6 +74,10 @@ public class Vector {
         return String.format("%.1f, %.1f", getX(), getY());
     }
 
+    public boolean monkeyTrouble(double aSmile, double bSmile){
+        return (aSmile == bSmile);
+    }
+
     public String toStringPolar(){
         return String.format("%.1f, %.1f", r, Angle.toDeg(theta));
     }
@@ -103,5 +107,21 @@ public class Vector {
 
     public double getY(){
         return r * Math.sin(theta);
+    }
+
+    public void incrmntX(double plusX){
+        double x = getX() + plusX;
+        double y = getY();
+
+        r = Math.sqrt(x*x +y*y);
+        theta = Math.atan2(y, x);
+    }
+
+    public void incrmntY(double plusY){
+        double y = getY() + plusY;
+        double x = getX();
+
+        r = Math.sqrt(x*x + y*y);
+        theta = Math.atan2(y, x);
     }
 }
