@@ -29,7 +29,7 @@ public class Sensors extends SubsystemBase{
     }
 
     public double getNavXAng(){
-        return -(navX.getRoll() + navXOffset) / 360.0 * Math.PI * 2;//returns in radians (-pi -> pi)
+        return -(navX.getFusedHeading() + navXOffset) / 360.0 * Math.PI * 2;//returns in radians (-pi -> pi)
     }
 
     public void resetNavXAng(double ang){
@@ -38,9 +38,9 @@ public class Sensors extends SubsystemBase{
         System.out.println("angle has been reset");
     }
 
-    public void resetNavXAng(){
-        resetNavXAng(0);
+    public void resetBotAng(){
         odo.botAngle = 0;
+        resetNavXAng(0);
     }
 
     public void resetBotPos(){
@@ -54,6 +54,7 @@ public class Sensors extends SubsystemBase{
         Vector[] wheelStates = r.driveTrain.getWheelState();
         odo.update(robotYaw, wheelStates);
 
+        SmartDashboard.putNumber("robot yaw", robotYaw);
         SmartDashboard.putNumber("Robot Ang: ", Math.toDegrees(odo.botAngle));
         SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 
