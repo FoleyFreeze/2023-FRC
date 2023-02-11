@@ -17,7 +17,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
     final double MIN_R;
 
-    public MultiDimensionalMotionProfile(RobotContainer r, AutonPos[] wayPoints){
+    public MultiDimensionalMotionProfile(RobotContainer r, AutonPos... wayPoints){
         this.r = r;
 
         this.wayPoints = wayPoints;

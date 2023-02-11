@@ -8,6 +8,8 @@ import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.AutonToolbox.SetStartPos;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
+import frc.robot.commands.Combos.Score;
+import frc.robot.commands.Gripper.GatherCommand;
 
 public class AutonBuilder {
 
@@ -23,7 +25,7 @@ public class AutonBuilder {
 
         if(actionChooser != 0){
             if(actionChooser != 1){
-                sg.addCommands(/*Score Command*/);
+                sg.addCommands(Score.DriveScore(r, startPosChooser, 2, isCube(startPosChooser)));
             }
 
             if(actionChooser == 1 || actionChooser == 2){//This just moves the bot out of the community with a basic drive command
@@ -38,9 +40,8 @@ public class AutonBuilder {
 
             if(actionChooser == 4 || actionChooser == 5){//Goes to midfield, gathers, and goes back to score. We need to somehow combine the drive and gather if we want it to be fast
                 sg.addCommands(new DriveMotionProfile(r, AutonPos.FIRST_DRIVE[pathChooser].xy));
-                sg.addCommands(new DriveMotionProfile(r, AutonPos.MID_FIELD_POS[pieceChooser].xy));
-
-                sg.addCommands(/*Gather Command*/);
+                sg.addCommands(new DriveMotionProfile(r, AutonPos.MID_FIELD_POS[pieceChooser].xy)
+                     .raceWith(GatherCommand.gatherCommand(r)));
 
                 int secondScorePos = startPosChooser;
                 if(secondPieceChooser){//This determines the second score position. IDK man, this could probably be done some better way, but this is all I got
@@ -58,7 +59,7 @@ public class AutonBuilder {
                 sg.addCommands(new DriveMotionProfile(r, AutonPos.FIRST_DRIVE[pathChooser].xy));
                 sg.addCommands(new DriveMotionProfile(r, AutonPos.START_POSITIONS[secondScorePos].xy));
 
-                sg.addCommands(/*Score Command*/);
+                sg.addCommands(Score.DriveScore(r, secondScorePos, 2, isCube(secondScorePos)));
             }
 
             if(actionChooser == 5){//This is the auto-balance after a two-ball auton
@@ -68,5 +69,9 @@ public class AutonBuilder {
         }
 
         return sg;
+    }
+
+    static boolean isCube(int scorePos){
+        return scorePos == 1 || scorePos == 4 || scorePos == 7;
     }
 }
