@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
@@ -61,8 +62,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
 
-    
-    /*
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
     int startPos = r.startPosChooser.getSelected();
@@ -75,7 +74,7 @@ public class Robot extends TimedRobot {
     String value = "" + startPos + secondPiece + action + path + piece;
 
     if(useSpecialCommand > 0){
-      //TODO: make special commands
+      r.autonCommand = new InstantCommand(() -> System.out.println("auton ran"));
     }else if(!value.equals(prevValue)){
       r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                   secondPiece, 
@@ -83,8 +82,6 @@ public class Robot extends TimedRobot {
                                                   path, 
                                                   piece);
     }
-
-*/
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
