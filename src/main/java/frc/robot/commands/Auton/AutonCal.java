@@ -1,7 +1,5 @@
 package frc.robot.commands.Auton;
 
-import frc.robot.util.Vector;
-
 public class AutonCal {
 
     public static double maxAccel = 0;

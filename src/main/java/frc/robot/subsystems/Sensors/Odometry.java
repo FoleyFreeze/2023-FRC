@@ -32,7 +32,7 @@ public class Odometry implements AutoCloseable {
 
     public void setBotPose(AutonPos pos){
         setBotLocation(pos.xy);
-        setBotAngle(pos.theta);
+        setBotAngle(pos.value);
     }
 
     public int badWheels = 0;
@@ -93,11 +93,12 @@ public class Odometry implements AutoCloseable {
         //Set the global pos & ang values
         bestStrafe.theta += botAngle;//Convert to field relative
 
-        if(Math.abs(navXBotAng - prevNavXBotAng) + cals.maxNavXWheelAngDiff < Math.abs(bestAngle)){
+        /*if(Math.abs(navXBotAng - prevNavXBotAng) + cals.maxNavXWheelAngDiff < Math.abs(bestAngle)){
             botAngle += bestAngle;
         } else {
             botAngle += (navXBotAng - prevNavXBotAng);
-        }
+        }*/
+        botAngle += bestAngle;
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;

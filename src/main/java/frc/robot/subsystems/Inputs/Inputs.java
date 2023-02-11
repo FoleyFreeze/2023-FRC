@@ -30,10 +30,7 @@ public class Inputs extends SubsystemBase{
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
-
-        controller = new Joystick(0);
-        controllerType = joystickTypes.FLYSKY;
-        /*
+        
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
             if(DriverStation.getJoystickName(i).contains("NV14")){
@@ -52,23 +49,27 @@ public class Inputs extends SubsystemBase{
                     case FLYSKY:
                         System.out.println("Flysky detected at port " + i);
                         controller = new Joystick(i);
+                        break;
                     case GAMEPAD:
                         System.out.println("Gamepad detected at port " + i);
                         controller = new Joystick(i);
+                        break;
                     case CONTROL_BOARD:
                         System.out.println("Control Board detected at port " + i);
                         cBoard = new Joystick(i);
+                        break;
                     case NONE:
                         if(controller.getPort() == i){
                             controller = null;
                         } else if(cBoard.getPort() == i){
                             cBoard = null;
                         }
+                        break;
                 }
             }
             prevPortStatus[i] = portStatus[i];
         }
-        */
+        
 
         scorePosition();
     } 
@@ -79,6 +80,15 @@ public class Inputs extends SubsystemBase{
     public boolean getFieldOrient(){
         if(controller != null){
             return controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean getFieldAlign(){
+        if(controller != null){
+            //TODO: make this
+            return false;//controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
         } else {
             return false;
         }
@@ -112,7 +122,7 @@ public class Inputs extends SubsystemBase{
         if(controller != null){
             double value = -controller.getRawAxis(cal.R_JOYSTICK_X[controllerType.ordinal()]);
             //Added deadband 
-            if(Math.abs(value) < 0.08) value = 0;
+            if(Math.abs(value) < 0.12) value = 0;
             return value;
         } else {
             return 0;

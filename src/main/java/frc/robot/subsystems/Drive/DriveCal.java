@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Drive;
 
+import java.security.PublicKey;
+
 import frc.robot.util.Vector;
 import frc.robot.util.Motor.MotorCal;
 import frc.robot.util.Motor.MotorCal.MotorType;
@@ -80,4 +82,10 @@ public class DriveCal {
     }
 
     public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
+
+
+
+    public double autoAlignWaitTime = 1;
+    public double autoAlignKp = -0.3;
+    public double autoAlignMaxPower = 0.2;
 }
