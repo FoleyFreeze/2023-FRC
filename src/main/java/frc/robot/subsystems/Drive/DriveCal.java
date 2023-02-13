@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Drive;
 
-import java.security.PublicKey;
-
 import frc.robot.util.Vector;
 import frc.robot.util.Motor.MotorCal;
 import frc.robot.util.Motor.MotorCal.MotorType;
@@ -16,8 +14,6 @@ public class DriveCal {
         public int encoderChannel;
 
         public Vector wheelLocation;
-
-        public double drivePwr = 0.3;
 
         public final double swerveRotationsPerRev = 60.0;
         public final double driveRotationsPerIn = 64/18.0 * 18/32.0 * 45/15.0 / 4.0 / Math.PI;
