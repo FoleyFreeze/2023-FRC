@@ -30,21 +30,25 @@ public class DistanceDrive extends CommandBase {
     @Override
     public void initialize(){
         endPosition = Vector.addVectors(r.sensors.odo.botLocation, distance);
+        prevDist = distance.r;
     }
 
     @Override
     public void execute(){
         Vector currPos = r.sensors.odo.botLocation;
-        Vector direction = Vector.addVectors(endPosition, currPos.negate());
+        Vector direction = Vector.subVector(endPosition, currPos);
         direction.r = 0.3;
         r.driveTrain.driveSwerve(direction, 0);
     }
 
+    double prevDist;
     @Override
     public boolean isFinished(){
         Vector currPos = r.sensors.odo.botLocation;
-        Vector distanceToTrgt = Vector.addVectors(endPosition, currPos.negate());
-        return distanceToTrgt.r < 4;
+        Vector distanceToTrgt = Vector.subVector(endPosition, currPos);
+        boolean done = distanceToTrgt.r > prevDist;
+        prevDist = distanceToTrgt.r;
+        return done;
     }
     
     @Override
