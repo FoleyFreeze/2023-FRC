@@ -83,7 +83,8 @@ public class DriveCal {
 
     public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
 
-
+    public double fieldModePwr = 0.9;
+    public double pitModePwr = 0.2;
 
     public double autoAlignWaitTime = 1;
     public double autoAlignKp = -0.3;

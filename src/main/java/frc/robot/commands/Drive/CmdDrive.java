@@ -46,6 +46,13 @@ public class CmdDrive extends CommandBase{
                 else if (z < -r.driveTrain.cals.autoAlignMaxPower) z = -r.driveTrain.cals.autoAlignMaxPower;
             }
         }
+
+        //Field mode v. pit mode
+        if(r.inputs.getFieldMode()){
+            xy.r *= r.driveTrain.cals.fieldModePwr;
+        } else {
+            xy.r *= r.driveTrain.cals.pitModePwr;
+        }
         
         r.driveTrain.driveSwerve(xy, z);
     }
