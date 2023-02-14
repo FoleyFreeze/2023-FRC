@@ -84,7 +84,7 @@ public class Wheel {
         // if the wheel doesnt need to move, dont move it
         if(outputPower != 0){
             swerveMotor.setPosition(targetRelEnc);
-            driveMotor.setPower(outputPower * cal.drivePwr);
+            driveMotor.setPower(outputPower);
         } else {
             driveMotor.setPower(0);
         }

@@ -33,7 +33,7 @@ public class CmdDrive extends CommandBase{
             if (z != 0){
                 lastRotateTime = Timer.getFPGATimestamp();
             } else if(Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
-                //error is between -180 - 180
+                //error is between -180 -> 180
                 double error = r.sensors.odo.botAngle % Math.PI;
                 
                 if(Math.abs(error) > Math.PI/2){
@@ -45,6 +45,13 @@ public class CmdDrive extends CommandBase{
                 if (z > r.driveTrain.cals.autoAlignMaxPower) z = r.driveTrain.cals.autoAlignMaxPower;
                 else if (z < -r.driveTrain.cals.autoAlignMaxPower) z = -r.driveTrain.cals.autoAlignMaxPower;
             }
+        }
+
+        //Field mode v. pit mode
+        if(r.inputs.getFieldMode()){
+            xy.r *= r.driveTrain.cals.fieldModePwr;
+        } else {
+            xy.r *= r.driveTrain.cals.pitModePwr;
         }
         
         r.driveTrain.driveSwerve(xy, z);

@@ -32,7 +32,7 @@ public class GatherCommand {
         sg.addCommands(new ArmMove(r, r.inputs::getGatherPosition));
         //runs intake command
         sg.addCommands(new IntakeCommand(r));
-        //runs hold intake while the arm movess to the home position
+        //runs hold intake while the arm moves to the home position
         sg.addCommands(new ArmGoHome(r).raceWith(holdIntake(r)));
 
         return sg;

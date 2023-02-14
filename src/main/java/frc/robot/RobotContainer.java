@@ -18,6 +18,7 @@ import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -64,10 +65,13 @@ public class RobotContainer {
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
 
     specialAutonChooser = new SendableChooser<>();
+    specialAutonChooser.setDefaultOption("No Special Command", 0);
+    specialAutonChooser.addOption("Special Command", 1);
+    SmartDashboard.putData("Special Chooser", specialAutonChooser);
 
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
     startPosChooser = new SendableChooser<>();
-    startPosChooser.addOption("Right-Right", 0);
+    startPosChooser.setDefaultOption("Right-Right", 0);
     startPosChooser.addOption("Right-Middle", 1);
     startPosChooser.addOption("Right-Left", 2);
     startPosChooser.addOption("Community-Right", 3);
@@ -76,29 +80,34 @@ public class RobotContainer {
     startPosChooser.addOption("Left-Right", 6);
     startPosChooser.addOption("Left-Middle", 7);
     startPosChooser.addOption("Left-Left", 8);
+    SmartDashboard.putData("Start Position", startPosChooser);
 
     secondPieceChooser = new SendableChooser<>();
-    secondPieceChooser.addOption("Right", true);
+    secondPieceChooser.setDefaultOption("Right", true);
     secondPieceChooser.addOption("Left", false);
+    SmartDashboard.putData("Second Piece", secondPieceChooser);
 
     actionChooser = new SendableChooser<>();
-    actionChooser.addOption("Do Nothing", 0);
+    actionChooser.setDefaultOption("Do Nothing", 0);
     actionChooser.addOption("Drive", 1);
     actionChooser.addOption("1-Score Drive", 2);
     actionChooser.addOption("1-Score Park", 3);
     actionChooser.addOption("2-Score", 4);
     actionChooser.addOption("2-Score Park", 5);
+    SmartDashboard.putData("Auton", actionChooser);
 
     pathChooser = new SendableChooser<>();
-    pathChooser.addOption("Substation", 0);
+    pathChooser.setDefaultOption("Substation", 0);
     pathChooser.addOption("Charge Station", 1);
     pathChooser.addOption("Wall", 2);
+    SmartDashboard.putData("Path", pathChooser);
 
     pieceChooser = new SendableChooser<>();
-    pieceChooser.addOption("Left", 0);
+    pieceChooser.setDefaultOption("Left", 0);
     pieceChooser.addOption("Mid Left", 1);
     pieceChooser.addOption("Mid Right", 2);
     pieceChooser.addOption("Right", 3);
+    SmartDashboard.putData("Mid-Field Piece", pieceChooser);
 
     // Configure the trigger bindings
     configureBindings();
@@ -116,7 +125,7 @@ public class RobotContainer {
   
   private void configureBindings() {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
-    inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetNavXAng).ignoringDisable(true));//up on the left blue jog doo-hickey
+    inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
