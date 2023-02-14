@@ -101,6 +101,13 @@ public class Vector {
         return this;
     }
 
+    public Vector sub(Vector v){
+        Vector nV = new Vector(v);
+        nV.negate();
+
+        return this.add(nV);
+    }
+
     public double getX(){
         return r * Math.cos(theta);
     }
