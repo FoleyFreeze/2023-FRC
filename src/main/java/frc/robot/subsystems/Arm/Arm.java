@@ -54,7 +54,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void jogOut(){
-        jogOffset.incrmntX(r.arm.cals.jogOutDist);
+        jogOffset.incrmntY(r.arm.cals.jogOutDist);
     }
     
     @Override
@@ -63,6 +63,8 @@ public class Arm extends SubsystemBase {
 
         if(setPoint != null){
             double currentAngle = angleMotor.getPosition();
+
+            //offset and wanted setpoint combined
             setPointTwo = Vector.addVectors(setPoint, jogOffset);
 
             //interpolate (view)

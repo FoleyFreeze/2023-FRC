@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
@@ -77,7 +78,7 @@ public class Robot extends TimedRobot {
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        r.autonCommand = new DistanceDrive(r, Vector.fromXY(0,60));
+        r.autonCommand = new DriveMotionProfile(r, Vector.fromXY(0, 80));
       } else {
         r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 

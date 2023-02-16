@@ -1,6 +1,7 @@
 package frc.robot.commands.Auton.AdvancedMovement;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
@@ -31,9 +32,9 @@ public class DriveMotionProfile extends CommandBase{
     private double maxVelDist;
     public void initialize(){
 
-        startLoc = r.sensors.odo.botLocation;
+        startLoc = new Vector(r.sensors.odo.botLocation);
         
-        totalDistance =  Vector.subVector(endLoc, startLoc);
+        totalDistance = Vector.subVector(endLoc, startLoc);
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
        
         if (totalDistance.r >= distThreshold){
@@ -42,6 +43,7 @@ public class DriveMotionProfile extends CommandBase{
             decelDist = distThreshold / 2;
             maxVelDist = totalDistance.r - distThreshold;
             accelTime =  Math.sqrt(distThreshold / AutonCal.maxAccel);
+            System.out.println("" + accelTime);
             maxVelTime = accelTime + maxVelDist / AutonCal.maxVel;
             decelTime = maxVelTime + accelTime;
         } else{
@@ -56,6 +58,9 @@ public class DriveMotionProfile extends CommandBase{
         startTime = Timer.getFPGATimestamp();
     }
     
+    enum Stages {NONE, STAGE_ONE, STAGE_TWO, STAGE_THREE};
+    Stages stage = Stages.NONE;
+
     public void execute (){
         double runTime = Timer.getFPGATimestamp() - startTime;
         
@@ -63,41 +68,49 @@ public class DriveMotionProfile extends CommandBase{
         Vector targetVel = new Vector(0,totalDistance.theta);
         double targetAccel;
         if (runTime < accelTime){ 
+            stage = Stages.STAGE_ONE;
             //stage 1
             targetAccel = AutonCal.maxAccel;
             targetPos.r = 0.5 * targetAccel * runTime * runTime;
             targetVel.r = targetAccel * runTime;
         } else if (runTime < maxVelTime) { 
+            stage = Stages.STAGE_TWO;
             //stage 2
             targetAccel = 0;
             targetVel.r = AutonCal.maxVel;
             targetPos.r = ((runTime - accelTime) * targetVel.r) + accelDist;
         } else if (runTime < decelTime) { 
+            stage = Stages.STAGE_THREE;
             //stage 3
             double t = runTime - decelTime;
             targetAccel = -AutonCal.maxAccel;
             targetPos.r = 0.5 * targetAccel * t * t + totalDistance.r;
             targetVel.r = t * targetAccel;
         } else { 
+            stage = Stages.NONE;
             //end
             targetPos.r = totalDistance.r;
             targetVel.r = 0;
             targetAccel = 0;
         }
+
         
         //PID
         Vector currentPos = r.sensors.odo.botLocation;
-        targetPos.add(startLoc).negate().add(currentPos).negate();
-        targetPos.r *= AutonCal.kP_MP;
-        targetVel.add(targetPos);
-
+        Vector distVec = new Vector(startLoc).sub(currentPos);
+        double errorMag = targetPos.r - distVec.r;
+        distVec.add(targetPos).r *= AutonCal.kP_MP;
+        Vector totalVel = new Vector(targetVel).add(distVec);
 
         //output
-        r.driveTrain.swerveMP(targetVel, targetAccel);
+        r.driveTrain.swerveMP(totalVel, targetAccel);
+        
+        System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
+        SmartDashboard.putString("MP Stage", stage.toString());
     }
 
     public boolean isFinished(){
-        return false;
+        return false;//TODO: this needs to stop!!!!!
     }
 
     public void end(){
