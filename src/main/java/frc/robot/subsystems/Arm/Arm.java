@@ -67,8 +67,9 @@ public class Arm extends SubsystemBase {
             //offset and wanted setpoint combined
             setPointTwo = Vector.addVectors(setPoint, jogOffset);
 
-            //interpolate (view)
+            //interpolate - this prevents the gripper from hitting the ground
             double lengthMax = Util.interp(cals.angleAxis, cals.lengthMax, currentAngle);
+            
 
             //only letting stendo and angle move to their min/max
             double angleSetpoint = Util.bound(setPointTwo.theta, cals.angleMin, cals.angleMax);
