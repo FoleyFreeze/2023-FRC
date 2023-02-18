@@ -48,6 +48,33 @@ public class Sensors extends SubsystemBase{
         System.out.println("position has been reset");
     }
 
+    double pitchOffset;
+    double rollOffset;
+    public void initPitchRoll(){
+        pitchOffset = navX.getPitch();
+        rollOffset = navX.getRoll();
+    }
+
+    public double getPitchRoll(){
+        double pitch = navX.getPitch() - pitchOffset;
+        double roll = navX.getRoll() - rollOffset;
+        if (Math.abs(pitch) > Math.abs(roll)){ 
+                return pitch;
+        }else{
+                return roll;
+        }
+    }
+
+    public double getAbsPitchRoll(){
+        double pitch = navX.getPitch() - pitchOffset;
+        double roll = navX.getRoll() - rollOffset;
+        if (Math.abs(pitch) > Math.abs(roll)){ 
+                return Math.abs(pitch);
+        }else{
+                return Math.abs(roll);
+        }
+    }
+
     @Override
     public void periodic(){
         double robotYaw = getNavXAng();

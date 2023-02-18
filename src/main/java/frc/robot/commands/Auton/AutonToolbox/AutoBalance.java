@@ -19,11 +19,11 @@ public class AutoBalance {
         sg.addRequirements(r.driveTrain);
 
         //driving sideways(roll) for 3 seconds or until we make it most of the way up the [lifty] thing
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(0, .2), 3).until(() -> r.sensors.navX.getRoll() > 33));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(0, .2), 3).until(() -> r.sensors.getAbsPitchRoll() > 33));
         //now wait until the charge station starts falling down
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(0, .2), 1).until(() -> r.sensors.navX.getRoll() < 30));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(0, .2), 1).until(() -> r.sensors.getAbsPitchRoll() < 30));
         //stop until we are at the wanted pitch/roll
-        sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain).until(() -> r.sensors.navX.getRoll() < 2));
+        sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain).until(() -> r.sensors.getAbsPitchRoll() < 2));
         //move back a little bit
         sg.addCommands(new DriveForTime(r, Vector.fromXY(0, .2), .5));
         //park
@@ -31,11 +31,11 @@ public class AutoBalance {
         //wait
         sg.addCommands(new WaitCommand(1.54));
         //adjust
-        sg.addCommands(new ConditionalCommand(new WaitCommand(5), 
+        /*sg.addCommands(new ConditionalCommand(new WaitCommand(5), 
                                             new ConditionalCommand(new DriveForTime(r, Vector.fromXY(0, -.2), .3), 
                                                                    new DriveForTime(r, Vector.fromXY(0, .2), .3), 
                                                                    () -> r.sensors.navX.getRoll() < -10), 
-                                            () -> r.sensors.navX.getRoll() > -10 && r.sensors.navX.getRoll() < 10));
+                                            () -> r.sensors.navX.getRoll() > -10 && r.sensors.navX.getRoll() < 10));*/
 
         return sg;
     }
@@ -49,11 +49,11 @@ public class AutoBalance {
         sg.addRequirements(r.driveTrain);
 
         //driving sideways(roll) for 60 inches or until we make it most of the way up the thing
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(0, 60)).until(() -> r.sensors.navX.getRoll() > 33));
+        sg.addCommands(new DistanceDrive(r, Vector.fromXY(0, 60)).until(() -> r.sensors.getAbsPitchRoll() > 33));
         //now wait until the charge station starts falling down
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(0, 18)).until(() -> r.sensors.navX.getRoll() < 30));
+        sg.addCommands(new DistanceDrive(r, Vector.fromXY(0, 18)).until(() -> r.sensors.getAbsPitchRoll() < 30));
         //stop until we are at the wanted pitch/roll
-        sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain).until(() -> r.sensors.navX.getRoll() < 2));
+        sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain).until(() -> r.sensors.getAbsPitchRoll() < 2));
         //move back a little bit
         sg.addCommands(new DistanceDrive(r, Vector.fromXY(0, -3)));
         //park
@@ -61,11 +61,11 @@ public class AutoBalance {
         //wait
         sg.addCommands(new WaitCommand(1.54));
         //adjust
-        sg.addCommands(new ConditionalCommand(new WaitCommand(5), 
+        /*sg.addCommands(new ConditionalCommand(new WaitCommand(5), 
                                             new ConditionalCommand(new DistanceDrive(r, Vector.fromXY(0, -3)), 
                                                                    new DistanceDrive(r, Vector.fromXY(0, 3)), 
                                                                    () -> r.sensors.navX.getRoll() < -10), 
-                                            () -> r.sensors.navX.getRoll() > -10 && r.sensors.navX.getRoll() < 10));
+                                            () -> r.sensors.navX.getRoll() > -10 && r.sensors.navX.getRoll() < 10));*/
         
         return sg;
     }
