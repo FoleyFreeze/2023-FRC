@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Arm;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Util;
@@ -11,12 +13,17 @@ public class Arm extends SubsystemBase {
     RobotContainer r;
     public ArmCal cals; 
 
+    AnalogInput armPot;
+
     Motor angleMotor;
     Motor stendoMotor; 
     
     Vector setPoint;
     Vector setPointTwo;
     boolean isAngleOnly = false;
+
+    double timeOfStendoReset;
+    double stendoCurrentTime;
 
     Vector jogOffset = new Vector(0,0);
 
@@ -27,6 +34,7 @@ public class Arm extends SubsystemBase {
 
         angleMotor = Motor.create(cals.angleMotor);
         stendoMotor = Motor.create(cals.lengthMotor);
+        armPot = new AnalogInput(cals.armPotChannel);
     }
 
     //move arm and stendo to new position
@@ -56,20 +64,35 @@ public class Arm extends SubsystemBase {
     public void jogOut(){
         jogOffset.incrmntY(r.arm.cals.jogOutDist);
     }
+
+    public void learnArmOffset(){
+        //get the arm position from a pot
+        double currentAngle = armPot.getVoltage() * cals.armPotSlope + cals.armPotOffset;
+        angleMotor.setEncoderPosition(currentAngle);
+
+        //the stendo should reset to a mid-ish position, 
+        //but then on retraction it should hit the stop and relearn
+        stendoMotor.setEncoderPosition(cals.initialStendoPosition);
+    }
     
     @Override
     public void periodic(){
         if(cals.disabled) return;
 
         if(setPoint != null){
-            double currentAngle = angleMotor.getPosition();
-
             //offset and wanted setpoint combined
             setPointTwo = Vector.addVectors(setPoint, jogOffset);
+            
+            double currentAngle = angleMotor.getPosition();
+            double setpointAngle = Math.toDegrees(setPointTwo.theta);
+            double currentAngleError = setpointAngle - currentAngle;
 
             //interpolate - this prevents the gripper from hitting the ground
             double lengthMax = Util.interp(cals.angleAxis, cals.lengthMax, currentAngle);
             
+            //interp limits again, this keeps the rotational inertia of the arm down
+            double lengthMax2 = Util.interp(cals.armAngleErrorAxis, cals.stendoLengthMax, Math.abs(currentAngleError));
+            lengthMax = Math.min(lengthMax,lengthMax2);
 
             //only letting stendo and angle move to their min/max
             double angleSetpoint = Util.bound(setPointTwo.theta, cals.angleMin, cals.angleMax);
@@ -79,17 +102,38 @@ public class Arm extends SubsystemBase {
             angleMotor.setPosition(angleSetpoint);
             if(isAngleOnly){
                 stendoMotor.setPower(0);
+                stendoCurrentTime = 0;
             } else {
                 stendoMotor.setPosition(lengthSetpoint);
+                determineStendoReset(lengthSetpoint);
             }
         }
+
     }
 
     //mathify for error
-    public double getError(){
-        double error = Math.abs(setPointTwo.theta - angleMotor.getPosition());
-        error +=  Math.abs(setPointTwo.r - stendoMotor.getPosition()*4);
-        return error;
+    public Vector getError(){;
+        Vector currentVector = new Vector(stendoMotor.getPosition(),angleMotor.getPosition());
+        return Vector.subVector(setPointTwo, currentVector);
     }
 
+
+    private void determineStendoReset(double lengthSetpoint){
+        double now = Timer.getFPGATimestamp();
+        if(lengthSetpoint == cals.lengthMin 
+                && now - timeOfStendoReset > cals.minStendoResetTime){
+            
+            if(stendoMotor.getCurrent() > cals.stendoResetCurrent){
+                stendoCurrentTime += r.sensors.dt;
+
+                if(stendoCurrentTime > cals.stendoResetCurrentTime){
+                    stendoMotor.setEncoderPosition(cals.lengthMin);
+                    timeOfStendoReset = Timer.getFPGATimestamp();
+                }
+            } else {
+                stendoCurrentTime = 0;
+            }
+            
+        }
+    }
 }

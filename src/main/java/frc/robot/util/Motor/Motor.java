@@ -25,7 +25,7 @@ public interface Motor {
     public abstract void setPower(double power);
     public abstract double getPosition();
     public abstract void setPosition(double position);
-    public abstract void resetPosition(double position);
+    public abstract void setEncoderPosition(double position);
     public abstract void setSpeed(double rpm);
     public abstract double getCurrent();
     public abstract double getTemp();

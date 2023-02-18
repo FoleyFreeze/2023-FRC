@@ -2,6 +2,7 @@ package frc.robot.subsystems.Sensors;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -19,6 +20,9 @@ public class Sensors extends SubsystemBase{
 
     public double prevAng;
     public double prevWheelPos;
+
+    public double dt;
+    public double prevTime;
 
     public Sensors(RobotContainer r, SensorCal cal){
         this.r = r;
@@ -77,6 +81,10 @@ public class Sensors extends SubsystemBase{
 
     @Override
     public void periodic(){
+        double now = Timer.getFPGATimestamp();
+        dt = now - prevTime;
+        prevTime = now;
+
         double robotYaw = getNavXAng();
         Vector[] wheelStates = r.driveTrain.getWheelState();
         odo.update(robotYaw, wheelStates);

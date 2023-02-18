@@ -55,7 +55,7 @@ public class SparkMotor implements Motor{
     }
 
     @Override
-    public void resetPosition(double position) {
+    public void setEncoderPosition(double position) {
         REVLibError err = encoder.setPosition(position / cal.gearRatio);
         if(!err.equals(REVLibError.kOk)){
             System.out.println("Error resetting wheel: " + err.toString());
