@@ -33,7 +33,7 @@ public class DriveMotionProfile extends CommandBase{
 
         startLoc = r.sensors.odo.botLocation;
         
-        totalDistance =  Vector.subVector(endLoc, startLoc);
+        totalDistance =  Vector.subVectors(endLoc, startLoc);
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
        
         if (totalDistance.r >= distThreshold){

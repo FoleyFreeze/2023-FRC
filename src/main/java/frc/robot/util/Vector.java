@@ -37,7 +37,7 @@ public class Vector {
         return result;
     }
 
-    public static Vector subVector(Vector v1, Vector v2){
+    public static Vector subVectors(Vector v1, Vector v2){
         Vector v = new Vector(v2);
         return v.negate().add(v1);
     }
@@ -57,6 +57,8 @@ public class Vector {
         if(valid != 0){
             x = x / valid;
             y = y / valid;
+        } else {
+            return null;
         }
 
         return Vector.fromXY(x, y);
@@ -70,8 +72,12 @@ public class Vector {
         return averageSomeVectors(vecs, group);
     }
 
+    public static Vector getInverted(Vector v){
+        return new Vector(-v.r, v.theta);
+    }
+
     public String toStringXY(){
-        return String.format("%.1f, %.1f", getX(), getY());
+        return String.format("%.3f, %.3f", getX(), getY());
     }
 
     public boolean monkeyTrouble(double aSmile, double bSmile){

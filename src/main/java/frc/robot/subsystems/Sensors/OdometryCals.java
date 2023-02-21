@@ -5,4 +5,8 @@ public class OdometryCals {
     public double maxStandardDeviations = 1.7;//lowering this decreases the threshold of wheels allowed to pass through
 
     public double maxNavXWheelAngDiff = 0.017;//1 degree off
+
+    public static double testDValue = 0.001;
+    public static double maxStandardDeviationsStrafeCOR = 0.5775;
+    public static double maxStandardDeviationsAngleCOR = 0.5775;
 }

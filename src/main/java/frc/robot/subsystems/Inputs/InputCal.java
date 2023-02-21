@@ -16,6 +16,7 @@ public class InputCal {
     public final int[] RESET_ANG = {10, 0, 0};
     public final int[] RESET_POS = {14, 0, 0};
 
+    public final int[] AUTO_PICKUP = {0, 0, 0};
 
     //control board indexes
 

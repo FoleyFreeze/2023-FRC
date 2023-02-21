@@ -16,7 +16,6 @@ import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -127,6 +126,9 @@ public class RobotContainer {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
+
+    //inputs.autoGather.and(() -> inputs.isShelf()).whileTrue(Score.DriveScore(r, () -> inputs.selectedPosition.ordinal, () -> inputs.selectedLevel.ordinal(), false)) //THIS DOESNT WORK
+
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
     inputs.jogRight.onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
