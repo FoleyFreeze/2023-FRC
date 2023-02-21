@@ -159,6 +159,16 @@ public class Inputs extends SubsystemBase{
         }
     });
 
+    public Trigger balanceMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.BALANCE_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
     // ------------- End drive inputs ------------- //
 
 

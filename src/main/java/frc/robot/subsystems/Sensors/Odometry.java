@@ -83,7 +83,7 @@ public class Odometry implements AutoCloseable {
             wheelLocations[i] = wCal[i].wheelLocation;
         }
 
-        double[] bestValues = formulateOkValues(realVecs, wheelLocations);
+        double[] bestValues = formulateBestValues(realVecs, wheelLocations);
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
         double bestAngle = bestValues[2];
         double xError = bestValues[3];

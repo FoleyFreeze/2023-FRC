@@ -41,6 +41,6 @@ public class ArmMove extends CommandBase{
     //stop if less than error
     @Override
     public boolean isFinished(){
-        return (r.arm.getError() < 6);
+        return (r.arm.getError().r < 6);
     }
 }

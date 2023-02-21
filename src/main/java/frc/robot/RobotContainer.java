@@ -15,6 +15,7 @@ import frc.robot.subsystems.Gripper.Gripper;
 import frc.robot.subsystems.Gripper.GripperCal;
 import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
+import frc.robot.subsystems.Inputs.Lights;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
 import frc.robot.util.Vector;
@@ -37,12 +38,14 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   public Inputs inputs;
+  public Lights lights;
   public Sensors sensors;
   public DriveTrain driveTrain;
   public Arm arm;
   public Gripper gripper;
 
   public DriveCal dCal;
+  public InputCal iCal;
 
   public SendableChooser<Integer> specialAutonChooser;
 
@@ -56,8 +59,10 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     dCal = new DriveCal();
+    iCal = new InputCal();
     
-    inputs = new Inputs(this, new InputCal());
+    inputs = new Inputs(this, iCal);
+    lights = new Lights(this, iCal);
     sensors = new Sensors(this, new SensorCal());
     driveTrain = new DriveTrain(this, dCal);
     arm = new Arm(this, new ArmCal());
