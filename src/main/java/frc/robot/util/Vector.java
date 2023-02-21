@@ -107,6 +107,13 @@ public class Vector {
         return this;
     }
 
+    public Vector sub(Vector v){
+        Vector nV = new Vector(v);
+        nV.negate();
+
+        return this.add(nV);
+    }
+
     public double getX(){
         return r * Math.cos(theta);
     }
@@ -115,6 +122,7 @@ public class Vector {
         return r * Math.sin(theta);
     }
 
+    //between polar and cartesian coordiantes
     public void incrmntX(double plusX){
         double x = getX() + plusX;
         double y = getY();
@@ -123,6 +131,7 @@ public class Vector {
         theta = Math.atan2(y, x);
     }
 
+    //between polar and cartesian coordiantes
     public void incrmntY(double plusY){
         double y = getY() + plusY;
         double x = getX();

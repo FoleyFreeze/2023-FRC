@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Drive.CmdDrive;
 import frc.robot.commands.Drive.ResetSwerveAngs;
 import frc.robot.subsystems.Arm.Arm;
@@ -16,6 +17,8 @@ import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
+import frc.robot.util.Vector;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -133,6 +136,14 @@ public class RobotContainer {
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
     inputs.jogRight.onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
     inputs.jogLeft.onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
+
+
+
+
+
+    SmartDashboard.putData("ArmUp", new ArmMove(this, new Vector(1, Math.PI*.5)));
+    SmartDashboard.putData("ArmMid", new ArmMove(this, new Vector(1, Math.PI*.25)));
+    SmartDashboard.putData("ArmDown", new ArmMove(this, new Vector(1, 0)));
   }
 
   /**

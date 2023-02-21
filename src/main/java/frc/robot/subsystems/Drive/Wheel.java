@@ -43,7 +43,7 @@ public class Wheel {
     }
 
     public void setEncAngOffset(double voltOffset){
-        swerveMotor.resetPosition(0.0);
+        swerveMotor.setEncoderPosition(0.0);
         //subtract the offset from learned volt offsets; convert to 
         encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
         System.out.println(cal.name + " angle offset: " + Angle.toDeg(encAngOffset));
@@ -51,7 +51,7 @@ public class Wheel {
     }
 
     public void resetPosition(double offset){
-        driveMotor.resetPosition(offset);
+        driveMotor.setEncoderPosition(offset);
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain

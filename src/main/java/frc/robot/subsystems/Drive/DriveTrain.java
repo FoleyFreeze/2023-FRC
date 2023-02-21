@@ -98,8 +98,9 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void swerveMP(Vector velocity, double accel){
+        SmartDashboard.putNumber("velocity", velocity.r);
         Vector Power = new Vector(velocity);
-        Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS; 
+        Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS;
         driveSwerve(Power, 0);
     }
 

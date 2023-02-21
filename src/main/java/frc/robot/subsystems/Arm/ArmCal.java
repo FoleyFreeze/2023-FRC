@@ -8,19 +8,33 @@ public class ArmCal {
     
     final public boolean disabled = true;
 
-    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 0).setRatio(360/10.0);
+    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 0).setRatio(180 * 0.5 / Math.PI);
     public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 0);
 
+    public int armPotChannel = 4;
+    public double armPotOffset = 0;// in radians
+    public double armPotSlope = 0; // in radians per volt
+
     //max/min arm can move
-    public double angleMax = 0;   
+    public double angleMax = 0;
     public double angleMin = 0;
                                 //TODO: get real values
     public double[] lengthMax = {2, 5, 7, 30, 30, 30};
     public double[] angleAxis = {0,25,60,100,175,180};
     public double lengthMin = 0;
+    public double initialStendoPosition = 0;
 
-    public double jogUpDist = 1;
+    public double jogUpDist = 1; //inches
     public double jogOutDist = 1;
+
+    //stendo max length restriction based on arm angle error
+    public double[] stendoLengthMax = {30, lengthMin};
+    public double[] armAngleErrorAxis = {10, 40};
+
+    //stendo enc reset
+    public double minStendoResetTime = 9999; //min time between resets
+    public double stendoResetCurrent = 0; //current threshold for reset (motor side)
+    public double stendoResetCurrentTime = 0; //time current must be high for
 
     //common arm positions
     public Vector positionHome = new Vector(0, 0);

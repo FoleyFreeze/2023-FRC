@@ -2,6 +2,7 @@ package frc.robot.subsystems.Sensors;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -19,6 +20,9 @@ public class Sensors extends SubsystemBase{
 
     public double prevAng;
     public double prevWheelPos;
+
+    public double dt;
+    public double prevTime;
 
     public Sensors(RobotContainer r, SensorCal cal){
         this.r = r;
@@ -48,8 +52,39 @@ public class Sensors extends SubsystemBase{
         System.out.println("position has been reset");
     }
 
+    double pitchOffset;
+    double rollOffset;
+    public void initPitchRoll(){
+        pitchOffset = navX.getPitch();
+        rollOffset = navX.getRoll();
+    }
+
+    public double getPitchRoll(){
+        double pitch = navX.getPitch() - pitchOffset;
+        double roll = navX.getRoll() - rollOffset;
+        if (Math.abs(pitch) > Math.abs(roll)){ 
+                return pitch;
+        }else{
+                return roll;
+        }
+    }
+
+    public double getAbsPitchRoll(){
+        double pitch = navX.getPitch() - pitchOffset;
+        double roll = navX.getRoll() - rollOffset;
+        if (Math.abs(pitch) > Math.abs(roll)){ 
+                return Math.abs(pitch);
+        }else{
+                return Math.abs(roll);
+        }
+    }
+
     @Override
     public void periodic(){
+        double now = Timer.getFPGATimestamp();
+        dt = now - prevTime;
+        prevTime = now;
+
         double robotYaw = getNavXAng();
         Vector[] wheelStates = r.driveTrain.getWheelState();
         odo.update(robotYaw, wheelStates);

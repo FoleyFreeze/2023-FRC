@@ -22,7 +22,7 @@ public class NullMotor implements Motor{
     }
 
     @Override
-    public void resetPosition(double position) {
+    public void setEncoderPosition(double position) {
         
     }
 

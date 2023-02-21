@@ -188,7 +188,7 @@ public class Inputs extends SubsystemBase{
 
     // ------------- Control Board inputs ------------- //
     
-    public boolean getFieldMode(){//TODO: Make a standard global way of controlling drive power
+    public boolean getFieldMode(){
         if(cBoard != null){
             return cBoard.getRawButton(cal.FIELD_MODE);
         } else {
