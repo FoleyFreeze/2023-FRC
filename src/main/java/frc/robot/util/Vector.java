@@ -143,4 +143,8 @@ public class Vector {
         r = Math.sqrt(x*x + y*y);
         theta = Math.atan2(y, x);
     }
+
+    public static boolean checkVectorEquality(Vector v1, Vector v2){
+        return v1.getX() == v2.getX() && v1.getY() == v2.getY();
+    }
 }

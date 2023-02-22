@@ -192,8 +192,14 @@ public class Odometry implements AutoCloseable {
         }
 
         //Bad wheel detection
-        Vector[] condensedStrafes = condenseArrayArray(strafes);
+        Vector[] allCondensedStrafes = condenseArrayArray(strafes);
+        //get rid of repeat values
+        Vector[] condensedStrafes = {Vector.averageVectors(allCondensedStrafes[0], allCondensedStrafes[1], allCondensedStrafes[2]),
+                                     Vector.averageVectors(allCondensedStrafes[3], allCondensedStrafes[4], allCondensedStrafes[5]),
+                                     Vector.averageVectors(allCondensedStrafes[5], allCondensedStrafes[7], allCondensedStrafes[8]),
+                                     Vector.averageVectors(allCondensedStrafes[9], allCondensedStrafes[10], allCondensedStrafes[11])};
         double strafeStDev = getStDev(condensedStrafes);
+
         //hacky bs
         Vector[][] vectorAngles = new Vector[angles.length][angles[0].length];
         for(int i = 0; i < angles.length; i++){
@@ -201,60 +207,84 @@ public class Odometry implements AutoCloseable {
                 vectorAngles[i][corIdx] = new Vector(angles[i][corIdx], 0);
             }
         }
-        Vector[] condensedAngles = condenseArrayArray(vectorAngles);
+        Vector[] allCondensedAngles = condenseArrayArray(vectorAngles);//Ironically, you only really want to look at the magnitude instead of angle to find the angles
+        //get rid of repeat values
+        Vector[] condensedAngles = {Vector.averageVectors(allCondensedAngles[0], allCondensedAngles[1], allCondensedAngles[2]),
+                                    Vector.averageVectors(allCondensedAngles[3], allCondensedAngles[4], allCondensedAngles[5]),
+                                    Vector.averageVectors(allCondensedAngles[5], allCondensedAngles[7], allCondensedAngles[8]),
+                                    Vector.averageVectors(allCondensedAngles[9], allCondensedAngles[10], allCondensedAngles[11])};
         double angleStDev = getStDev(condensedAngles);
 
-        boolean[][] badValues = {{false, false, false}, {false, false, false}, {false, false, false}, {false, false, false}};//true means it's bad
-        for(int i = 0; i < realVecs.length; i++){
-            Vector averageStrafe = Vector.averageVectors(condensedStrafes);
-            double averageAngle = Vector.averageVectors(condensedAngles).r;
-            //remove the bad wheels and their no-good values
-            for(int corIdx = 0; corIdx < 3; corIdx++){
-                if((strafeStDev > 0.01 || strafeStDev < -0.01) 
-                 && Math.abs(Vector.subVectors(strafes[i][corIdx], averageStrafe).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
-                    //badValues[i][corIdx] = true;
-                    //System.out.println("Bad Value: " + i + " | " + corIdx);
-                } else if((angleStDev > 0.01 || angleStDev < -0.01) 
-                        && Math.abs(angles[i][corIdx] - averageAngle) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
-                    //badValues[i][corIdx] = true;
-                    //System.out.println("Bad Value: " + i + " | " + corIdx);
+
+        boolean[] badValues = {false, false, false, false};//true means it's bad
+
+        double bestStrafeDiff = Double.POSITIVE_INFINITY;
+        int[] bestStrafePos = new int[2];
+        double bestAngleDiff = Double.POSITIVE_INFINITY;
+        int[] bestAngPos = new int[2];
+
+        //Find the best values we have
+        for(int i = 0; i < condensedStrafes.length; i++){
+            for(int compareIdx = 1; compareIdx < condensedStrafes.length-1; compareIdx++){
+                int idxWrapper = (i + compareIdx) % condensedStrafes.length;
+                if(Math.abs(Vector.subVectors(condensedStrafes[i], condensedStrafes[idxWrapper]).r) < bestStrafeDiff){
+                    bestStrafeDiff = Math.abs(Vector.subVectors(condensedStrafes[i], condensedStrafes[idxWrapper]).r);
+                    bestStrafePos[0] = i;
+                    bestStrafePos[1] = idxWrapper;
+                }
+                if(Math.abs(condensedAngles[i].r - condensedAngles[idxWrapper].r) < bestAngleDiff){
+                    bestAngleDiff = Math.abs(condensedAngles[i].r - condensedAngles[idxWrapper].r);
+                    bestAngPos[0] = i;
+                    bestAngPos[1] = idxWrapper;
                 }
             }
         }
 
-        double highestStrafeX = 0;
-        double highestStrafeY = 0;
-        double lowestStrafeX = 0;
-        double lowestStrafeY = 0;
+        Vector bestStrafeVal = Vector.averageVectors(condensedStrafes[bestStrafePos[0]], condensedStrafes[bestStrafePos[1]]);
+        double bestAngVal = (condensedAngles[bestStrafePos[0]].r + condensedAngles[bestStrafePos[1]].r) / 2;
+        //remove the bad wheels and their no-good values
+        for(int i = 0; i < condensedStrafes.length; i++){
+            if(Math.abs(strafeStDev) > 0.01 && 
+               Math.abs(Vector.subVectors(condensedStrafes[i], bestStrafeVal).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
+                badValues[i] = true;
+            }
+            if(Math.abs(angleStDev) > 0.01 && 
+               Math.abs(condensedAngles[i].r - bestAngVal) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
+                badValues[i] = true;
+            }
+        }
 
-        double highestAngle = 0;
-        double lowestAngle = 0;
+        double highestStrafeX = Double.NEGATIVE_INFINITY;
+        double highestStrafeY = Double.NEGATIVE_INFINITY;
+        double lowestStrafeX = Double.POSITIVE_INFINITY;
+        double lowestStrafeY = Double.POSITIVE_INFINITY;
+
+        double highestAngle = Double.NEGATIVE_INFINITY;
+        double lowestAngle = Double.POSITIVE_INFINITY;
 
         double finalStrafeX = 0;
         double finalStrafeY = 0;
         double finalAngle = 0;
         int finalLength = 0;
         for(int i = 0; i < realVecs.length; i++){
-            for(int corIdx = 0; corIdx < 3; corIdx++){
-                if(badValues[i][corIdx] == false){
-                    double x = strafes[i][corIdx].getX();
-                    double y = strafes[i][corIdx].getY();
-                    double angle = angles[i][corIdx];
+            if(badValues[i] == false){
+                double x = condensedStrafes[i].getX();
+                double y = condensedStrafes[i].getY();
+                double angle = condensedAngles[i].r;
 
-                    finalStrafeX += x;
-                    if(x > highestStrafeX) highestStrafeX = x;
-                    if(x < lowestStrafeX) lowestStrafeX = x;
+                finalStrafeX += x;
+                if(x >= highestStrafeX) highestStrafeX = x;
+                if(x <= lowestStrafeX) lowestStrafeX = x;
 
-                    finalStrafeY += y;
-                    if(y > highestStrafeY) highestStrafeY = y;
-                    if(y < lowestStrafeY) lowestStrafeY = y;
+                finalStrafeY += y;
+                if(y >= highestStrafeY) highestStrafeY = y;
+                if(y <= lowestStrafeY) lowestStrafeY = y;
 
-                    finalAngle += angle;
-                    if(angle > highestAngle) highestAngle = angle;
-                    if(angle < lowestAngle) lowestAngle = angle;
-                    
-                    finalLength++;
-                }
+                finalAngle += angle;
+                if(angle >= highestAngle) highestAngle = angle;
+                if(angle <= lowestAngle) lowestAngle = angle;
+                
+                finalLength++;
             }
         }
         Vector finalStrafe = Vector.fromXY(finalStrafeX/finalLength, finalStrafeY/finalLength);

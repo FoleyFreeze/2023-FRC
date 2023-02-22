@@ -24,6 +24,8 @@ public class MotorCal {
 
     public double currLim = 0;
 
+    public boolean brakeMode = false;
+
     public MotorCal(MotorType type, int channel){
         this.type = type;
         this.channel = channel;
@@ -59,6 +61,11 @@ public class MotorCal {
 
     public MotorCal setCurrLim(double lim){
         currLim = lim;
+        return this;
+    }
+
+    public MotorCal setBrakeMode(boolean brakeMode){
+        this.brakeMode = brakeMode;
         return this;
     }
 }

@@ -7,6 +7,6 @@ public class OdometryCals {
     public double maxNavXWheelAngDiff = 0.017;//1 degree off
 
     public static double testDValue = 0.001;
-    public static double maxStandardDeviationsStrafeCOR = 1.0;
-    public static double maxStandardDeviationsAngleCOR = 1.0;
+    public static double maxStandardDeviationsStrafeCOR = 0.3;
+    public static double maxStandardDeviationsAngleCOR = 0.3;
 }

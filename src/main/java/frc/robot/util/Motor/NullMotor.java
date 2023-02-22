@@ -28,13 +28,11 @@ public class NullMotor implements Motor{
 
     @Override
     public void setSpeed(double rpm) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public double getCurrent() {
-        // TODO Auto-generated method stub
         return 0;
     }
 

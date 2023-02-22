@@ -162,14 +162,17 @@ public class Robot extends TimedRobot {
     System.out.println("Third Length: " + vecs[2].value);*/
     Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
 
-        Vector xy = Vector.fromXY(0.0, 0.0);
-        double zPwr = 0.5;
+        Vector xy = Vector.fromXY(0.5, 0.0);
+        double zPwr = 0.0;
         Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
 
         for (Vector vector : driveVecs) {
           vector.r *= 10.0;
         }
-        driveVecs[1].r = 5.5;
+        driveVecs[0].r = 5.0;
+        driveVecs[1].r = 99;
+        driveVecs[2].r = 10000;
+        driveVecs[3].r = 5.0;
 
         //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
 

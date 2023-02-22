@@ -5,6 +5,7 @@ import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class SparkMotor implements Motor{
@@ -37,6 +38,12 @@ public class SparkMotor implements Motor{
         if(cal.currLim != 0){
             motor.setSmartCurrentLimit((int) cal.currLim);
             motor.setSecondaryCurrentLimit(cal.currLim);
+        }
+
+        if(cal.brakeMode){
+            motor.setIdleMode(IdleMode.kBrake);
+        } else {
+            motor.setIdleMode(IdleMode.kCoast);
         }
     }
 
@@ -77,5 +84,4 @@ public class SparkMotor implements Motor{
     public double getTemp(){
         return motor.getMotorTemperature();
     }
-
 }
