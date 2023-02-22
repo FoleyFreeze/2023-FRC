@@ -29,7 +29,7 @@ public class AutonPos {
     }
 
     public AutonPos mirrorY(boolean mirror){
-        xy = Vector.subVector(xy, Vector.fromXY(0, 2 * xy.getY()));
+        xy = Vector.subVectors(xy, Vector.fromXY(0, 2 * xy.getY()));
 
         return this;
     }

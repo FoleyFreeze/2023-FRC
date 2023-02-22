@@ -7,16 +7,18 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.Arm.ArmGoHome;
+import frc.robot.commands.Arm.ArmMove;
+import frc.robot.commands.Arm.PositionProvider;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
-import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
@@ -128,7 +130,17 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    SmartDashboard.putData("Move Arm Home", new ArmGoHome(r));
+    
+    PositionProvider provider = new PositionProvider() {
+      @Override
+      public Vector getPosition() {
+        return new Vector(0, 0);
+      }
+    };
+    SmartDashboard.putData("Move Arm to Value", new ArmMove(r, provider));
+  }
 
   @Override
   public void testInit() {
@@ -155,6 +167,32 @@ public class Robot extends TimedRobot {
     System.out.println("First Length: " + vecs[0].value);
     System.out.println("Second Length: " + vecs[1].value);
     System.out.println("Third Length: " + vecs[2].value);*/
+    Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
+
+        Vector xy = Vector.fromXY(0.0, 0.0);
+        double zPwr = 0.5;
+        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+
+        for (Vector vector : driveVecs) {
+          vector.r *= 10.0;
+        }
+        driveVecs[1].r = 5.5;
+
+        //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
+
+        //System.out.println("FR Centers Of Rot: " + centersOfRot[0][0] + " : " + centersOfRot[0][1] + " : " + centersOfRot[0][2]);
+        //System.out.println("FL Centers Of Rot: " + centersOfRot[1][0] + " : " + centersOfRot[1][1] + " : " + centersOfRot[1][2]);
+        //System.out.println("RL Centers Of Rot: " + centersOfRot[2][0] + " : " + centersOfRot[2][1] + " : " + centersOfRot[2][2]);
+        //System.out.println("RR Centers Of Rot: " + centersOfRot[3][0] + " : " + centersOfRot[3][1] + " : " + centersOfRot[3][2]);
+
+        double[] vals = Odometry.formulateBestValues(driveVecs, wheelLocations);
+        Vector strafe = new Vector(vals[0], vals[1]);
+        double angle = vals[2];
+        double error = vals[3];
+
+        System.out.println("Strafe: " + strafe);
+        System.out.println("Angle: " + angle);
+        System.out.println("Error " + error);
   }
 
   /** This function is called periodically whilst in simulation. */

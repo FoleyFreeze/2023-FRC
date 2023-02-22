@@ -36,7 +36,7 @@ public class DistanceDrive extends CommandBase {
     @Override
     public void execute(){
         Vector currPos = r.sensors.odo.botLocation;
-        Vector direction = Vector.subVector(endPosition, currPos);
+        Vector direction = Vector.subVectors(endPosition, currPos);
         direction.r = 0.3;
         r.driveTrain.driveSwerve(direction, 0);
     }
@@ -45,7 +45,7 @@ public class DistanceDrive extends CommandBase {
     @Override
     public boolean isFinished(){
         Vector currPos = r.sensors.odo.botLocation;
-        Vector distanceToTrgt = Vector.subVector(endPosition, currPos);
+        Vector distanceToTrgt = Vector.subVectors(endPosition, currPos);
         boolean done = distanceToTrgt.r > prevDist;
         prevDist = distanceToTrgt.r;
         return done;

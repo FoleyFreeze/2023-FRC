@@ -26,7 +26,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         addRequirements(r.driveTrain);
     }
 
-    public AutonPos[] formulateArcs(double minR, Vector startPos, AutonPos... wayPoints){
+    public static AutonPos[] formulateArcs(double minR, Vector startPos, AutonPos... wayPoints){
         Vector[] pointsWStart = new Vector[wayPoints.length + 1];
         pointsWStart[0] = startPos;
         for(int i = 1; i < pointsWStart.length; i++){
@@ -41,8 +41,8 @@ public class MultiDimensionalMotionProfile extends CommandBase {
             Vector midPoint = pointsWStart[i+1];
             Vector lastPoint = pointsWStart[i+2];
 
-            Vector firstVec = Vector.subVector(midPoint, firstPoint);
-            Vector lastVec = Vector.subVector(lastPoint, midPoint);
+            Vector firstVec = Vector.subVectors(midPoint, firstPoint);
+            Vector lastVec = Vector.subVectors(lastPoint, midPoint);
 
             //adds the complementary angles
             double angle = (Math.PI / 2 - firstVec.theta) + (Math.PI / 2 - lastVec.theta);
@@ -54,8 +54,8 @@ public class MultiDimensionalMotionProfile extends CommandBase {
                 dist = 0;
             }
 
-            points[i+1] = Vector.subVector(midPoint, new Vector(dist, firstVec.theta));
-            points[i+2] = Vector.subVector(lastPoint, new Vector(lastVec.r - dist, lastVec.theta));
+            points[i+1] = Vector.subVectors(midPoint, new Vector(dist, firstVec.theta));
+            points[i+2] = Vector.subVectors(lastPoint, new Vector(lastVec.r - dist, lastVec.theta));
         }
         
         points[points.length-1] = new Vector(pointsWStart[pointsWStart.length-1]);//Sets the final position no matter what
@@ -67,7 +67,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         for(int i = 1; i < result.length - 1; ){
 
             //straight length logic
-            double length = Vector.subVector(points[i+1], points[i]).r;
+            double length = Vector.subVectors(points[i+1], points[i]).r;
             result[i] = new AutonPos(points[i + 1], length);
 
             i++;
@@ -76,7 +76,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
             if(i >= result.length - 1) break;
 
             //reversing the arc points to find the angle
-            double vecDiff = Math.abs(Vector.subVector(points[i + 1], points[i]).r);//absolute difference between the two vectors
+            double vecDiff = Math.abs(Vector.subVectors(points[i + 1], points[i]).r);//absolute difference between the two vectors
             double arcAng = Math.asin((vecDiff / 2.0) / minR) * 2;
 
             result[i] = new AutonPos(points[i + 1], minR * arcAng);
@@ -101,6 +101,8 @@ public class MultiDimensionalMotionProfile extends CommandBase {
     double decelDist;
     double maxVelDist;
     public void initialize(){
+        startLoc = new Vector(r.sensors.odo.botLocation);
+        startAngle = r.sensors.odo.botAngle;
         interpIdx = 0;
         locations = formulateArcs(MIN_R, startLoc, wayPoints);
 
@@ -143,10 +145,10 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         
         double tgtAng;
         if(interpIdx % 2 == 0){//straight line indexes
-            tgtAng = Vector.subVector(locations[interpIdx+1].xy, locations[interpIdx].xy).theta;
+            tgtAng = Vector.subVectors(locations[interpIdx+1].xy, locations[interpIdx].xy).theta;
         } else {//arc indexes
-            double firstSegmentAng = Vector.subVector(locations[interpIdx-1].xy, locations[interpIdx-2].xy).theta;//line segment before the arc
-            double secondSegmentAng = Vector.subVector(locations[interpIdx+1].xy, locations[interpIdx].xy).theta;//line segment after the arc
+            double firstSegmentAng = Vector.subVectors(locations[interpIdx-1].xy, locations[interpIdx-2].xy).theta;//line segment before the arc
+            double secondSegmentAng = Vector.subVectors(locations[interpIdx+1].xy, locations[interpIdx].xy).theta;//line segment after the arc
 
             double angleDiff;
             if(secondSegmentAng < firstSegmentAng){
@@ -158,9 +160,9 @@ public class MultiDimensionalMotionProfile extends CommandBase {
             Vector centerOfRot = Vector.addVectors(locations[interpIdx].xy, new Vector(minR, angleDiff));
 
             if(secondSegmentAng < firstSegmentAng){
-                tgtAng = Vector.subVector(currPos, centerOfRot).theta - Math.PI/2;
+                tgtAng = Vector.subVectors(currPos, centerOfRot).theta - Math.PI/2;
             } else {
-                tgtAng = Vector.subVector(currPos, centerOfRot).theta + Math.PI/2;
+                tgtAng = Vector.subVectors(currPos, centerOfRot).theta + Math.PI/2;
             }
         }
 

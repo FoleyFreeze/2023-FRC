@@ -3,7 +3,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
-import frc.robot.util.Vector;
 
 public class MotionProfileTests {
     

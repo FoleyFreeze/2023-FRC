@@ -114,7 +114,7 @@ public class Arm extends SubsystemBase {
     //mathify for error
     public Vector getError(){;
         Vector currentVector = new Vector(stendoMotor.getPosition(),angleMotor.getPosition());
-        return Vector.subVector(setPointTwo, currentVector);
+        return Vector.subVectors(setPointTwo, currentVector);
     }
 
 

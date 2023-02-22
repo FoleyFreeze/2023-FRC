@@ -159,6 +159,16 @@ public class Inputs extends SubsystemBase{
         }
     });
 
+    public Trigger balanceMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.BALANCE_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
     // ------------- End drive inputs ------------- //
 
 
@@ -168,8 +178,19 @@ public class Inputs extends SubsystemBase{
         if (isShelf()){
             return r.arm.cals.positionGatherShelf;
         }else{
-            return r.arm.cals.positionGatherFloor;}
+            return r.arm.cals.positionGatherFloor;
         }
+    }
+
+    public Trigger autoGather = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawAxis(cal.AUTO_PICKUP[controllerType.ordinal()]) > 0.5;
+            } else {
+                return false;
+            }
+        }
+    });
     
 
     // ------------- End manipulator inputs ------------- //

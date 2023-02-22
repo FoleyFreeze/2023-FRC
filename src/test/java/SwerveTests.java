@@ -5,9 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import frc.robot.subsystems.Drive.DriveTrain;
-import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.subsystems.Sensors.Odometry;
-import frc.robot.subsystems.Sensors.OdometryCals;
 import frc.robot.util.Vector;
 
 public class SwerveTests {
@@ -50,19 +48,19 @@ public class SwerveTests {
     }
 
     @Test
-    void odometryTest(){
+    void odometryTest(){/*
         Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
 
-        Vector xy = Vector.fromXY(0, 0);
-        double zPwr = 1.0;
+        Vector xy = Vector.fromXY(0.5, 0.0);
+        double zPwr = 0.0;
         Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
 
-        driveVecs[0] = new Vector(1.16, 0);
-        driveVecs[1] = new Vector(1.15, 0);
+        //driveVecs[0] = new Vector(1.16, 0);
+        //driveVecs[1] = new Vector(1.15, 0);
       
-        System.out.println("Drive Vecs: " + driveVecs[0] + " | " + driveVecs[1] + " | " + driveVecs[2] + " | " + driveVecs[3]);
+        System.out.println("Drive Vecs: " + driveVecs[0].toStringXY() + " | " + driveVecs[1].toStringXY() + " | " + driveVecs[2].toStringXY() + " | " + driveVecs[3].toStringXY());
       
-        double[] bestValues = Odometry.formulateBestValues(driveVecs, wheelLocations);
+        double[] bestValues = Odometry.formulateOkValues(driveVecs, wheelLocations);
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
         double bestAngle = bestValues[2];
         double error = bestValues[3];
@@ -70,5 +68,37 @@ public class SwerveTests {
         System.out.println("Best Strafe: " + bestStrafe.toStringXY());
         System.out.println("Best Angle: " + Math.toDegrees(bestAngle));
         System.out.println("Error: " + error);
+        System.out.println("Best Group: " + bestValues[4]);*/
+    }
+
+    @Test
+    void odoCenterOfRotTest(){
+        Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
+
+        Vector xy = Vector.fromXY(0.5, 0.0);
+        double zPwr = 0.5;
+        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+
+        for (Vector vector : driveVecs) {
+            vector.r *= 10;
+        }
+        driveVecs[1].r = 5.5;
+        driveVecs[3].r = 8;
+
+        //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
+
+        //System.out.println("FR Centers Of Rot: " + centersOfRot[0][0] + " : " + centersOfRot[0][1] + " : " + centersOfRot[0][2]);
+        //System.out.println("FL Centers Of Rot: " + centersOfRot[1][0] + " : " + centersOfRot[1][1] + " : " + centersOfRot[1][2]);
+        //System.out.println("RL Centers Of Rot: " + centersOfRot[2][0] + " : " + centersOfRot[2][1] + " : " + centersOfRot[2][2]);
+        //System.out.println("RR Centers Of Rot: " + centersOfRot[3][0] + " : " + centersOfRot[3][1] + " : " + centersOfRot[3][2]);
+
+        double[] vals = Odometry.formulateBestValues(driveVecs, wheelLocations);
+        Vector strafe = new Vector(vals[0], vals[1]);
+        double angle = vals[2];
+        double error = vals[3];
+
+        System.out.println("Strafe: " + strafe);
+        System.out.println("Angle: " + angle);
+        System.out.println("Error " + error);
     }
 }
