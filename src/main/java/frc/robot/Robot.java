@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
@@ -38,7 +41,13 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     r = new RobotContainer();
+    
+    SmartDashboard.putData("40%",new InstantCommand(()->s.set(0.25)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
+    SmartDashboard.putData("50%",new InstantCommand(()->s.set(0.5)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
+    SmartDashboard.putData("60%",new InstantCommand(()->s.set(0.65)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
   }
+
+  Servo s = new Servo(0);
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics

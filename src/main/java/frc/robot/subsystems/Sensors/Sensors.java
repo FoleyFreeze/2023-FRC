@@ -79,6 +79,7 @@ public class Sensors extends SubsystemBase{
         }
     }
 
+    public double maxPitchRoll = 0;
     @Override
     public void periodic(){
         double now = Timer.getFPGATimestamp();
@@ -94,5 +95,10 @@ public class Sensors extends SubsystemBase{
         SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 
         SmartDashboard.putNumber("Wheel Slips", odo.badWheels);
+
+        double temp = getAbsPitchRoll();
+        SmartDashboard.putNumber("Roll/Pitch", temp);
+        if(temp > maxPitchRoll) maxPitchRoll = temp;
+        SmartDashboard.putNumber("MaxPitch/Roll", maxPitchRoll);
     }
 }

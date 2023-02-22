@@ -8,8 +8,8 @@ public class ArmCal {
     
     final public boolean disabled = true;
 
-    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 0).setRatio(180 * 0.5 / Math.PI);
-    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 0);
+    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).setRatio(180 * 0.5 / Math.PI).setCurrLim(20);
+    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 0).setCurrLim(20);
 
     public int armPotChannel = 4;
     public double armPotOffset = 0;// in radians

@@ -7,8 +7,8 @@ public class GripperCal{
     
     final public boolean disabled = true;
 
-    public MotorCal rGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1);
-    public MotorCal lGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1);
+    public MotorCal rGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1).setCurrLim(20);
+    public MotorCal lGrip = new MotorCal(MotorType.SPARK, 0).setRatio(1).setCurrLim(20);
     public int servoChannel = 0;
 
     public double cubePickUpPower = .3;
