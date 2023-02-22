@@ -2,6 +2,7 @@ package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Util;
@@ -79,11 +80,15 @@ public class Arm extends SubsystemBase {
     public void periodic(){
         if(cals.disabled) return;
 
+        double currentAngle = angleMotor.getPosition();
+        double currentLength = stendoMotor.getPosition();
+        Vector currPos = Vector.fromDeg(currentLength, currentAngle);
+        SmartDashboard.putString("ArmPos", currPos.toStringPolar());
+
         if(setPoint != null){
             //offset and wanted setpoint combined
             setPointTwo = Vector.addVectors(setPoint, jogOffset);
             
-            double currentAngle = angleMotor.getPosition();
             double setpointAngle = Math.toDegrees(setPointTwo.theta);
             double currentAngleError = setpointAngle - currentAngle;
 
@@ -95,7 +100,7 @@ public class Arm extends SubsystemBase {
             lengthMax = Math.min(lengthMax,lengthMax2);
 
             //only letting stendo and angle move to their min/max
-            double angleSetpoint = Util.bound(setPointTwo.theta, cals.angleMin, cals.angleMax);
+            double angleSetpoint = Util.bound(Math.toDegrees(setPointTwo.theta), cals.angleMin, cals.angleMax);
             double lengthSetpoint = Util.bound(setPointTwo.r, cals.lengthMin, lengthMax);
 
             //stendo power to none and pulls arm into new position
@@ -113,7 +118,7 @@ public class Arm extends SubsystemBase {
 
     //mathify for error
     public Vector getError(){;
-        Vector currentVector = new Vector(stendoMotor.getPosition(),angleMotor.getPosition());
+        Vector currentVector = Vector.fromDeg(stendoMotor.getPosition(),angleMotor.getPosition());
         return Vector.subVectors(setPointTwo, currentVector);
     }
 

@@ -28,6 +28,7 @@ public class SparkMotor implements Motor{
 
         PIDController.setP(cal.p);
         PIDController.setI(cal.i);
+        PIDController.setIZone(cal.iZone);
         PIDController.setD(cal.d);
         PIDController.setFF(cal.ff);
 

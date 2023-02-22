@@ -24,6 +24,10 @@ public class Vector {
         return new Vector(length, angle);
     }
 
+    public static Vector fromDeg(double r, double degrees){
+        return new Vector(r, Math.toRadians(degrees));
+    }
+
     public static Vector addVectors(Vector v1, Vector v2){
         Vector v = new Vector(v2);
         return v.add(v1);

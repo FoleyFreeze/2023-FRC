@@ -14,6 +14,7 @@ public class MotorCal {
 
     public double p = 0;
     public double i = 0;
+    public double iZone = 0;
     public double d = 0;
     public double ff = 0;
     public double dFilt = 0;
@@ -45,6 +46,12 @@ public class MotorCal {
         pidLim = lim;
         return this;
     }
+
+    public MotorCal setIZone(double iZone){
+        this.iZone = iZone;
+        return this;
+    }
+
     public MotorCal setRatio(double ratio){
         gearRatio = ratio;
         return this;

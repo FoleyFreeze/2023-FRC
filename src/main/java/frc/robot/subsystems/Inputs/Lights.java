@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Inputs;
 
+import edu.wpi.first.hal.PWMJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
@@ -8,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 
 public class Lights extends SubsystemBase{
+
+    public final boolean disabled = true;
     
     RobotContainer r;
     InputCal cal;
@@ -18,6 +21,7 @@ public class Lights extends SubsystemBase{
     public Lights(RobotContainer r, InputCal cal){
         this.r = r;
         this.cal = cal;
+        if(disabled) return;
 
         led = new AddressableLED(cal.LED_PORT);
         ledBuffer = new AddressableLEDBuffer(cal.BUFFER_LENGTH);
@@ -30,6 +34,7 @@ public class Lights extends SubsystemBase{
     double switchTime = 0;
     @Override
     public void periodic(){
+        if(disabled) return;
         if(r.inputs.balanceMode.getAsBoolean()){
             if(Timer.getFPGATimestamp() > switchTime){
                 for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
@@ -57,6 +62,8 @@ public class Lights extends SubsystemBase{
             }
         }
 
-        led.setData(ledBuffer);
+        if(led != null){
+            led.setData(ledBuffer);
+        }
     }
 }

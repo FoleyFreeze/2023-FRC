@@ -84,7 +84,7 @@ public class Odometry implements AutoCloseable {
         }
 
         double[] bestValues = formulateBestValues(realVecs, wheelLocations);
-        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
+        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);;
         double bestAngle = bestValues[2];
         double xError = bestValues[3];
         double yError = bestValues[4];
@@ -210,13 +210,13 @@ public class Odometry implements AutoCloseable {
             double averageAngle = Vector.averageVectors(condensedAngles).r;
             //remove the bad wheels and their no-good values
             for(int corIdx = 0; corIdx < 3; corIdx++){
-                if((strafeStDev > 0.001 || strafeStDev < -0.001) 
+                if((strafeStDev > 0.01 || strafeStDev < -0.01) 
                  && Math.abs(Vector.subVectors(strafes[i][corIdx], averageStrafe).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
-                    badValues[i][corIdx] = true;
+                    //badValues[i][corIdx] = true;
                     //System.out.println("Bad Value: " + i + " | " + corIdx);
-                } else if((angleStDev > 0.001 || angleStDev < -0.001) 
+                } else if((angleStDev > 0.01 || angleStDev < -0.01) 
                         && Math.abs(angles[i][corIdx] - averageAngle) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
-                    badValues[i][corIdx] = true;
+                    //badValues[i][corIdx] = true;
                     //System.out.println("Bad Value: " + i + " | " + corIdx);
                 }
             }

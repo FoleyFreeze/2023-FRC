@@ -146,9 +146,9 @@ public class RobotContainer {
 
 
 
-    SmartDashboard.putData("ArmUp", new ArmMove(this, new Vector(1, Math.PI*.5)));
-    SmartDashboard.putData("ArmMid", new ArmMove(this, new Vector(1, Math.PI*.25)));
-    SmartDashboard.putData("ArmDown", new ArmMove(this, new Vector(1, 0)));
+    SmartDashboard.putData("ArmUp", new ArmMove(this, Vector.fromDeg(38, 90)));
+    SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.fromDeg(33, 45)));
+    SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(38, 0)));
   }
 
   /**
