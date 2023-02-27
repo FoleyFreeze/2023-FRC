@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Drive;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -87,6 +88,7 @@ public class Wheel {
             driveMotor.setPower(outputPower);
         } else {
             driveMotor.setPower(0);
+
         }
     }
 

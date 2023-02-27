@@ -35,12 +35,12 @@ public class ArmMove extends CommandBase{
     //move arm to wanted position
     @Override
     public void execute(){
-        r.arm.move(position);   
+        r.arm.move(position);
     }
 
     //stop if less than error
     @Override
     public boolean isFinished(){
-        return (r.arm.getError().r < 6);
+        return (Math.abs(r.arm.getError().r) < 3.0);
     }
 }

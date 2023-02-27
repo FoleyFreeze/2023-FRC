@@ -6,6 +6,8 @@ import frc.robot.util.Motor.MotorCal.MotorType;
 
 public class DriveCal {
 
+    public final boolean disabled = false;
+
     public class WheelCal{
         //wheelcal contains all of the necessary information for each individual drive wheel to be set to
         
@@ -24,18 +26,17 @@ public class DriveCal {
         public String name;
     }
     
-    double swerveKp = 0.4;
-    double swerveKi = 0.005;
+    double swerveKp = 0.2;
+    double swerveKi = 0.000;
     double swerveIZone = 1.0;
-    double swerveKd = 0.3;
+    double swerveKd = 0.1;
     double swerveKf = 0;
     double swerveLim = 0.5;
-    double swerveCurrLim = 30;
-    double driveCurrLim = 60;//TODO: add
+    double swerveCurrLim = 45;
+    double driveCurrLim = 60;
 
     public double resetAngleDelay = 3;
 
-    //TODO: Find motor channel inputs
     public WheelCal FLWheel = new WheelCal();{
         FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert();
         FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
@@ -82,8 +83,9 @@ public class DriveCal {
 
     public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
 
-    public double fieldModePwr = 0.9;
-    public double pitModePwr = 0.5;
+    public double fieldModePwr = 0.75;
+    public double pitModePwr = 0.3;
+    public double inchModePwr = 0.4;
 
     public double autoAlignWaitTime = 1;
     public double autoAlignKp = -0.3;

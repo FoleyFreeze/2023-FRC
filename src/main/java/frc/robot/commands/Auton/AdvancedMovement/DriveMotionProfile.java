@@ -106,7 +106,7 @@ public class DriveMotionProfile extends CommandBase{
         r.driveTrain.swerveMP(totalVel, targetAccel);
         
         System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
-        SmartDashboard.putString("MP Stage", stage.toString());
+        //SmartDashboard.putString("MP Stage", stage.toString());
     }
 
     public boolean isFinished(){

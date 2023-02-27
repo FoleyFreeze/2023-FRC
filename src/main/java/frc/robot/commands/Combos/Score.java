@@ -2,7 +2,10 @@ package frc.robot.commands.Combos;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
@@ -10,6 +13,7 @@ import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
+import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.util.Vector;
 
 public class Score extends CommandBase{
@@ -44,5 +48,36 @@ public class Score extends CommandBase{
         }
 
         return sg;
+    }
+
+    RobotContainer r;
+
+    public Score(RobotContainer r){
+        this.r = r;
+    }
+
+    public static Command armUp(RobotContainer r){
+        Command command = new SequentialCommandGroup();
+
+        if(r.inputs.isCube()){
+            command = new ArmMove(r, r.arm.cals.positionCubeHi);
+        } else {
+            command = new ArmMove(r, r.arm.cals.positionConeHiHold);
+        }
+
+        return command;
+    }
+
+    public static Command armScore(RobotContainer r){
+        Command command = new SequentialCommandGroup();
+
+        if(r.inputs.isCube()){
+            command = GatherCommand.shootIntake(r);
+        } else {
+            command = new ArmMove(r, r.arm.cals.positionConeHiRelease).alongWith(
+                new InstantCommand(() -> r.gripper.open()));
+        }
+
+        return command;
     }
 }

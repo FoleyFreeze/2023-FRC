@@ -14,10 +14,8 @@ public class Util {
         
         //find the points we are between
         int end = 1;
-        for( ; end < axis.length; end++){
-            if(x < end){
-                break;
-            }
+        while(end < axis.length-1 && x > axis[end]){
+            end++;
         }
 
         //create the line and find the new point on it

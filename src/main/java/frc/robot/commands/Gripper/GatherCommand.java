@@ -19,7 +19,7 @@ public class GatherCommand {
     //run the gripper backwards .5 power (50%) for .3 secs then sets intake power to 0
     public static Command shootIntake(RobotContainer r){
         return new RunCommand(() -> r.gripper.setIntakePower(-0.5), r.gripper)
-                            .raceWith(new WaitCommand(0.3))
+                            .raceWith(new WaitCommand(0.6))
                             .andThen(new InstantCommand(() -> r.gripper.setIntakePower(0), r.gripper));
     }
 
@@ -28,6 +28,7 @@ public class GatherCommand {
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.gripper);
 
+        
         //get inputted position
         sg.addCommands(new ArmMove(r, r.inputs::getGatherPosition));
         //runs intake command

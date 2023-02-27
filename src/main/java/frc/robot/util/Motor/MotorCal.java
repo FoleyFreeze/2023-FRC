@@ -18,7 +18,8 @@ public class MotorCal {
     public double d = 0;
     public double ff = 0;
     public double dFilt = 0;
-    public double pidLim = 1;
+    public double pidLimUp = 1;
+    public double pidLimDn = -1;
 
     public double gearRatio = 1;
 
@@ -45,7 +46,14 @@ public class MotorCal {
     }
 
     public MotorCal setPIDPwrLim(double lim){
-        pidLim = lim;
+        pidLimUp = lim;
+        pidLimDn = -lim;
+        return this;
+    }
+
+    public MotorCal setPIDPwrLim(double up, double dn){
+        pidLimUp = up;
+        pidLimDn = dn;
         return this;
     }
 

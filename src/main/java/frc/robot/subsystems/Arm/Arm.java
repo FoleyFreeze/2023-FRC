@@ -1,7 +1,14 @@
 package frc.robot.subsystems.Arm;
 
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -28,6 +35,10 @@ public class Arm extends SubsystemBase {
 
     Vector jogOffset = new Vector(0,0);
 
+    ShuffleboardTab armTab = Shuffleboard.getTab("Arm");
+    GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
+    GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
+
     public Arm(RobotContainer r, ArmCal cals){
         this.r = r;
         this.cals = cals;
@@ -41,12 +52,14 @@ public class Arm extends SubsystemBase {
     //move arm and stendo to new position
     public void move(Vector position){
         setPoint = position;
+        setPointTwo = Vector.addVectors(setPoint, jogOffset);
         isAngleOnly = false;
     }
 
     //only move arm 
     public void moveArmOnly(Vector position){
         setPoint = position;
+        setPointTwo = Vector.addVectors(setPoint, jogOffset);
         isAngleOnly = true;
     }
 
@@ -68,22 +81,49 @@ public class Arm extends SubsystemBase {
 
     public void learnArmOffset(){
         //get the arm position from a pot
-        double currentAngle = armPot.getVoltage() * cals.armPotSlope + cals.armPotOffset;
+        //TODO: add this back in when this pot exists
+        //double currentAngle = armPot.getVoltage() * cals.armPotSlope + cals.armPotOffset;
+        double currentAngle = 0;
         angleMotor.setEncoderPosition(currentAngle);
 
         //the stendo should reset to a mid-ish position, 
         //but then on retraction it should hit the stop and relearn
-        stendoMotor.setEncoderPosition(cals.initialStendoPosition);
+        stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
+    }
+
+    //adjust stendo length to account for the rotation of the pulley 
+    //making the rope shorter when the arm is up
+    private double getStendoPulleyOffset(double angle){
+        double rad = Math.toRadians(angle + cals.stendoPulleyAngleOffset);
+        return cals.stendoPulleyLengthOffset * Math.cos(rad);
     }
     
+    double maxArmCurr = 0;
+    double maxArmTemp = 0;
+    double maxArmTempTime = 0;
     @Override
     public void periodic(){
         if(cals.disabled) return;
 
+        SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
+        SmartDashboard.putNumber("ArmStendoTemp",stendoMotor.getTemp());
+        //SmartDashboard.putNumber("ArmCurrent",angleMotor.getCurrent());
+        if(maxArmCurr < angleMotor.getCurrent()) maxArmCurr = angleMotor.getCurrent();
+        SmartDashboard.putNumber("MaxArmCurrent", maxArmCurr);
+        if(maxArmTemp < angleMotor.getTemp()) {
+            maxArmTemp = angleMotor.getTemp();
+            maxArmTempTime = Timer.getFPGATimestamp();
+        }
+        maxArmTempNT.setDouble(maxArmTemp);
+        maxArmTempTimeNT.setDouble(maxArmTempTime);
+        
+
         double currentAngle = angleMotor.getPosition();
-        double currentLength = stendoMotor.getPosition();
+        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle);
         Vector currPos = Vector.fromDeg(currentLength, currentAngle);
         SmartDashboard.putString("ArmPos", currPos.toStringPolar());
+
+        if(DriverStation.isDisabled()) setPoint = null;
 
         if(setPoint != null){
             //offset and wanted setpoint combined
@@ -103,17 +143,20 @@ public class Arm extends SubsystemBase {
             double angleSetpoint = Util.bound(Math.toDegrees(setPointTwo.theta), cals.angleMin, cals.angleMax);
             double lengthSetpoint = Util.bound(setPointTwo.r, cals.lengthMin, lengthMax);
 
+            //adjust for pulley offset
+            lengthSetpoint += getStendoPulleyOffset(currentAngle);
+
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
             if(isAngleOnly){
                 stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
             } else {
+                if(r.inputs.balanceMode.getAsBoolean()) lengthSetpoint = cals.lengthMin;
                 stendoMotor.setPosition(lengthSetpoint);
                 determineStendoReset(lengthSetpoint);
             }
         }
-
     }
 
     //mathify for error

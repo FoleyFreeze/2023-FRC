@@ -33,7 +33,7 @@ public class SparkMotor implements Motor{
         PIDController.setD(cal.d);
         PIDController.setFF(cal.ff);
 
-        PIDController.setOutputRange(-cal.pidLim,cal.pidLim);
+        PIDController.setOutputRange(cal.pidLimDn,cal.pidLimUp);
 
         if(cal.currLim != 0){
             motor.setSmartCurrentLimit((int) cal.currLim);

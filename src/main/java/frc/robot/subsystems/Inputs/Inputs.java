@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
@@ -16,9 +17,12 @@ public class Inputs extends SubsystemBase{
 
     public Joystick controller;
     public Joystick cBoard;
+    public Joystick cBoardTwo;
+
+    Joystick cBoardHead;//The only point of this object is to differentiate between the three cbs
 
     public enum joystickTypes{
-        FLYSKY, GAMEPAD, NONE, CONTROL_BOARD
+        FLYSKY, GAMEPAD, NONE, CONTROL_BOARD_PT_ONE, CONTROL_BOARD_PT_TWO, CONTROL_BOARD_HEAD
     }
     public joystickTypes controllerType = joystickTypes.NONE;//differs between flysky vs. gamepad
 
@@ -30,6 +34,9 @@ public class Inputs extends SubsystemBase{
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
+        SmartDashboard.putString("Selected Level", selectedLevel.toString());
+        SmartDashboard.putString("Selected Pos", selectedPosition.toString());
+        SmartDashboard.putString("Selected Zone", selectedZone.toString());
         
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
@@ -40,8 +47,12 @@ public class Inputs extends SubsystemBase{
                 controllerType = joystickTypes.GAMEPAD;
                 portStatus[i] = joystickTypes.GAMEPAD;
             } else if(DriverStation.getJoystickName(i).contains("I-PAC")){
-                portStatus[i] = joystickTypes.CONTROL_BOARD;
-            } else{
+                if(cBoard == null){
+                    controllerType = joystickTypes.CONTROL_BOARD_PT_ONE;
+                } else {
+                    controllerType = joystickTypes.CONTROL_BOARD_PT_TWO;
+                }
+            } else {
                 portStatus[i] = joystickTypes.NONE;
             }
             if(portStatus[i] != prevPortStatus[i]){
@@ -54,9 +65,15 @@ public class Inputs extends SubsystemBase{
                         System.out.println("Gamepad detected at port " + i);
                         controller = new Joystick(i);
                         break;
-                    case CONTROL_BOARD:
-                        System.out.println("Control Board detected at port " + i);
+                    case CONTROL_BOARD_PT_ONE:
+                        System.out.println("Control Board Pt One detected at port " + i);
                         cBoard = new Joystick(i);
+                        break;
+                    case CONTROL_BOARD_HEAD:
+                        cBoardHead = new Joystick(i);
+                    case CONTROL_BOARD_PT_TWO:
+                        System.out.println("Control Board Pt Two detected at port " + i);
+                        cBoardTwo = new Joystick(i);
                         break;
                     case NONE:
                         if(controller.getPort() == i){
@@ -159,6 +176,16 @@ public class Inputs extends SubsystemBase{
         }
     });
 
+    public Trigger resetArm = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(12);
+            } else {
+                return false;
+            }
+        }
+    });
+
     public Trigger balanceMode = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(controller != null){
@@ -174,18 +201,48 @@ public class Inputs extends SubsystemBase{
 
     // ------------- Manipulator inputs ------------- //
 
+    public boolean getAutoMode(){
+        if(controller != null){
+            return controller.getRawButton(cal.AUTO_MODE[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean getManualMode(){
+        if(controller != null){
+            return controller.getRawButton(cal.MANUAL_MODE[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
     public Vector getGatherPosition(){
         if (isShelf()){
             return r.arm.cals.positionGatherShelf;
         }else{
-            return r.arm.cals.positionGatherFloor;
+            if(isCube()){
+                return r.arm.cals.positionCubeGatherFloor;
+            } else {
+                return r.arm.cals.positionConeGatherFloor;
+            }
         }
     }
+
+    public Trigger autoScore = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawAxis(cal.SCORE_TRIGGER[controllerType.ordinal()]) > 0.5;
+            } else {
+                return false;
+            }
+        }
+    });
 
     public Trigger autoGather = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(controller != null){
-                return controller.getRawAxis(cal.AUTO_PICKUP[controllerType.ordinal()]) > 0.5;
+                return controller.getRawAxis(cal.GATHER_TRIGGER[controllerType.ordinal()]) > 0.5;
             } else {
                 return false;
             }
@@ -199,32 +256,32 @@ public class Inputs extends SubsystemBase{
     // ------------- Control Board inputs ------------- //
     
     public boolean getFieldMode(){
-        if(cBoard != null){
-            return cBoard.getRawButton(cal.FIELD_MODE);
+        if(cBoardTwo != null){
+            return cBoardTwo.getRawButton(cal.FIELD_MODE);
         } else {
-            return false;
+            return true;
         }
     }
 
     public boolean shift(){
-        if(cBoard != null){
-            return cBoard.getRawButton(cal.SHIFT);
+        if(cBoardTwo != null){
+            return cBoardTwo.getRawButton(cal.SHIFT);
         } else {
             return false;
         }
     }
 
     public boolean isCube(){
-        if(cBoard != null){
-            return cBoard.getRawButton(cal.CUBE_V_CONE);
+        if(cBoardTwo != null){
+            return !cBoardTwo.getRawButton(cal.CUBE_V_CONE);
         } else {
             return false;
         }
     }
 
     public boolean isShelf(){
-        if(cBoard != null){
-            return cBoard.getRawButton(cal.SHELF_V_FLOOR);
+        if(cBoardTwo != null){
+            return cBoardTwo.getRawButton(cal.SHELF_V_FLOOR);
         } else {
             return false;
         }
@@ -232,8 +289,8 @@ public class Inputs extends SubsystemBase{
 
     public Trigger intake = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
-                return cBoard.getRawButton(cal.INTAKE);
+            if(cBoardTwo != null){
+                return cBoardTwo.getRawButton(cal.INTAKE);
             } else {
                 return false;
             }
@@ -242,8 +299,8 @@ public class Inputs extends SubsystemBase{
 
     public Trigger gather = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
-                return cBoard.getRawButton(cal.GATHER);
+            if(cBoardTwo != null){
+                return cBoardTwo.getRawButton(cal.GATHER);
             } else {
                 return false;
             }
@@ -253,7 +310,7 @@ public class Inputs extends SubsystemBase{
     public Trigger jogUp = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(cBoard != null){
-                return cBoard.getRawButton(cal.JOG_UP);
+                return cBoard.getPOV() == 0;
             } else {
                 return false;
             }
@@ -263,7 +320,7 @@ public class Inputs extends SubsystemBase{
     public Trigger jogDown = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(cBoard != null){
-                return cBoard.getRawButton(cal.JOG_DOWN);
+                return cBoard.getPOV() == 180;
             } else {
                 return false;
             }
@@ -273,7 +330,7 @@ public class Inputs extends SubsystemBase{
     public Trigger jogLeft = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(cBoard != null){
-                return cBoard.getRawButton(cal.JOG_LEFT);
+                return cBoard.getPOV() == 270;
             } else {
                 return false;
             }
@@ -283,7 +340,7 @@ public class Inputs extends SubsystemBase{
     public Trigger jogRight = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(cBoard != null){
-                return cBoard.getRawButton(cal.JOG_RIGHT);
+                return cBoard.getPOV() == 90;
             } else {
                 return false;
             }
@@ -315,35 +372,79 @@ public class Inputs extends SubsystemBase{
     public Position selectedPosition = Position.NONE;
     public GamePiece selectedGamePiece = GamePiece.EITHER;
 
-    //
+
     public void scorePosition(){
         int idx = -1;
-        for(int i = 0; i < cal.SCORE_POS_IDX.length; i++){
-            if(cBoard != null && cBoard.getRawButton(cal.SCORE_POS_IDX[i]) == true){
-                idx = i;
+        //This is so messed up what they're making me do here :((
+        if(cBoard != null){
+            for(int i = 0; i < 10; i++){
+                if(cBoard.getRawButton(cal.SCORE_POS_IDX[i])){
+                    idx = i;
+                }
+            }
+            for(int i = 10; i < 16; i++){
+                if(cBoard.getRawAxis(cal.SCORE_POS_IDX[i]) > 0.1){
+                    if(cal.SCORE_POS_IDX[i] == cal.SCORE_POS_IDX[i-1]){
+                        idx = i;
+                    }
+                } else if(cBoard.getRawAxis(cal.SCORE_POS_IDX[i]) < -0.1){
+                    if(cal.SCORE_POS_IDX[i] == cal.SCORE_POS_IDX[i+1]){
+                        idx = i;
+                    }
+                }
+            }
+            if(cBoardTwo.getPOV() == 0){
+                idx = 16;
+            } else if(cBoardTwo.getPOV() == 180){
+                idx = 17;
+            } else if(cBoardTwo.getPOV() == 270){
+                idx = 18;
+            } else if(cBoardTwo.getPOV() == 90){
+                idx = 19;
+            }
+            for(int i = 20; i < 24; i++){
+                if(cBoardTwo.getRawAxis(cal.SCORE_POS_IDX[i]) > 0.1){
+                    if(cal.SCORE_POS_IDX[i] == cal.SCORE_POS_IDX[i-1]){
+                        idx = i;
+                    }
+                } else if(cBoardTwo.getRawAxis(cal.SCORE_POS_IDX[i]) < -0.1){
+                    if(cal.SCORE_POS_IDX[i] == cal.SCORE_POS_IDX[i+1]){
+                        idx = i;
+                    }
+                }
+            }
+            if(cBoardTwo.getRawAxis(cal.SCORE_POS_IDX[24]) < -0.1){
+                idx = 24;
+            }
+            if(cBoardTwo.getRawButton(cal.SCORE_POS_IDX[25])){
+                idx = 25;
+            }
+            if(cBoardTwo.getRawButton(cal.SCORE_POS_IDX[26])){
+                idx = 26;
             }
         }
 
         int buttonAssignment = idx + 1;
+        SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
 
             //level logic
             if(buttonAssignment <= 9){
-                selectedLevel = Level.TOP;
+                selectedLevel = Level.BOTTOM;
             } else if(buttonAssignment > 9 && buttonAssignment < 19){
                 selectedLevel = Level.MIDDLE;
             } else {
-                selectedLevel = Level.BOTTOM;
+                selectedLevel = Level.TOP;
             }
 
             //zone logic
             int horizontalIdx = buttonAssignment % 9;
-            if(horizontalIdx <= 3){
-                selectedZone = Zone.LEFT;
+            if(horizontalIdx <= 3 && horizontalIdx != 0){
+                selectedZone = Zone.RIGHT;
             } else if(horizontalIdx > 3 && horizontalIdx < 7) {
                 selectedZone = Zone.COMMUNITY;
             } else {
-                selectedZone = Zone.RIGHT;
+                selectedZone = Zone.LEFT;
             }
             
             int positionIdx = buttonAssignment % 3;

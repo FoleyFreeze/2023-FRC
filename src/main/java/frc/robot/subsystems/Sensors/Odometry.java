@@ -244,11 +244,11 @@ public class Odometry implements AutoCloseable {
         double bestAngVal = (condensedAngles[bestStrafePos[0]].r + condensedAngles[bestStrafePos[1]].r) / 2;
         //remove the bad wheels and their no-good values
         for(int i = 0; i < condensedStrafes.length; i++){
-            if(Math.abs(strafeStDev) > 0.01 && 
+            if(Math.abs(strafeStDev) > 0.01 && i != bestStrafePos[0] && i != bestStrafePos[1] &&
                Math.abs(Vector.subVectors(condensedStrafes[i], bestStrafeVal).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
                 badValues[i] = true;
             }
-            if(Math.abs(angleStDev) > 0.01 && 
+            if(Math.abs(angleStDev) > 0.01 && i != bestAngPos[0] && i != bestAngPos[1] &&
                Math.abs(condensedAngles[i].r - bestAngVal) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
                 badValues[i] = true;
             }
@@ -287,6 +287,7 @@ public class Odometry implements AutoCloseable {
                 finalLength++;
             }
         }
+        if(finalLength == 0) finalLength = 1;
         Vector finalStrafe = Vector.fromXY(finalStrafeX/finalLength, finalStrafeY/finalLength);
         finalAngle /= finalLength;
 
@@ -506,9 +507,6 @@ public class Odometry implements AutoCloseable {
         }
         double stanDeviationX = Math.sqrt(sumX / output.length);
         double stanDeviationY = Math.sqrt(sumY / output.length);
-
-        SmartDashboard.putNumber("stDev X: ", stanDeviationX);
-        SmartDashboard.putNumber("stDev Y: ", stanDeviationY);
 
         //weed out bad wheels by checking how many standard deviations they are away from the mean
         double devX = stanDeviationX * cals.maxStandardDeviations;

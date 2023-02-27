@@ -19,6 +19,7 @@ import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
+import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
@@ -90,7 +91,8 @@ public class Robot extends TimedRobot {
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        r.autonCommand = new DriveMotionProfile(r, Vector.fromXY(0, 80));
+        //r.autonCommand = AutoBalance.getAutoBalanceCommand(r);
+        r.autonCommand = new InstantCommand(r.driveTrain::parkMode);
       } else {
         r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 

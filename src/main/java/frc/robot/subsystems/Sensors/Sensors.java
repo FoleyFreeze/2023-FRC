@@ -87,10 +87,11 @@ public class Sensors extends SubsystemBase{
         prevTime = now;
 
         double robotYaw = getNavXAng();
-        Vector[] wheelStates = r.driveTrain.getWheelState();
-        odo.update(robotYaw, wheelStates);
+        if(!r.driveTrain.cals.disabled) {
+            Vector[] wheelStates = r.driveTrain.getWheelState();
+            odo.update(robotYaw, wheelStates);
+        }
 
-        SmartDashboard.putNumber("robot yaw", robotYaw);
         SmartDashboard.putNumber("Robot Ang: ", Math.toDegrees(odo.botAngle));
         SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 

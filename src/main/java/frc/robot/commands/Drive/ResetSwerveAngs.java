@@ -26,7 +26,7 @@ public class ResetSwerveAngs extends CommandBase{
 
     @Override
     public void end(boolean interrupted){
-        r.driveTrain.writeAbsOffset();
+        if(!interrupted) r.driveTrain.writeAbsOffset();
     }
 
     @Override

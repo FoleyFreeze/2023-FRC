@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
+import frc.robot.util.Util;
 import frc.robot.util.Vector;
 
 public class SwerveTests {
@@ -102,5 +103,20 @@ public class SwerveTests {
         System.out.println("Strafe: " + strafe);
         System.out.println("Angle: " + angle);
         System.out.println("Error " + error);
+    }
+
+    @Test
+    void interpTest(){
+        double[] a = {0,10,22};
+        double[] b = {10,-10,10};
+        double v = Util.interp(a,b,-1);
+        assertEquals(10,v,DELTA);
+        v = Util.interp(a,b,5);
+        assertEquals(0,v,DELTA);
+        v = Util.interp(a,b,23);
+        assertEquals(10,v,DELTA);
+        v = Util.interp(a,b,21);
+        assertEquals(25 / 3.0,v,DELTA);
+
     }
 }

@@ -9,8 +9,6 @@ import frc.robot.util.Vector;
 
 public class DriveTrain extends SubsystemBase {
 
-    public final boolean disabled = false;
-
     RobotContainer r;
     public DriveCal cals;
 
@@ -23,9 +21,9 @@ public class DriveTrain extends SubsystemBase {
      */
 
     public DriveTrain(RobotContainer r, DriveCal cals){
-        if(disabled) return;
         this.r = r;
         this.cals = cals;
+        if(cals.disabled) return;
 
         wheels = new Wheel[cals.wheelCals.length];
         for(int i = 0; i < cals.wheelCals.length; i++){
@@ -40,7 +38,7 @@ public class DriveTrain extends SubsystemBase {
      * which is a rotation pwr between -1 and 1
      */
     public void driveSwerve(Vector xy, double z){
-        if(disabled) return;
+        if(cals.disabled) return;
 
         //Grabs the calculated drive vectors and sets it into the actual wheel array
         Vector[] wheelLocations = new Vector[wheels.length];
@@ -98,7 +96,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void swerveMP(Vector velocity, double accel){
-        SmartDashboard.putNumber("velocity", velocity.r);
+        //SmartDashboard.putNumber("velocity", velocity.r);
         Vector Power = new Vector(velocity);
         Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS;
         driveSwerve(Power, 0);
@@ -149,9 +147,9 @@ public class DriveTrain extends SubsystemBase {
 
     //turn all wheels inward and don't move - I imagine we will use this in lieu of driveswerve in commands
     public void parkMode(){
-        for(Wheel w: wheels){
-            w.driveVec.theta = w.cal.wheelLocation.theta;
-            w.driveVec.r = 0;
+        for(int i = 0; i < wheels.length; i++){
+            wheels[i].driveVec.theta = wheels[i].cal.wheelLocation.theta;
+            wheels[i].driveVec.r = 0;
         }
     }
 
@@ -165,11 +163,11 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void periodic(){
-        if(disabled) return;
+        if(cals.disabled) return;
 
         for(Wheel w : wheels){
             SmartDashboard.putNumber("WheelTemp " + w.idx, w.swerveMotor.getTemp());
-            SmartDashboard.putNumber("WheelAI " + w.idx, w.absEncoder.getVoltage());
+            //SmartDashboard.putNumber("WheelAI " + w.idx, w.absEncoder.getVoltage());
         }
     }
 }

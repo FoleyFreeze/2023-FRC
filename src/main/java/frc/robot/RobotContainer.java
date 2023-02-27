@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
+import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.CmdDrive;
 import frc.robot.commands.Drive.ResetSwerveAngs;
+import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.ArmCal;
 import frc.robot.subsystems.Drive.DriveCal;
@@ -16,6 +19,7 @@ import frc.robot.subsystems.Gripper.GripperCal;
 import frc.robot.subsystems.Inputs.InputCal;
 import frc.robot.subsystems.Inputs.Inputs;
 import frc.robot.subsystems.Inputs.Lights;
+import frc.robot.subsystems.Inputs.Tabs;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
 import frc.robot.util.Vector;
@@ -25,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -37,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
+  public Tabs tabs;
   public Inputs inputs;
   public Lights lights;
   public Sensors sensors;
@@ -58,6 +64,8 @@ public class RobotContainer {
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    tabs = new Tabs();
+
     dCal = new DriveCal();
     iCal = new InputCal();
     
@@ -70,6 +78,7 @@ public class RobotContainer {
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
+    //cs.setDefaultCommand(arm, new ManualScore(this));
 
     specialAutonChooser = new SendableChooser<>();
     specialAutonChooser.setDefaultOption("No Special Command", 0);
@@ -130,12 +139,32 @@ public class RobotContainer {
    * joysticks}.
    */
   
+  enum ManScoreMode {UP, SCORE, DOWN};
+  ManScoreMode scoreMode = ManScoreMode.UP;
   private void configureBindings() {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
+    inputs.resetArm.whileTrue(new InstantCommand(arm::learnArmOffset).ignoringDisable(true));
 
-    //inputs.autoGather.and(() -> inputs.isShelf()).whileTrue(Score.DriveScore(r, () -> inputs.selectedPosition.ordinal, () -> inputs.selectedLevel.ordinal(), false)) //THIS DOESNT WORK
+    //inputs.autoGather.and(() -> inputs.isShelf()).whileTrue(Score.DriveScore(r, () -> inputs.selectedPosition.ordinal, () -> inputs.selectedLevel.ordinal(), false)); //THIS DOESNT WORK
+
+    switch(scoreMode){
+      case UP:
+        inputs.autoScore.onTrue(Score.armUp(this));
+        scoreMode = ManScoreMode.SCORE;
+        break;
+      case SCORE:
+        inputs.autoScore.onTrue(Score.armScore(this));
+        scoreMode = ManScoreMode.DOWN;
+        break;
+      case DOWN:
+        inputs.autoScore.onTrue(new ArmGoHome(this));
+        scoreMode = ManScoreMode.UP;
+        break;
+    }
+
+    inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
@@ -145,10 +174,17 @@ public class RobotContainer {
 
 
 
+    Vector armUpVec = Vector.fromDeg(38, 110);
+    SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));
+    SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.addVectors(armUpVec, Vector.fromXY(5, 0))));
+    SmartDashboard.putData("ArmGather", new ArmMove(this, Vector.fromDeg(38, 20)));
+    SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(34, -5)));
+    SmartDashboard.putData("ArmHome", new ArmMove(this, Vector.fromDeg(31, 0)));
 
-    SmartDashboard.putData("ArmUp", new ArmMove(this, Vector.fromDeg(38, 90)));
-    SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.fromDeg(33, 45)));
-    SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(38, 0)));
+    SmartDashboard.putData("Cone Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.conePickUpPower)));
+    SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
+    SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
+
   }
 
   /**

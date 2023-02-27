@@ -21,13 +21,9 @@ public class IntakeCommand extends CommandBase{
     public void execute(){
         if (r.inputs.isCube()){
             r.gripper.setIntakePower(r.gripper.cals.cubePickUpPower);
-        }else{
-            r.gripper.setIntakePower(r.gripper.cals.conePickUpPower);
-        }
-        
-        if (r.inputs.isCube()){
             r.gripper.open();
         }else{
+            r.gripper.setIntakePower(r.gripper.cals.conePickUpPower);
             r.gripper.close();
         }
         
@@ -47,7 +43,7 @@ public class IntakeCommand extends CommandBase{
         }
 
         if(r.inputs.isCube()){
-            return r.gripper.getIntakeCurrent() > r.gripper.cals.cubeStalllCurrent;
+            return r.gripper.getIntakeCurrent() > r.gripper.cals.cubeStallCurrent;
         }else{
             return r.gripper.getIntakeCurrent() > r.gripper.cals.coneStallCurrent; 
         }

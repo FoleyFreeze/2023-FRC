@@ -12,7 +12,9 @@ public class ArmGoHome extends ArmMove{
     @Override
     public void end(boolean interrupted){
         if(!interrupted){
-            r.arm.moveArmOnly(position);
+            r.arm.move(position);
         }
     }
+
+
 } 

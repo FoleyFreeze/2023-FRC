@@ -2,12 +2,20 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/ArmDown": "Command",
+      "/SmartDashboard/ArmGather": "Command",
+      "/SmartDashboard/ArmHome": "Command",
+      "/SmartDashboard/ArmMid": "Command",
+      "/SmartDashboard/ArmUp": "Command",
       "/SmartDashboard/Auton": "String Chooser",
+      "/SmartDashboard/Cone Pickup": "Command",
+      "/SmartDashboard/Cube Pickup": "Command",
       "/SmartDashboard/Mid-Field Piece": "String Chooser",
       "/SmartDashboard/Path": "String Chooser",
       "/SmartDashboard/Second Piece": "String Chooser",
       "/SmartDashboard/Special Chooser": "String Chooser",
-      "/SmartDashboard/Start Position": "String Chooser"
+      "/SmartDashboard/Start Position": "String Chooser",
+      "/SmartDashboard/Stop Gripper": "Command"
     }
   },
   "NetworkTables": {
