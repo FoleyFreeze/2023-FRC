@@ -11,8 +11,8 @@ public class GripperCal{
     public MotorCal lGrip = new MotorCal(MotorType.SPARK, 16).setRatio(1).setCurrLim(20);
     public int servoChannel = 1;
 
-    public double servoOpenPos = 0.65;
-    public double servoClosePos = 0.25;
+    public double servoOpenPos = 0.67;//This is the maximum we should ever go
+    public double servoClosePos = 0.335;//This is the minimum we should ever go
 
     public double cubePickUpPower = .4;
     public double cubePickUpSpeed = 2000;

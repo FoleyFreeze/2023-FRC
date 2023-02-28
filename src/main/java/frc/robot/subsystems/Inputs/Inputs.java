@@ -48,9 +48,9 @@ public class Inputs extends SubsystemBase{
                 portStatus[i] = joystickTypes.GAMEPAD;
             } else if(DriverStation.getJoystickName(i).contains("I-PAC")){
                 if(cBoard == null){
-                    controllerType = joystickTypes.CONTROL_BOARD_PT_ONE;
-                } else {
-                    controllerType = joystickTypes.CONTROL_BOARD_PT_TWO;
+                    portStatus[i] = joystickTypes.CONTROL_BOARD_PT_ONE;
+                } else if(cBoardTwo == null){
+                    portStatus[i] = joystickTypes.CONTROL_BOARD_PT_TWO;
                 }
             } else {
                 portStatus[i] = joystickTypes.NONE;
@@ -364,7 +364,7 @@ public class Inputs extends SubsystemBase{
 
     public enum Level {NONE, BOTTOM, MIDDLE, TOP};
     public enum Zone {NONE, LEFT, COMMUNITY, RIGHT};
-    public enum Position {NONE, LEFT, CENTER, RIGHT};
+    public enum Position {NONE, RIGHT, CENTER, LEFT};
     public enum GamePiece {EITHER, CONE, CUBE};
 
     public Level selectedLevel = Level.NONE;
@@ -448,6 +448,8 @@ public class Inputs extends SubsystemBase{
             }
             
             int positionIdx = buttonAssignment % 3;
+            if(positionIdx == 0) positionIdx = 3;
+            SmartDashboard.putNumber("Position idx", positionIdx);
 
             //game piece logic
             if(positionIdx % 2 == 0){
@@ -477,10 +479,6 @@ public class Inputs extends SubsystemBase{
                 selectedPosition = Position.values()[positionIdx];
             }
             
-        } else {
-            selectedLevel = Level.NONE;
-            selectedZone = Zone.NONE;
-            selectedPosition = Position.NONE;
         }
     }
 

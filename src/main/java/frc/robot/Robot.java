@@ -171,10 +171,10 @@ public class Robot extends TimedRobot {
         for (Vector vector : driveVecs) {
           vector.r *= 10.0;
         }
-        driveVecs[0].r = 5.0;
-        driveVecs[1].r = 99;
-        driveVecs[2].r = 10000;
-        driveVecs[3].r = 5.0;
+        //driveVecs[0].r = 5.0;
+        //driveVecs[1].r = 99;
+        //driveVecs[2].r = 10000;
+        //driveVecs[3].r = 5.0;
 
         //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
 

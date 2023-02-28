@@ -4,6 +4,7 @@ import com.ctre.phoenix.CANifier.PWMChannel;
 
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Motor.Motor;
@@ -14,8 +15,10 @@ public class Gripper extends SubsystemBase{
     public GripperCal cals; 
 
     Motor rGrip;
-    Motor lGrip; 
+    Motor lGrip;
+
     Servo choiceGrip;
+    double servoDisableTime;
 
     public Gripper (RobotContainer r, GripperCal cals){
         this.r = r;
@@ -26,6 +29,8 @@ public class Gripper extends SubsystemBase{
         rGrip = Motor.create(cals.rGrip);
         lGrip = Motor.create(cals.lGrip);
         choiceGrip = new Servo(cals.servoChannel);
+
+        servoDisableTime = 0;
     }
 
     //intake speed in rpm
@@ -42,14 +47,18 @@ public class Gripper extends SubsystemBase{
 
     //open gripper
     public void open(){
+        choiceGrip.setDisabled();
+        servoDisabled = false;
         choiceGrip.set(cals.servoOpenPos);
-        System.out.println("Open");
+        servoDisableTime = Timer.getFPGATimestamp() + 0.5;
     }
 
     //close gripper
     public void close(){
+        choiceGrip.setDisabled();
+        servoDisabled = false;
         choiceGrip.set(cals.servoClosePos);
-        System.out.println("Close");
+        servoDisableTime = Timer.getFPGATimestamp() + 0.5;
     }
 
     //get electric current of both motors
@@ -57,7 +66,12 @@ public class Gripper extends SubsystemBase{
         return lGrip.getCurrent() + rGrip.getCurrent();
     }
 
+    boolean servoDisabled = false;
     @Override
     public void periodic(){
+        if(Timer.getFPGATimestamp() > servoDisableTime && servoDisabled == false){
+            choiceGrip.setDisabled();
+            servoDisabled = true;
+        }
     }
 }
