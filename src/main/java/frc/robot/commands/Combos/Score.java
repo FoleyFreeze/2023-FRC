@@ -1,5 +1,6 @@
 package frc.robot.commands.Combos;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
@@ -51,9 +53,39 @@ public class Score extends CommandBase{
     }
 
     RobotContainer r;
+    
+    enum ManScoreMode {UP, SCORE, DOWN};
+    ManScoreMode scoreMode = ManScoreMode.UP;
 
     public Score(RobotContainer r){
         this.r = r;
+        addRequirements(r.arm);
+    }
+
+    @Override
+    public void execute(){
+        switch(scoreMode){
+            case UP:
+                r.inputs.autoScore.onTrue(armUp(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.SCORE))));
+                break;
+            case SCORE:
+                r.inputs.autoScore.onTrue(armScore(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.DOWN))));
+                break;
+            case DOWN:
+                r.inputs.autoScore.onTrue(new ArmGoHome(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.UP))));
+                break;
+        }
+
+        SmartDashboard.putString("ArmStep", scoreMode.toString());
+    }
+
+    @Override
+    public boolean isFinished(){
+        return false;
+    }
+
+    void setMode(ManScoreMode mode){
+        scoreMode = mode;
     }
 
     public static Command armUp(RobotContainer r){

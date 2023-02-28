@@ -177,7 +177,11 @@ public class Odometry implements AutoCloseable {
         for(int i = 0; i < realVecs.length; i++){
             for(int corIdx = 0; corIdx < 3; corIdx++){
                 Vector radius = Vector.subVectors(wheelLocations[i], centersOfRot[i][corIdx]);
-                angles[i][corIdx] = (realVecs[i].r/radius.r);
+                if(radius.r < 10000000.0){
+                    angles[i][corIdx] = (realVecs[i].r/radius.r);
+                } else {
+                    angles[i][corIdx] = 0;
+                }
             }
         }
 
@@ -187,7 +191,11 @@ public class Odometry implements AutoCloseable {
             for(int corIdx = 0; corIdx < 3; corIdx++){
                 Vector cor = Vector.getInverted(centersOfRot[i][corIdx]);
                 Vector newBotCenter = new Vector(cor.r, cor.theta + angles[i][corIdx]);
-                strafes[i][corIdx] = Vector.subVectors(newBotCenter, cor);
+                if(cor.r < 10000000.0){
+                    strafes[i][corIdx] = Vector.subVectors(newBotCenter, cor);
+                } else {
+                    strafes[i][corIdx] = new Vector(realVecs[i]);
+                }
             }
         }
 

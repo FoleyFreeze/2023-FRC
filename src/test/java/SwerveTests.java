@@ -83,10 +83,10 @@ public class SwerveTests {
         for (Vector vector : driveVecs) {
             vector.r *= 10;
         }
-        driveVecs[0].r = 5.0;
-        driveVecs[1].r = 99;
-        driveVecs[2].r = 150;
-        driveVecs[3].r = 5.0;
+        //driveVecs[0].r = 5.0;
+        //driveVecs[1].r = 99;
+        //driveVecs[2].r = 150;
+        //driveVecs[3].r = 5.0;
 
         //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
 

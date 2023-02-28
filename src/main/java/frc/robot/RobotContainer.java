@@ -78,7 +78,7 @@ public class RobotContainer {
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
-    //cs.setDefaultCommand(arm, new ManualScore(this));
+    //cs.setDefaultCommand(arm, new Score(this));
 
     specialAutonChooser = new SendableChooser<>();
     specialAutonChooser.setDefaultOption("No Special Command", 0);
@@ -139,8 +139,7 @@ public class RobotContainer {
    * joysticks}.
    */
   
-  enum ManScoreMode {UP, SCORE, DOWN};
-  ManScoreMode scoreMode = ManScoreMode.UP;
+  
   private void configureBindings() {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
@@ -149,29 +148,13 @@ public class RobotContainer {
 
     //inputs.autoGather.and(() -> inputs.isShelf()).whileTrue(Score.DriveScore(r, () -> inputs.selectedPosition.ordinal, () -> inputs.selectedLevel.ordinal(), false)); //THIS DOESNT WORK
 
-    switch(scoreMode){
-      case UP:
-        inputs.autoScore.onTrue(Score.armUp(this));
-        scoreMode = ManScoreMode.SCORE;
-        break;
-      case SCORE:
-        inputs.autoScore.onTrue(Score.armScore(this));
-        scoreMode = ManScoreMode.DOWN;
-        break;
-      case DOWN:
-        inputs.autoScore.onTrue(new ArmGoHome(this));
-        scoreMode = ManScoreMode.UP;
-        break;
-    }
-
+    inputs.autoScore.onTrue(new Score(this));
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
     inputs.jogRight.onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
     inputs.jogLeft.onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
-
-
 
 
     Vector armUpVec = Vector.fromDeg(38, 110);
@@ -184,6 +167,9 @@ public class RobotContainer {
     SmartDashboard.putData("Cone Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.conePickUpPower)));
     SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
     SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
+
+    SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
+    SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
 
   }
 
