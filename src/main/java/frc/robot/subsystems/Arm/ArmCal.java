@@ -50,6 +50,7 @@ public class ArmCal {
     public Vector positionGatherFloorFar = new Vector(0, 0);
 
     //cone arm positions
+    public Vector positionConeHiAngle = new Vector(armPotChannel, angleMax);
     public Vector positionConeHiHold = Vector.fromDeg(38, 115);
     public Vector positionConeHiRelease = Vector.addVectors(positionConeHiHold, Vector.fromXY(10, 0));
     public Vector positionConeMedHold = new Vector(0, 0);
