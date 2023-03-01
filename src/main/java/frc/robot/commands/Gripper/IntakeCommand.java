@@ -39,7 +39,7 @@ public class IntakeCommand extends CommandBase{
     double stopTime = Double.POSITIVE_INFINITY;
     //false if current time minus start time is more less .5 sec; true if intake current is more than set stall current for game piece
     public boolean isFinished(){
-        if ((Timer.getFPGATimestamp() - startTime) < 1.0){
+        /*if ((Timer.getFPGATimestamp() - startTime) < 1.0){
             return false;
         }
 
@@ -58,7 +58,8 @@ public class IntakeCommand extends CommandBase{
             return true;
         } else {
             return false;
-        }
+        }*/
+        return false;
     }
 
 

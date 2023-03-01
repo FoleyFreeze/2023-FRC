@@ -149,6 +149,7 @@ public class RobotContainer {
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
+    inputs.autoGather.onFalse(new ArmGoHome(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
@@ -163,12 +164,12 @@ public class RobotContainer {
     SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(34, -5)));
     SmartDashboard.putData("ArmHome", new ArmMove(this, Vector.fromDeg(31, 0)));
 
-    SmartDashboard.putData("Cone Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.conePickUpPower)));
-    SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
-    SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
+    //SmartDashboard.putData("Cone Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.conePickUpPower)));
+    //SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
+    //SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
 
-    SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
-    SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
+    //SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
+    //SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
 
   }
 

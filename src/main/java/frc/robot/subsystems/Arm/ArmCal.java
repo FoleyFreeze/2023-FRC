@@ -41,18 +41,18 @@ public class ArmCal {
     public double stendoResetCurrentTime = 0; //time current must be high for
 
     //common arm positions
-    public Vector positionHome = Vector.fromDeg(31, 0);
+    public Vector positionHome = Vector.fromDeg(31, -4);
     
     public Vector positionPreGather = new Vector(0, 0);
-    public Vector positionGatherShelf = Vector.fromDeg(38, 95.2);
+    public Vector positionGatherShelf = Vector.fromDeg(38, 96);
     public Vector positionCubeGatherFloor = Vector.fromDeg(36, 19);
     public Vector positionConeGatherFloor = Vector.fromDeg(36, 19);
     public Vector positionGatherFloorFar = new Vector(0, 0);
 
     //cone arm positions
-    public Vector positionConeHiAngle = new Vector(armPotChannel, angleMax);
+    public Vector positionConeHiAngle = new Vector(31, 115);
     public Vector positionConeHiHold = Vector.fromDeg(38, 115);
-    public Vector positionConeHiRelease = Vector.addVectors(positionConeHiHold, Vector.fromXY(10, 0));
+    public Vector positionConeHiRelease = Vector.fromDeg(38, 100);
     public Vector positionConeMedHold = new Vector(0, 0);
     public Vector positionConeMedRelease = new Vector(0, 0);
     public Vector positionConeLowRelease = new Vector(0, 0);

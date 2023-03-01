@@ -6,21 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.Arm.ArmGoHome;
-import frc.robot.commands.Arm.ArmMove;
-import frc.robot.commands.Arm.PositionProvider;
 import frc.robot.commands.Auton.AutonBuilder;
-import frc.robot.commands.Auton.AutonPos;
-import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
-import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
-import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
-import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
+import frc.robot.commands.Combos.SimpleScore;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
@@ -92,7 +81,7 @@ public class Robot extends TimedRobot {
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
         //r.autonCommand = AutoBalance.getAutoBalanceCommand(r);
-        r.autonCommand = new InstantCommand(r.driveTrain::parkMode);
+        r.autonCommand = SimpleScore.SimpleHiScore(r);
       } else {
         r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 

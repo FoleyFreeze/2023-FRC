@@ -102,6 +102,7 @@ public class Arm extends SubsystemBase {
     double maxArmTempTime = 0;
     @Override
     public void periodic(){
+
         if(cals.disabled) return;
 
         SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
@@ -147,6 +148,7 @@ public class Arm extends SubsystemBase {
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
+            SmartDashboard.putNumber("Angle Setpoint", angleSetpoint);
             if(isAngleOnly){
                 stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
