@@ -47,18 +47,20 @@ public class CmdDrive extends CommandBase{
             }
         }
 
-        double pwrMultiplier;
         //Field mode v. pit mode
-        if(r.inputs.balanceMode.getAsBoolean()){
-            pwrMultiplier = r.driveTrain.cals.inchModePwr;
+        if(r.inputs.scoringSlowMode){
+            xy.r *= r.driveTrain.cals.scoringStrafePwr;
+            z *= r.driveTrain.cals.scoringRotPwr;
+        }else if(r.inputs.balanceMode.getAsBoolean()){
+            xy.r *= r.driveTrain.cals.inchModePwr;
+            z *= r.driveTrain.cals.inchModePwr;
         } else if(r.inputs.getFieldMode()){
-            pwrMultiplier = r.driveTrain.cals.fieldModePwr;
+            xy.r *= r.driveTrain.cals.fieldModePwr;
+            z *= r.driveTrain.cals.fieldModePwr;
         } else {
-            pwrMultiplier = r.driveTrain.cals.pitModePwr;
+            xy.r *= r.driveTrain.cals.pitModePwr;
+            z *= r.driveTrain.cals.pitModePwr;
         }
-
-        xy.r *= pwrMultiplier;
-        z *= pwrMultiplier;
         
         r.driveTrain.driveSwerve(xy, z);
     }

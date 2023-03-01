@@ -167,7 +167,6 @@ public class DriveTrain extends SubsystemBase {
 
         for(Wheel w : wheels){
             SmartDashboard.putNumber("WheelTemp " + w.idx, w.swerveMotor.getTemp());
-            //SmartDashboard.putNumber("WheelAI " + w.idx, w.absEncoder.getVoltage());
         }
     }
 }

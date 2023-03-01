@@ -26,6 +26,6 @@ public class GripperCal{
 
     public double eject = -2000;
 
-    public double coneStallCurrent = 30;
-    public double cubeStallCurrent = 30;
+    public double coneStallCurrent = 34;
+    public double cubeStallCurrent = 34;
 }

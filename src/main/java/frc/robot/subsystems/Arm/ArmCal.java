@@ -8,7 +8,7 @@ public class ArmCal {
     
     final public boolean disabled = false;
 
-    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 17 / 66.0 * 360).setCurrLim(55).setPIDPwrLim(0.95).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);
+    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 17 / 66.0 * 360).setCurrLim(55).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);
     public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(15).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
@@ -44,7 +44,7 @@ public class ArmCal {
     public Vector positionHome = Vector.fromDeg(31, 0);
     
     public Vector positionPreGather = new Vector(0, 0);
-    public Vector positionGatherShelf = new Vector(0, 0);
+    public Vector positionGatherShelf = Vector.fromDeg(38, 95.2);
     public Vector positionCubeGatherFloor = Vector.fromDeg(36, 19);
     public Vector positionConeGatherFloor = Vector.fromDeg(36, 19);
     public Vector positionGatherFloorFar = new Vector(0, 0);

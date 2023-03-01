@@ -36,16 +36,28 @@ public class IntakeCommand extends CommandBase{
 
     }
 
+    double stopTime = Double.POSITIVE_INFINITY;
     //false if current time minus start time is more less .5 sec; true if intake current is more than set stall current for game piece
     public boolean isFinished(){
-        if ((Timer.getFPGATimestamp() - startTime) < 0.5){
+        if ((Timer.getFPGATimestamp() - startTime) < 1.0){
             return false;
         }
 
         if(r.inputs.isCube()){
-            return r.gripper.getIntakeCurrent() > r.gripper.cals.cubeStallCurrent;
+            if(r.gripper.getIntakeCurrent() > r.gripper.cals.cubeStallCurrent){
+                stopTime = Timer.getFPGATimestamp() + 0.5;
+            }
         }else{
-            return r.gripper.getIntakeCurrent() > r.gripper.cals.coneStallCurrent; 
+            if(r.gripper.getIntakeCurrent() > r.gripper.cals.coneStallCurrent){
+                stopTime = Timer.getFPGATimestamp() + 0.5;
+                System.out.println("Stalled");
+            }
+        }
+
+        if(Timer.getFPGATimestamp() > stopTime){
+            return true;
+        } else {
+            return false;
         }
     }
 

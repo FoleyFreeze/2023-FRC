@@ -248,6 +248,14 @@ public class Inputs extends SubsystemBase{
             }
         }
     });
+
+    public boolean scoringSlowMode = false;
+    public void slowModeTrue(){
+        scoringSlowMode = true;
+    }
+    public void slowModeFalse(){
+        scoringSlowMode = false;
+    }
     
 
     // ------------- End manipulator inputs ------------- //
@@ -283,7 +291,7 @@ public class Inputs extends SubsystemBase{
         if(cBoardTwo != null){
             return cBoardTwo.getRawButton(cal.SHELF_V_FLOOR);
         } else {
-            return false;
+            return true;
         }
     }
 

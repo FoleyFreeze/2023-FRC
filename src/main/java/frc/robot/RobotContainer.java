@@ -78,7 +78,7 @@ public class RobotContainer {
 
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
-    //cs.setDefaultCommand(arm, new Score(this));
+    cs.setDefaultCommand(arm, new Score(this));
 
     specialAutonChooser = new SendableChooser<>();
     specialAutonChooser.setDefaultOption("No Special Command", 0);
@@ -146,10 +146,9 @@ public class RobotContainer {
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetArm.whileTrue(new InstantCommand(arm::learnArmOffset).ignoringDisable(true));
 
-    //inputs.autoGather.and(() -> inputs.isShelf()).whileTrue(Score.DriveScore(r, () -> inputs.selectedPosition.ordinal, () -> inputs.selectedLevel.ordinal(), false)); //THIS DOESNT WORK
-
-    inputs.autoScore.onTrue(new Score(this));
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
+    inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
+    inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));

@@ -86,6 +86,8 @@ public class DriveCal {
     public double fieldModePwr = 0.75;
     public double pitModePwr = 0.3;
     public double inchModePwr = 0.4;
+    public double scoringStrafePwr = 0.3;
+    public double scoringRotPwr = 0.1;
 
     public double autoAlignWaitTime = 1;
     public double autoAlignKp = -0.3;

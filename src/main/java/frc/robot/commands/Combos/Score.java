@@ -66,13 +66,15 @@ public class Score extends CommandBase{
     public void execute(){
         switch(scoreMode){
             case UP:
-                r.inputs.autoScore.onTrue(armUp(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.SCORE))));
+                r.inputs.autoScore.onTrue(armUp(r).alongWith(new InstantCommand(() -> setMode(ManScoreMode.SCORE))));
                 break;
             case SCORE:
-                r.inputs.autoScore.onTrue(armScore(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.DOWN))));
+                r.inputs.autoScore.onTrue(armScore(r).alongWith(new InstantCommand(() -> setMode(ManScoreMode.DOWN))));
+                r.inputs.scoringSlowMode = true;
                 break;
             case DOWN:
-                r.inputs.autoScore.onTrue(new ArmGoHome(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.UP))));
+                r.inputs.autoScore.onTrue(new ArmGoHome(r).alongWith(new InstantCommand(() -> setMode(ManScoreMode.UP))));
+                r.inputs.scoringSlowMode = false;
                 break;
         }
 
@@ -106,8 +108,8 @@ public class Score extends CommandBase{
         if(r.inputs.isCube()){
             command = GatherCommand.shootIntake(r);
         } else {
-            command = new ArmMove(r, r.arm.cals.positionConeHiRelease).alongWith(
-                new InstantCommand(() -> r.gripper.open()));
+            command = new ArmMove(r, r.arm.cals.positionConeHiRelease)/*.alongWith(
+                new InstantCommand(() -> r.gripper.open()))*/;
         }
 
         return command;

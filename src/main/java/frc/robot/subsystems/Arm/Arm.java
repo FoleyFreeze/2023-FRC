@@ -35,7 +35,6 @@ public class Arm extends SubsystemBase {
 
     Vector jogOffset = new Vector(0,0);
 
-    ShuffleboardTab armTab = Shuffleboard.getTab("Arm");
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
     GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
 

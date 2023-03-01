@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
+import frc.robot.subsystems.Inputs.Inputs;
 
 public class GatherCommand {
     
@@ -23,7 +24,6 @@ public class GatherCommand {
                             .andThen(new InstantCommand(() -> r.gripper.setIntakePower(0), r.gripper));
     }
 
-
     public static Command gatherCommand(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.gripper);
@@ -31,10 +31,9 @@ public class GatherCommand {
         
         //get inputted position
         sg.addCommands(new ArmMove(r, r.inputs::getGatherPosition));
+
         //runs intake command
         sg.addCommands(new IntakeCommand(r));
-        //runs hold intake while the arm moves to the home position
-        sg.addCommands(new ArmGoHome(r).raceWith(holdIntake(r)));
 
         return sg;
     }
