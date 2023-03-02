@@ -55,6 +55,9 @@ public class RobotContainer {
 
   public SendableChooser<Integer> specialAutonChooser;
 
+  public SendableChooser<Integer> simpleStartPosChooser;
+  public SendableChooser<Boolean> simpleBalanceChooser;
+
   public SendableChooser<Integer> startPosChooser;
   public SendableChooser<Boolean> secondPieceChooser;
   public SendableChooser<Integer> actionChooser;
@@ -85,8 +88,16 @@ public class RobotContainer {
     specialAutonChooser.addOption("Special Command", 1);
     SmartDashboard.putData("Special Chooser", specialAutonChooser);
 
+    simpleStartPosChooser = new SendableChooser<>();
+    simpleStartPosChooser.setDefaultOption("Far", 0);
+    simpleStartPosChooser.addOption("Substation", 1);
+
+    simpleBalanceChooser = new SendableChooser<>();
+    simpleBalanceChooser.setDefaultOption("Drive Out", false);
+    simpleBalanceChooser.setDefaultOption("Balance", true);
+
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
-    startPosChooser = new SendableChooser<>();
+    /*startPosChooser = new SendableChooser<>();
     startPosChooser.setDefaultOption("Right-Right", 0);
     startPosChooser.addOption("Right-Middle", 1);
     startPosChooser.addOption("Right-Left", 2);
@@ -123,7 +134,7 @@ public class RobotContainer {
     pieceChooser.addOption("Mid Left", 1);
     pieceChooser.addOption("Mid Right", 2);
     pieceChooser.addOption("Right", 3);
-    SmartDashboard.putData("Mid-Field Piece", pieceChooser);
+    SmartDashboard.putData("Mid-Field Piece", pieceChooser);*/
 
     // Configure the trigger bindings
     configureBindings();
