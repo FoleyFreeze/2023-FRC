@@ -78,7 +78,7 @@ public class SwerveTests {
 
         Vector xy = Vector.fromXY(0.5, 0.0);
         double zPwr = 0.0;
-        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
 
         for (Vector vector : driveVecs) {
             vector.r *= 10;

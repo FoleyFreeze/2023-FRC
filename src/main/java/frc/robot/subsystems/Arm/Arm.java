@@ -104,6 +104,7 @@ public class Arm extends SubsystemBase {
     public void periodic(){
 
         if(cals.disabled) return;
+        angleMotor.setBrakeMode(!DriverStation.isDisabled());
 
         SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
         SmartDashboard.putNumber("ArmStendoTemp",stendoMotor.getTemp());
@@ -148,7 +149,6 @@ public class Arm extends SubsystemBase {
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
-            SmartDashboard.putNumber("Angle Setpoint", angleSetpoint);
             if(isAngleOnly){
                 stendoMotor.setPower(0);
                 stendoCurrentTime = 0;

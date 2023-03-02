@@ -40,4 +40,9 @@ public class NullMotor implements Motor{
     public double getTemp(){
         return 0;
     }
+
+    @Override
+    public void setBrakeMode(boolean brakeMode) {
+        
+    }
 }

@@ -24,11 +24,14 @@ public class DriveForTime extends CommandBase {
     @Override
     public void initialize(){
         startTime = Timer.getFPGATimestamp();
+        System.out.println("driving");
     }
 
     @Override
     public void execute(){
-        r.driveTrain.driveSwerve(direction, 0);
+        Vector xy = new Vector(direction);
+        xy.theta -= r.sensors.odo.botAngle;
+        r.driveTrain.driveSwerve(xy, 0);
     }
 
     @Override

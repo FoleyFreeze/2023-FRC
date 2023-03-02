@@ -84,4 +84,13 @@ public class SparkMotor implements Motor{
     public double getTemp(){
         return motor.getMotorTemperature();
     }
+
+    @Override
+    public void setBrakeMode(boolean brakeMode) {
+        if(brakeMode){
+            motor.setIdleMode(IdleMode.kBrake);
+        } else {
+            motor.setIdleMode(IdleMode.kCoast);
+        }
+    }
 }

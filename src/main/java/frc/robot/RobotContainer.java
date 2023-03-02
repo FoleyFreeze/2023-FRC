@@ -77,7 +77,7 @@ public class RobotContainer {
     gripper = new Gripper(this, new GripperCal());
 
     CommandScheduler cs = CommandScheduler.getInstance();
-    cs.setDefaultCommand(driveTrain, new CmdDrive(this).ignoringDisable(true));
+    cs.setDefaultCommand(driveTrain, new CmdDrive(this));
     cs.setDefaultCommand(arm, new Score(this));
 
     specialAutonChooser = new SendableChooser<>();
@@ -168,8 +168,8 @@ public class RobotContainer {
     //SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
     //SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
 
-    //SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
-    //SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
+    SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
+    SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
 
   }
 

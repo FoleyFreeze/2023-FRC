@@ -106,7 +106,8 @@ public class Odometry implements AutoCloseable {
         } else {
             botAngle += (navXBotAng - prevNavXBotAng);
         }*/
-        botAngle = navXBotAng;//+= bestAngle;
+        botAngle += (navXBotAng - prevNavXBotAng);//+= bestAngle;
+        botAngle = Angle.normRad(botAngle);
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;
