@@ -78,6 +78,11 @@ public class Arm extends SubsystemBase {
         jogOffset.incrmntY(r.arm.cals.jogOutDist);
     }
 
+    public void setArmOffset(double angle, double stendo){
+        angleMotor.setEncoderPosition(angle);
+        stendoMotor.setEncoderPosition(stendo + getStendoPulleyOffset(angle));
+    }
+
     public void learnArmOffset(){
         //get the arm position from a pot
         //TODO: add this back in when this pot exists

@@ -87,7 +87,7 @@ public class AutoBalance {
     public static Command basicAutoBalance(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(.6, 0), 3.0));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(.4, 0), 3.0));
 
         sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(false)));
 

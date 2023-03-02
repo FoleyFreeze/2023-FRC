@@ -8,8 +8,11 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
+import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
+import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
@@ -69,26 +72,29 @@ public class Robot extends TimedRobot {
 
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
-    int startPos = r.startPosChooser.getSelected();
+    int simpleStartPos = r.simpleStartPosChooser.getSelected();
+    boolean simpleBalance = r.simpleBalanceChooser.getSelected();
+
+    /*int startPos = r.startPosChooser.getSelected();
     boolean secondPiece = r.secondPieceChooser.getSelected();
     int action = r.actionChooser.getSelected();
     int path = r.pathChooser.getSelected();
-    int piece = r.pieceChooser.getSelected();
+    int piece = r.pieceChooser.getSelected();*/
 
     //casts everything to a string
-    String value = "" + useSpecialCommand + startPos + secondPiece + action + path + piece;
+    String value = "" + useSpecialCommand + simpleStartPos + simpleBalance;//startPos + secondPiece + action + path + piece;
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        //r.autonCommand = new InstantCommand(() -> r.driveTrain.setParkMode(true), r.driveTrain);
-        r.autonCommand = AutoBalance.getAutoBalanceCommand(r);
-        //r.autonCommand = SimpleScore.SimpleHiScore(r);
+        r.autonCommand = new DriveForTime(r, Vector.fromXY(0, 0), 90, 4.0);
+        //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance);
+        //r.autonCommand = new InstantCommand(() -> r.arm.setArmOffset(-8.0, 33.5));
       } else {
-        r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
+        /*r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 
                                                     action, 
                                                     path, 
-                                                    piece);
+                                                    piece);*/
       }
     }
 

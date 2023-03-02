@@ -91,10 +91,12 @@ public class RobotContainer {
     simpleStartPosChooser = new SendableChooser<>();
     simpleStartPosChooser.setDefaultOption("Far", 0);
     simpleStartPosChooser.addOption("Substation", 1);
+    SmartDashboard.putData("Start Position", simpleStartPosChooser);
 
     simpleBalanceChooser = new SendableChooser<>();
     simpleBalanceChooser.setDefaultOption("Drive Out", false);
     simpleBalanceChooser.setDefaultOption("Balance", true);
+    SmartDashboard.putData("Balance Or Out", simpleBalanceChooser);
 
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
     /*startPosChooser = new SendableChooser<>();
