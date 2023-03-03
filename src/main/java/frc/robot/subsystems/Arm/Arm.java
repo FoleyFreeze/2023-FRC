@@ -154,6 +154,7 @@ public class Arm extends SubsystemBase {
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
+            SmartDashboard.putNumber("Arm Setpoint", angleSetpoint);
             if(isAngleOnly){
                 stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
