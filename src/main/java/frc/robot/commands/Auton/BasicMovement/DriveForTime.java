@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Angle;
+import frc.robot.util.Util;
 import frc.robot.util.Vector;
 
 public class DriveForTime extends CommandBase {
@@ -23,7 +24,7 @@ public class DriveForTime extends CommandBase {
     public DriveForTime(RobotContainer r, Vector direction, double angle, double seconds){
         this.r = r;
         this.direction = direction;
-        this.angle = angle;
+        this.angle = Angle.toRad(angle);
         this.seconds = seconds;
 
         addRequirements(r.driveTrain);
@@ -32,10 +33,6 @@ public class DriveForTime extends CommandBase {
     @Override
     public void initialize(){
         startTime = Timer.getFPGATimestamp();
-        System.out.println("driving");
-        if(angle == -9000){
-            angle = r.sensors.odo.botAngle;
-        }
     }
 
     @Override
@@ -43,17 +40,18 @@ public class DriveForTime extends CommandBase {
         Vector xy = new Vector(direction);
         xy.theta -= r.sensors.odo.botAngle;
 
-        double error = r.sensors.odo.botAngle % Math.PI;
+        double error = (angle - r.sensors.odo.botAngle) % (2 * Math.PI);
+
+        SmartDashboard.putNumber("Error", Angle.toDeg(error));
                 
-        if(Math.abs(error) > Math.PI/2){
-            if(error > 0) error -= Math.PI;
-            else error += Math.PI;
+        if(Math.abs(error) > Math.PI){
+            if(error > 0) error -= 2 * Math.PI;
+            else error += 2 * Math.PI;
         }
 
-        double z = error * 0.2;
-        if(z > 0.1) z = 0.2;
-        if(z < -0.1) z = -0.2;
+        double z = Util.bound(error * 0.3, -0.3, 0.3);
         
+        if(angle == Angle.toRad(-9000)) z = 0;
         r.driveTrain.driveSwerve(xy, z);
     }
 

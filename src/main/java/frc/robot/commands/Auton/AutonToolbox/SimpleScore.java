@@ -16,7 +16,7 @@ import frc.robot.util.Vector;
 
 public class SimpleScore extends CommandBase{
     
-    public static Command SimpleHiScore(RobotContainer r, int startPos, boolean balance){
+    public static Command SimpleHiScore(RobotContainer r, int startPos, boolean balance, Alliance team){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         //sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(-8.0, 33.5)));
@@ -35,7 +35,7 @@ public class SimpleScore extends CommandBase{
         Vector[] secondDriveOut = {Vector.fromDeg(0.15, 0), Vector.fromDeg(0.15, 0)};
         double[] secondDriveOutTime = {4.5, 4.5};
 
-        if(DriverStation.getAlliance() == Alliance.Red){
+        if(team == Alliance.Red){
             for(int i = 0; i < startAng.length; i++){
                 startAng[i] = -startAng[i];
 
@@ -60,7 +60,7 @@ public class SimpleScore extends CommandBase{
         if(balance){
             sg.addCommands(new DriveForTime(r, driveToBalance[startPos], 90, driveToBalanceTime[startPos]).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 
-            sg.addCommands(AutoBalance.basicAutoBalance(r).alongWith(new ArmGoHome(r)));
+            sg.addCommands(AutoBalance.getAutoBalanceCommand(r).alongWith(new ArmGoHome(r)));
         } else {
             sg.addCommands(new DriveForTime(r, firstDriveOut[startPos], 90, firstDriveOutTime[startPos]).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 

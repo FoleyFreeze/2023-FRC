@@ -45,21 +45,21 @@ public class ArmCal {
     
     public Vector positionPreGather = new Vector(0, 0);
     public Vector positionGatherShelf = Vector.fromDeg(38, 96);
-    public Vector positionCubeGatherFloor = Vector.fromDeg(36, 19);
-    public Vector positionConeGatherFloor = Vector.fromDeg(36, 19);
+    public Vector positionCubeGatherFloor = Vector.fromDeg(39, 28);
+    public Vector positionConeGatherFloor = Vector.fromDeg(38, 27.7);
     public Vector positionGatherFloorFar = new Vector(0, 0);
 
     //cone arm positions
     public Vector positionConeHiAngle = new Vector(31, 115);
     public Vector positionConeHiHold = Vector.fromDeg(38, 115);
     public Vector positionConeHiRelease = Vector.fromDeg(38, 100);
-    public Vector positionConeMedHold = new Vector(0, 0);
-    public Vector positionConeMedRelease = new Vector(0, 0);
+    public Vector positionConeMedHold = new Vector(31, 93);
+    public Vector positionConeMedRelease = new Vector(31, 70);
     public Vector positionConeLowRelease = new Vector(0, 0);
   
     //cube arm positions
     public Vector positionCubeHi = Vector.fromDeg(38, 100);
-    public Vector positionCubeMed = new Vector(0, 0);
+    public Vector positionCubeMed = new Vector(29, 69.5);
     public Vector positionCubeLow = new Vector(0, 0);
   
 

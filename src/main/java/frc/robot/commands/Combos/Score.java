@@ -13,6 +13,7 @@ import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Gripper.GatherCommand;
+import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.util.Vector;
 
 public class Score extends CommandBase{
@@ -63,11 +64,11 @@ public class Score extends CommandBase{
     public void execute(){
         switch(scoreMode){
             case UP:
-                r.inputs.autoScore.onTrue(armUp(r).alongWith(new InstantCommand(() -> setMode(ManScoreMode.SCORE)))
+                r.inputs.autoScore.onTrue(armUp(r, r.inputs.selectedLevel).alongWith(new InstantCommand(() -> setMode(ManScoreMode.SCORE)))
                     .alongWith(new InstantCommand(() -> r.inputs.slowModeTrue())));
                 break;
             case SCORE:
-                r.inputs.autoScore.onTrue(armScore(r).alongWith(new InstantCommand(() -> setMode(ManScoreMode.UP)))
+                r.inputs.autoScore.onTrue(armScore(r, r.inputs.selectedLevel).alongWith(new InstantCommand(() -> setMode(ManScoreMode.UP)))
                     .alongWith(new InstantCommand(() -> r.inputs.slowModeTrue())));
                 break;
         }
@@ -84,25 +85,80 @@ public class Score extends CommandBase{
         scoreMode = mode;
     }
 
-    public static Command armUp(RobotContainer r){
+    public static Command armUp(RobotContainer r, Level level){
         Command command = new SequentialCommandGroup();
 
         if(r.inputs.isCube()){
-            command = new ArmMove(r, r.arm.cals.positionCubeHi);
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionCubeLow;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionCubeMed;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+                default:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+            }
+            command = new ArmMove(r, pos);
         } else {
-            command = new ArmMove(r, r.arm.cals.positionConeHiHold);
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionConeLowRelease;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionConeMedHold;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+                default:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+            }
+            command = new ArmMove(r, pos);
         }
 
         return command;
     }
 
-    public static Command armScore(RobotContainer r){
+    public static Command armScore(RobotContainer r, Level level){
         Command command = new SequentialCommandGroup();
 
         if(r.inputs.isCube()){
             command = GatherCommand.shootIntake(r);
         } else {
-            command = new ArmMove(r, r.arm.cals.positionConeHiRelease);
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionConeLowRelease;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionConeMedRelease;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+                default:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+            }
+
+            command = new ArmMove(r, pos);
         }
 
         return command;

@@ -17,7 +17,7 @@ public class InputCal {
     public final int[] MANUAL_MODE = {3, 0, 0};
 
     public final int[] FIELD_ORIENT = {5, 0 ,0};
-    public final int[] BALANCE_MODE = {4, 0, 0};
+    public final int[] ALIGN_MODE = {4, 0, 0};
 
     public final int[] RESET_WHEELS = {11, 0, 0};
     public final int[] RESET_ANG = {10, 0, 0};

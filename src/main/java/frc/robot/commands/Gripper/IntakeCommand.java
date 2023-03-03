@@ -32,7 +32,11 @@ public class IntakeCommand extends CommandBase{
     //intake power to 0
     @Override
     public void end(boolean interrupted){
-        r.gripper.setIntakePower(0);
+        if(!r.inputs.isCube()){
+            r.gripper.setIntakePower(0);
+        } else {
+            r.gripper.setIntakePower(r.gripper.cals.cubeHoldPower);
+        }
 
     }
 

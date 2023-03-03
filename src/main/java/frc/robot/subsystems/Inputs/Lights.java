@@ -35,7 +35,7 @@ public class Lights extends SubsystemBase{
     @Override
     public void periodic(){
         if(disabled) return;
-        if(r.inputs.balanceMode.getAsBoolean()){
+        if(r.inputs.alignMode.getAsBoolean()){
             if(Timer.getFPGATimestamp() > switchTime){
                 for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
                     int offsetWrapper = (i + offset) % ledBuffer.getLength();
@@ -52,7 +52,7 @@ public class Lights extends SubsystemBase{
         } else{
             switchTime = Timer.getFPGATimestamp();
             Color colorSet;
-            if(r.inputs.balanceMode.getAsBoolean()){
+            if(r.inputs.alignMode.getAsBoolean()){
                 colorSet = new Color(170, 0, 255);
             }else{
                 colorSet = new Color(255, 50, 0);

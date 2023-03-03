@@ -186,10 +186,10 @@ public class Inputs extends SubsystemBase{
         }
     });
 
-    public Trigger balanceMode = new Trigger(new BooleanSupplier() {
+    public Trigger alignMode = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(controller != null){
-                return controller.getRawButton(cal.BALANCE_MODE[controllerType.ordinal()]);
+                return controller.getRawButton(cal.ALIGN_MODE[controllerType.ordinal()]);
             } else {
                 return false;
             }
@@ -283,7 +283,7 @@ public class Inputs extends SubsystemBase{
         if(cBoardTwo != null){
             return !cBoardTwo.getRawButton(cal.CUBE_V_CONE);
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -291,7 +291,7 @@ public class Inputs extends SubsystemBase{
         if(cBoardTwo != null){
             return cBoardTwo.getRawButton(cal.SHELF_V_FLOOR);
         } else {
-            return true;
+            return false;
         }
     }
 

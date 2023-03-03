@@ -26,21 +26,18 @@ public class AutoBalance {
         
         sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotAngle(Angle.toRad(90))));
 
-        sg.addCommands(new ArmGoHome(r).raceWith(new WaitCommand(1.0)));
-
         //driving sideways(roll) for 3 seconds or until we make it most of the way up the [lifty] thing
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(.4, 0), 2.0).until(() -> r.sensors.getAbsPitchRoll() > 28));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(.35, 0), 2.0).until(() -> r.sensors.getAbsPitchRoll() > 25));
         //now wait until the charge station starts falling down
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(.4, 0), 2.5).until(() -> r.sensors.getAbsPitchRoll() < 25));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(.17, 0), 10.0).until(() -> r.sensors.getAbsPitchRoll() < 11.5));
         //stop until we are at the wanted pitch/roll
         sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(true), r.driveTrain));
-        sg.addCommands(new WaitCommand(1.5));
         //sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(false), r.driveTrain));
         //move back a little bit
-        sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(false))
-            .alongWith(new DriveForTime(r, Vector.fromXY(-.2, 0), .4)));
+        //sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(false))
+        //    .alongWith(new DriveForTime(r, Vector.fromXY(-.2, 0), .4)));
         //park
-        sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(true), r.driveTrain));
+        //sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(true), r.driveTrain));
         //wait
         //sg.addCommands(new WaitCommand(1.54));
         //adjust

@@ -51,9 +51,6 @@ public class CmdDrive extends CommandBase{
         if(r.inputs.scoringSlowMode){
             xy.r *= r.driveTrain.cals.scoringStrafePwr;
             z *= r.driveTrain.cals.scoringRotPwr;
-        }else if(r.inputs.balanceMode.getAsBoolean()){
-            xy.r *= r.driveTrain.cals.inchModePwr;
-            z *= r.driveTrain.cals.inchModePwr;
         } else if(r.inputs.getFieldMode()){
             xy.r *= r.driveTrain.cals.fieldModePwr;
             z *= r.driveTrain.cals.fieldModePwr;

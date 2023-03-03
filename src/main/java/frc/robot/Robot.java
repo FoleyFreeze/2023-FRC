@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -74,6 +76,7 @@ public class Robot extends TimedRobot {
 
     int simpleStartPos = r.simpleStartPosChooser.getSelected();
     boolean simpleBalance = r.simpleBalanceChooser.getSelected();
+    Alliance team = DriverStation.getAlliance();
 
     /*int startPos = r.startPosChooser.getSelected();
     boolean secondPiece = r.secondPieceChooser.getSelected();
@@ -82,13 +85,11 @@ public class Robot extends TimedRobot {
     int piece = r.pieceChooser.getSelected();*/
 
     //casts everything to a string
-    String value = "" + useSpecialCommand + simpleStartPos + simpleBalance;//startPos + secondPiece + action + path + piece;
+    String value = "" + useSpecialCommand + simpleStartPos + simpleBalance + team;//startPos + secondPiece + action + path + piece;
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        r.autonCommand = new DriveForTime(r, Vector.fromXY(0, 0), 90, 4.0);
-        //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance);
-        //r.autonCommand = new InstantCommand(() -> r.arm.setArmOffset(-8.0, 33.5));
+        r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
       } else {
         /*r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 

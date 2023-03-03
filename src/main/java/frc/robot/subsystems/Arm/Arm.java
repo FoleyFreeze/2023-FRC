@@ -158,7 +158,6 @@ public class Arm extends SubsystemBase {
                 stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
             } else {
-                if(r.inputs.balanceMode.getAsBoolean()) lengthSetpoint = cals.lengthMin;
                 stendoMotor.setPosition(lengthSetpoint);
                 determineStendoReset(lengthSetpoint);
             }

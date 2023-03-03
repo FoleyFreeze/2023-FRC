@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Combos.Score;
+import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
 import frc.robot.commands.Drive.ResetSwerveAngs;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -163,6 +164,8 @@ public class RobotContainer {
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
     inputs.autoGather.onFalse(new ArmGoHome(this));
+
+    inputs.alignMode.whileTrue(AutoAlign.autoScoreAlign(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
