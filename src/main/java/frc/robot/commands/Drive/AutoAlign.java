@@ -11,7 +11,9 @@ public class AutoAlign {
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.driveTrain);
 
-        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(new Vector(0.4, 0), 0), r.driveTrain));
+       // sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(new Vector(0.4, 0), 0), r.driveTrain));
+       //                                                                           x   y   rot
+        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(.05, 0),-.1), r.driveTrain));
 
         return sg;
     }
