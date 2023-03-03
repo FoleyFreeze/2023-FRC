@@ -51,38 +51,26 @@ public class Score extends CommandBase{
     }
 
     RobotContainer r;
-    
-    enum ManScoreMode {UP, SCORE};
-    ManScoreMode scoreMode = ManScoreMode.UP;
 
     public Score(RobotContainer r){
         this.r = r;
         addRequirements(r.arm);
+        addRequirements(r.gripper);
+    }
+
+    @Override
+    public void initialize(){
+
     }
 
     @Override
     public void execute(){
-        switch(scoreMode){
-            case UP:
-                r.inputs.autoScore.onTrue(armUp(r, r.inputs.selectedLevel).alongWith(new InstantCommand(() -> setMode(ManScoreMode.SCORE)))
-                    .alongWith(new InstantCommand(() -> r.inputs.slowModeTrue())));
-                break;
-            case SCORE:
-                r.inputs.autoScore.onTrue(armScore(r, r.inputs.selectedLevel).alongWith(new InstantCommand(() -> setMode(ManScoreMode.UP)))
-                    .alongWith(new InstantCommand(() -> r.inputs.slowModeTrue())));
-                break;
-        }
 
-        SmartDashboard.putString("ArmStep", scoreMode.toString());
     }
 
     @Override
     public boolean isFinished(){
         return false;
-    }
-
-    void setMode(ManScoreMode mode){
-        scoreMode = mode;
     }
 
     public static Command armUp(RobotContainer r, Level level){

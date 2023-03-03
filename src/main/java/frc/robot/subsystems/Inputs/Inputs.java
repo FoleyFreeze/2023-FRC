@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Arm.PositionProvider;
 import frc.robot.util.Vector;
 
 public class Inputs extends SubsystemBase{
@@ -248,6 +249,107 @@ public class Inputs extends SubsystemBase{
             }
         }
     });
+
+    public enum ManScoreMode {UP, SCORE};
+    public ManScoreMode scoreMode = ManScoreMode.UP;
+
+    public void setMode(ManScoreMode mode){
+        scoreMode = mode;
+    }
+    public void toggleMode(){
+        if(scoreMode == ManScoreMode.UP){
+            scoreMode = ManScoreMode.SCORE;
+        } else {
+            scoreMode = ManScoreMode.UP;
+        }
+    }
+
+    public PositionProvider armScorePos = new PositionProvider() {
+
+        @Override
+        public Vector getPosition() {
+            Vector pos;
+            if(scoreMode == ManScoreMode.UP){
+                if(r.inputs.isCube()){
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionCubeLow;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionCubeMed;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                    }
+                } else {
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionConeLowRelease;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionConeMedHold;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                    }
+                }
+            } else {
+                if(r.inputs.isCube()){
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionCubeLow;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionCubeMed;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                    }
+                }else{
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionConeLowRelease;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionConeMedRelease;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                    }
+                }
+            }
+
+            return pos;
+        }
+    };
 
     public boolean scoringSlowMode = false;
     public void slowModeTrue(){
