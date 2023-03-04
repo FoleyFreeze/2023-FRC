@@ -2,8 +2,10 @@ package frc.robot.subsystems.Inputs;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,12 +34,16 @@ public class Inputs extends SubsystemBase{
         this.cal = cal;
     }
 
+    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", 0).getEntry();
+    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", 0).getEntry();
+    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Zone Pos", 0).getEntry();
+
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
-        SmartDashboard.putString("Selected Level", selectedLevel.toString());
-        SmartDashboard.putString("Selected Pos", selectedPosition.toString());
-        SmartDashboard.putString("Selected Zone", selectedZone.toString());
+        levelNT.setString(selectedLevel.toString());
+        posNT.setString(selectedPosition.toString());
+        zoneNT.setString(selectedZone.toString());
         
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
