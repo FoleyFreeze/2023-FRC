@@ -38,6 +38,9 @@ public class Arm extends SubsystemBase {
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
     GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
 
+    GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up/Down", 0).getEntry();
+    GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In/Out", 0).getEntry();
+
     public Arm(RobotContainer r, ArmCal cals){
         this.r = r;
         this.cals = cals;
@@ -123,6 +126,8 @@ public class Arm extends SubsystemBase {
         maxArmTempNT.setDouble(maxArmTemp);
         maxArmTempTimeNT.setDouble(maxArmTempTime);
         
+        jogUpDownNT.setDouble(jogOffset.getX());
+        jogInOutNT.setDouble(jogOffset.getY());
 
         double currentAngle = angleMotor.getPosition();
         double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle);
