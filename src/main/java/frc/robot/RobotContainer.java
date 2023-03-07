@@ -60,6 +60,7 @@ public class RobotContainer {
 
   public SendableChooser<Integer> simpleStartPosChooser;
   public SendableChooser<Boolean> simpleBalanceChooser;
+  public SendableChooser<Boolean> driveOutOnlyChooser;
 
   public SendableChooser<Integer> startPosChooser;
   public SendableChooser<Boolean> secondPieceChooser;
@@ -91,8 +92,10 @@ public class RobotContainer {
     SmartDashboard.putData("Special Chooser", specialAutonChooser);
 
     simpleStartPosChooser = new SendableChooser<>();
-    simpleStartPosChooser.setDefaultOption("Far", 0);
-    simpleStartPosChooser.addOption("Substation", 1);
+    simpleStartPosChooser.setDefaultOption("Middle Far", 0);
+    simpleStartPosChooser.addOption("Middle Substation", 1);
+    simpleStartPosChooser.addOption("Far", 2);
+    simpleStartPosChooser.addOption("Substation", 3);
     SmartDashboard.putData("Start Position", simpleStartPosChooser);
 
     simpleBalanceChooser = new SendableChooser<>();
@@ -162,15 +165,21 @@ public class RobotContainer {
     inputs.resetArm.whileTrue(new InstantCommand(arm::learnArmOffset).ignoringDisable(true));
 
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
+    //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
-    inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
+    //inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
     inputs.autoGather.onFalse(new ArmGoHome(this));
 
     //1. move the arm, set slow mode true
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
-    inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos).alongWith(new InstantCommand(() -> inputs.slowModeTrue())).andThen(new ConditionalCommand(GatherCommand.shootIntake(this), new WaitCommand(0), () -> inputs.isCube() && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
+    inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos)/*.alongWith(new InstantCommand(() -> inputs.slowModeTrue()))*/.andThen(new ConditionalCommand(GatherCommand.shootIntake(this), new WaitCommand(0), () -> inputs.isCube() && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
+
+    inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
+    inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));
+
+    inputs.parkMode.onTrue(new InstantCommand(() -> driveTrain.setParkMode(true)));
+    inputs.parkMode.onFalse(new InstantCommand(() -> driveTrain.setParkMode(false)));
 
     inputs.alignMode.whileTrue(AutoAlign.autoScoreAlign(this));
 

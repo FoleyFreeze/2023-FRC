@@ -15,7 +15,9 @@ public class Lights extends SubsystemBase{
     RobotContainer r;
     InputCal cal;
 
-    AddressableLED led;
+    AddressableLED ledOne;
+    AddressableLED ledTwo;
+
     AddressableLEDBuffer ledBuffer;
 
     public Lights(RobotContainer r, InputCal cal){
@@ -23,11 +25,15 @@ public class Lights extends SubsystemBase{
         this.cal = cal;
         if(disabled) return;
 
-        led = new AddressableLED(cal.LED_PORT);
+        ledOne = new AddressableLED(cal.LED_PORT);
+        ledTwo = new AddressableLED(cal.LED_TWO_PORT);
         ledBuffer = new AddressableLEDBuffer(cal.BUFFER_LENGTH);
 
-        led.setLength(ledBuffer.getLength());
-        led.start();
+        ledOne.setLength(ledBuffer.getLength());
+        ledOne.start();
+
+        ledTwo.setLength(ledBuffer.getLength());
+        ledTwo.start();
     }
 
     int offset = 0;
@@ -52,18 +58,24 @@ public class Lights extends SubsystemBase{
         } else{
             switchTime = Timer.getFPGATimestamp();
             Color colorSet;
-            if(r.inputs.alignMode.getAsBoolean()){
+            /*if(r.inputs.alignMode.getAsBoolean()){
                 colorSet = new Color(170, 0, 255);
             }else{
                 colorSet = new Color(255, 50, 0);
+            }*/
+            if(r.inputs.isCube()){
+                colorSet = new Color(210, 145, 255);
+            } else {
+                colorSet = new Color(255, 255, 0);
             }
             for(int i = 0; i < ledBuffer.getLength(); i++){
                 ledBuffer.setLED(i, colorSet);
             }
         }
 
-        if(led != null){
-            led.setData(ledBuffer);
+        if(ledOne != null){
+            ledOne.setData(ledBuffer);
+            ledTwo.setData(ledBuffer);
         }
     }
 }

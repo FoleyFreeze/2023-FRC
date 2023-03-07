@@ -30,4 +30,6 @@ public interface Motor {
     public abstract double getCurrent();
     public abstract double getTemp();
     public abstract void setBrakeMode(boolean brakeMode);
+    public abstract void setPIDPwrLim(double pwrLim);
+    public abstract void setRampRate(double rate);
 }

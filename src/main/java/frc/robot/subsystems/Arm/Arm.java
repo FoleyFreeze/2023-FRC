@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.util.Angle;
 import frc.robot.util.Util;
 import frc.robot.util.Vector;
 import frc.robot.util.Motor.Motor;
@@ -23,8 +24,8 @@ public class Arm extends SubsystemBase {
 
     AnalogInput armPot;
 
-    Motor angleMotor;
-    Motor stendoMotor; 
+    public Motor angleMotor;
+    public Motor stendoMotor; 
     
     Vector setPoint;
     Vector setPointTwo;
@@ -38,8 +39,8 @@ public class Arm extends SubsystemBase {
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
     GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
 
-    GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up/Down", 0).getEntry();
-    GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In/Out", 0).getEntry();
+    GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up Down", 0).getEntry();
+    GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In Out", 0).getEntry();
 
     public Arm(RobotContainer r, ArmCal cals){
         this.r = r;
@@ -54,7 +55,7 @@ public class Arm extends SubsystemBase {
     //move arm and stendo to new position
     public void move(Vector position){
         setPoint = position;
-        setPointTwo = Vector.addVectors(setPoint, jogOffset);
+        setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
         isAngleOnly = false;
     }
 
@@ -66,19 +67,35 @@ public class Arm extends SubsystemBase {
     }
 
     public void jogUp(){
-        jogOffset.incrmntX(-r.arm.cals.jogUpDist);
+        double jogDist = r.arm.cals.jogUpDist;
+        if(r.inputs.shift()){
+            jogDist *= 5;
+        }
+        jogOffset.theta -= Angle.toRad(jogDist);
     }
 
     public void jogDown(){
-        jogOffset.incrmntX(r.arm.cals.jogUpDist);
+        double jogDist = r.arm.cals.jogUpDist;
+        if(r.inputs.shift()){
+            jogDist *= 5;
+        }
+        jogOffset.theta += Angle.toRad(jogDist);
     }
 
     public void jogIn(){
-        jogOffset.incrmntY(-r.arm.cals.jogOutDist);
+        double jogDist = r.arm.cals.jogOutDist;
+        if(r.inputs.shift()){
+            jogDist *= 5;
+        }
+        jogOffset.r -= jogDist;
     }
 
     public void jogOut(){
-        jogOffset.incrmntY(r.arm.cals.jogOutDist);
+        double jogDist = r.arm.cals.jogOutDist;
+        if(r.inputs.shift()){
+            jogDist *= 5;
+        }
+        jogOffset.r += jogDist;
     }
 
     public void setArmOffset(double angle, double stendo){
@@ -90,7 +107,7 @@ public class Arm extends SubsystemBase {
         //get the arm position from a pot
         //TODO: add this back in when this pot exists
         //double currentAngle = armPot.getVoltage() * cals.armPotSlope + cals.armPotOffset;
-        double currentAngle = 0;
+        double currentAngle = -11;
         angleMotor.setEncoderPosition(currentAngle);
 
         //the stendo should reset to a mid-ish position, 
@@ -113,10 +130,14 @@ public class Arm extends SubsystemBase {
 
         if(cals.disabled) return;
         angleMotor.setBrakeMode(!DriverStation.isDisabled());
+        if(r.inputs.getFieldMode()){
+            angleMotor.setPIDPwrLim(0.75);
+        } else {
+            angleMotor.setPIDPwrLim(0.25);
+        }
 
         SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
         SmartDashboard.putNumber("ArmStendoTemp",stendoMotor.getTemp());
-        //SmartDashboard.putNumber("ArmCurrent",angleMotor.getCurrent());
         if(maxArmCurr < angleMotor.getCurrent()) maxArmCurr = angleMotor.getCurrent();
         SmartDashboard.putNumber("MaxArmCurrent", maxArmCurr);
         if(maxArmTemp < angleMotor.getTemp()) {
@@ -126,8 +147,8 @@ public class Arm extends SubsystemBase {
         maxArmTempNT.setDouble(maxArmTemp);
         maxArmTempTimeNT.setDouble(maxArmTempTime);
         
-        jogUpDownNT.setDouble(jogOffset.getX());
-        jogInOutNT.setDouble(jogOffset.getY());
+        jogUpDownNT.setDouble(Angle.toDeg(jogOffset.theta));
+        jogInOutNT.setDouble(jogOffset.r);
 
         double currentAngle = angleMotor.getPosition();
         double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle);
@@ -138,7 +159,7 @@ public class Arm extends SubsystemBase {
 
         if(setPoint != null){
             //offset and wanted setpoint combined
-            setPointTwo = Vector.addVectors(setPoint, jogOffset);
+            setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
             
             double setpointAngle = Math.toDegrees(setPointTwo.theta);
             double currentAngleError = setpointAngle - currentAngle;

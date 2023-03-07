@@ -34,9 +34,9 @@ public class Inputs extends SubsystemBase{
         this.cal = cal;
     }
 
-    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", 0).getEntry();
-    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", 0).getEntry();
-    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Zone Pos", 0).getEntry();
+    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).getEntry();
+    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", Position.NONE.toString()).getEntry();
+    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Sel Zone", Zone.NONE.toString()).getEntry();
 
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
@@ -202,6 +202,31 @@ public class Inputs extends SubsystemBase{
             }
         }
     });
+
+    public Trigger balanceMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.BALANCE_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
+    public Trigger parkMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.PARK_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
+    public boolean inchMode = false;
+    public void setInchMode(boolean mode){
+        inchMode = mode;
+    }
 
     // ------------- End drive inputs ------------- //
 

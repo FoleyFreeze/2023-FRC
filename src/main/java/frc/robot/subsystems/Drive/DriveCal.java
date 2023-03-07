@@ -38,18 +38,18 @@ public class DriveCal {
     public double resetAngleDelay = 3;
 
     public WheelCal FLWheel = new WheelCal();{
-        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert();
+        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert().setRampRate(0.8);
         FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
 
         FLWheel.wheelLocation = Vector.fromXY(9.75, 8.75);//12.5, 10.75);
         FLWheel.encoderChannel = 2;
 
-        FLWheel.idx = 1;
+        FLWheel.idx = 2;
         FLWheel.name = "FLWheel";
     }
 
     public WheelCal FRWheel = new WheelCal();{
-        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 2).invert();
+        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 2).invert().setRampRate(0.4);
         FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 3).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
 
         FRWheel.wheelLocation = Vector.fromXY(9.75, -8.75);//12.5, -10.75);
@@ -60,18 +60,18 @@ public class DriveCal {
     }
 
     public WheelCal RLWheel = new WheelCal();{
-        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 8).invert();
+        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 8).invert().setRampRate(0.4);
         RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 9).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
 
         RLWheel.wheelLocation = Vector.fromXY(-9.75, 8.75);//-12.5, 10.75);
         RLWheel.encoderChannel = 3;
 
-        RLWheel.idx = 2;
+        RLWheel.idx = 3;
         RLWheel.name = "RLWheel";
     }
 
     public WheelCal RRWheel = new WheelCal();{
-        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 20).invert();
+        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 20).invert().setRampRate(0.4);
         RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 1).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
 
         RRWheel.wheelLocation = Vector.fromXY(-9.75, -8.75);//-12.5, -10.75);
@@ -83,11 +83,11 @@ public class DriveCal {
 
     public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
 
-    public double fieldModePwr = 0.75;
+    public double fieldModePwr = 0.85;
     public double pitModePwr = 0.3;
     public double inchModePwr = 0.4;
-    public double scoringStrafePwr = 0.3;
-    public double scoringRotPwr = 0.1;
+    public double scoringStrafePwr = 0.35;
+    public double scoringRotPwr = 0.2;
 
     public double autoAlignWaitTime = 1;
     public double autoAlignKp = -0.3;

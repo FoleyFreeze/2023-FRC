@@ -20,7 +20,7 @@ public class GripperCal{
 
     public double cubeScoreSpeed = -4000;
 
-    public double conePickUpPower = .6;
+    public double conePickUpPower = .9;
     public double conePickUpSpeed = 3000;
 
     public double coneScoreSpeed = -2000;

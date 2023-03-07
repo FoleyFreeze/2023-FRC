@@ -67,6 +67,11 @@ public class DriveTrain extends SubsystemBase {
 
         for(Wheel w: wheels){
             w.drive(parkMode);
+            if(parkMode){
+                w.driveMotor.setBrakeMode(true);
+            } else {
+                w.driveMotor.setBrakeMode(false);
+            }
         }
     }
 
@@ -192,6 +197,8 @@ public class DriveTrain extends SubsystemBase {
         for(int i = 0; i < 4; i++){
             driveTemps[i] = wheels[i].driveMotor.getTemp();
             swerveTemps[i] = wheels[i].swerveMotor.getTemp();
+            SmartDashboard.putNumber("Wheel " + i, wheels[i].swerveMotor.getPosition());
+            SmartDashboard.putNumber("Wheel " + i + " drive", wheels[i].driveMotor.getPosition());
         }
 
         driveTempNT.setDoubleArray(driveTemps);

@@ -19,6 +19,9 @@ public class InputCal {
     public final int[] FIELD_ORIENT = {5, 0 ,0};
     public final int[] ALIGN_MODE = {4, 0, 0};
 
+    public final int[] BALANCE_MODE = {2, 0, 0};
+    public final int[] PARK_MODE = {3, 0, 0};
+
     public final int[] RESET_WHEELS = {11, 0, 0};
     public final int[] RESET_ANG = {10, 0, 0};
     public final int[] RESET_POS = {14, 0, 0};
@@ -62,6 +65,7 @@ public class InputCal {
                                        };
 
     //lights stuff
-    public final int LED_PORT = 0;
-    public final int BUFFER_LENGTH = 200;
+    public final int LED_PORT = 2;
+    public final int LED_TWO_PORT = 0;
+    public final int BUFFER_LENGTH = 300;
 }

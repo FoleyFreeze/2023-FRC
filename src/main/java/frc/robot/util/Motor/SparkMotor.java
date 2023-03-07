@@ -93,4 +93,14 @@ public class SparkMotor implements Motor{
             motor.setIdleMode(IdleMode.kCoast);
         }
     }
+
+    @Override
+    public void setPIDPwrLim(double pwrLim) {
+        PIDController.setOutputRange(-pwrLim,pwrLim);
+    }
+
+    @Override
+    public void setRampRate(double rate){
+        motor.setClosedLoopRampRate(rate);
+    }
 }
