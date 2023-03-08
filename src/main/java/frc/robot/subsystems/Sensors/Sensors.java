@@ -38,13 +38,14 @@ public class Sensors extends SubsystemBase{
     }
 
     public void resetNavXAng(double ang){
-        navX.reset();
         navXOffset = ang - navX.getFusedHeading();
+        navX.reset();
         System.out.println("angle has been reset");
     }
 
     public void resetBotAng(){
         odo.botAngle = 0;
+        odo.prevBotAng = 0;
         resetNavXAng(0);
     }
 
@@ -83,6 +84,7 @@ public class Sensors extends SubsystemBase{
     public double maxPitchRoll = 0;
     @Override
     public void periodic(){
+
         double now = Timer.getFPGATimestamp();
         dt = now - prevTime;
         prevTime = now;

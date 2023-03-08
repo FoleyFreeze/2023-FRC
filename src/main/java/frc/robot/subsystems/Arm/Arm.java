@@ -1,14 +1,10 @@
 package frc.robot.subsystems.Arm;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -62,7 +58,7 @@ public class Arm extends SubsystemBase {
     //only move arm 
     public void moveArmOnly(Vector position){
         setPoint = position;
-        setPointTwo = Vector.addVectors(setPoint, jogOffset);
+        setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
         isAngleOnly = true;
     }
 
@@ -113,6 +109,7 @@ public class Arm extends SubsystemBase {
         //the stendo should reset to a mid-ish position, 
         //but then on retraction it should hit the stop and relearn
         stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
+        System.out.println("Reset arm angle/extension");
     }
 
     //adjust stendo length to account for the rotation of the pulley 

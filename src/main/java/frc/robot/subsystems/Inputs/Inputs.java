@@ -118,6 +118,16 @@ public class Inputs extends SubsystemBase{
         }
     }
 
+    public Trigger fieldAlignRight = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.ALIGN_RIGHT[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
     public double getJoystickX(){
         if(controller != null){
             double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]);

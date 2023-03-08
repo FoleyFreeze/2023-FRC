@@ -181,7 +181,8 @@ public class RobotContainer {
     inputs.parkMode.onTrue(new InstantCommand(() -> driveTrain.setParkMode(true)));
     inputs.parkMode.onFalse(new InstantCommand(() -> driveTrain.setParkMode(false)));
 
-    inputs.alignMode.whileTrue(AutoAlign.autoScoreAlign(this));
+    inputs.alignMode.and(inputs.fieldAlignRight).whileTrue(AutoAlign.autoFieldRightAlign(this));
+    inputs.alignMode.and(inputs.fieldAlignRight.negate()).whileTrue(AutoAlign.autoFieldLeftAlign(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
@@ -190,18 +191,18 @@ public class RobotContainer {
 
 
     Vector armUpVec = Vector.fromDeg(38, 110);
-    SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));
-    SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.addVectors(armUpVec, Vector.fromXY(5, 0))));
-    SmartDashboard.putData("ArmGather", new ArmMove(this, Vector.fromDeg(38, 20)));
-    SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(34, -5)));
-    SmartDashboard.putData("ArmHome", new ArmMove(this, Vector.fromDeg(31, 0)));
+    //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));
+    //SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.addVectors(armUpVec, Vector.fromXY(5, 0))));
+    //SmartDashboard.putData("ArmGather", new ArmMove(this, Vector.fromDeg(38, 20)));
+    //SmartDashboard.putData("ArmDown", new ArmMove(this, Vector.fromDeg(34, -5)));
+    //SmartDashboard.putData("ArmHome", new ArmMove(this, Vector.fromDeg(31, 0)));
 
     //SmartDashboard.putData("Cone Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.conePickUpPower)));
     //SmartDashboard.putData("Cube Pickup", new InstantCommand(() -> gripper.setIntakePower(gripper.cals.cubePickUpPower)));
     //SmartDashboard.putData("Stop Gripper", new InstantCommand(() -> gripper.setIntakePower(0)));
 
-    SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
-    SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
+    //SmartDashboard.putData("Cone Servo Position", new InstantCommand(() -> gripper.close()));
+    //SmartDashboard.putData("Cube Servo Position", new InstantCommand(() -> gripper.open()));
 
   }
 

@@ -7,8 +7,8 @@ public class GripperCal{
     
     final public boolean disabled = false;
 
-    public MotorCal rGrip = new MotorCal(MotorType.SPARK, 15).setRatio(1).setCurrLim(30);
-    public MotorCal lGrip = new MotorCal(MotorType.SPARK, 16).setRatio(1).setCurrLim(30);
+    public MotorCal rGrip = new MotorCal(MotorType.SPARK, 15).setRatio(1).setCurrLim(20);
+    public MotorCal lGrip = new MotorCal(MotorType.SPARK, 16).setRatio(1).setCurrLim(20);
     public int servoChannel = 1;
 
     public double servoOpenPos = 0.67;//This is the maximum we should ever go

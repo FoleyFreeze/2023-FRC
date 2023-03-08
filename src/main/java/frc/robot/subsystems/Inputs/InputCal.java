@@ -18,6 +18,7 @@ public class InputCal {
 
     public final int[] FIELD_ORIENT = {5, 0 ,0};
     public final int[] ALIGN_MODE = {4, 0, 0};
+    public final int[] ALIGN_RIGHT = {1, 0, 0};
 
     public final int[] BALANCE_MODE = {2, 0, 0};
     public final int[] PARK_MODE = {3, 0, 0};
