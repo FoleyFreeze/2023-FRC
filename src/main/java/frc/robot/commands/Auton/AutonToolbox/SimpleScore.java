@@ -19,7 +19,7 @@ public class SimpleScore extends CommandBase{
     public static Command SimpleHiScore(RobotContainer r, int startPos, boolean balance, Alliance team){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(-5.4, 33.4)));
+        sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(-5.4, 33.9)));
 
         double[] startAng = {165, 165, -165, 165};
 

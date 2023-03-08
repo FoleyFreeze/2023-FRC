@@ -88,5 +88,8 @@ public class Gripper extends SubsystemBase{
 
         lGripTempNT.setDouble(lGrip.getTemp());
         rGripTempNT.setDouble(rGrip.getTemp());
+
+        SmartDashboard.putNumber("LG_Current", lGrip.getCurrent());
+        SmartDashboard.putNumber("RG_Current", rGrip.getCurrent());
     }
 }

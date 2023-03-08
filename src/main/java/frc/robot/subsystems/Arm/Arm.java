@@ -67,7 +67,7 @@ public class Arm extends SubsystemBase {
         if(r.inputs.shift()){
             jogDist *= 5;
         }
-        jogOffset.theta -= Angle.toRad(jogDist);
+        jogOffset.theta += Angle.toRad(jogDist);
     }
 
     public void jogDown(){
@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase {
         if(r.inputs.shift()){
             jogDist *= 5;
         }
-        jogOffset.theta += Angle.toRad(jogDist);
+        jogOffset.theta -= Angle.toRad(jogDist);
     }
 
     public void jogIn(){

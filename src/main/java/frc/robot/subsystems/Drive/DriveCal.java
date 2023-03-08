@@ -38,7 +38,7 @@ public class DriveCal {
     public double resetAngleDelay = 3;
 
     public WheelCal FLWheel = new WheelCal();{
-        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert().setRampRate(0.8);
+        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert().setRampRate(0.4);
         FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
 
         FLWheel.wheelLocation = Vector.fromXY(9.75, 8.75);//12.5, 10.75);

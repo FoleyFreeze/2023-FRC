@@ -8,7 +8,8 @@ public class ArmCal {
     
     final public boolean disabled = false;
 
-    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 17 / 66.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);
+    //                                                                                       used to be 17/66
+    public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 18 / 72.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);
     public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(15).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
@@ -25,7 +26,7 @@ public class ArmCal {
                                 
     public double[] lengthMax = {40, 40, 40, 40};
     public double[] angleAxis = { 0, 30, 60,160};
-    public double lengthMin = 31;
+    public double lengthMin = 30.6;
     public double initialStendoPosition = 34.2;
 
     public double jogUpDist = 1; //inches
@@ -43,23 +44,23 @@ public class ArmCal {
     //common arm positions
     public Vector positionHome = Vector.fromDeg(32, -3);
     
-    public Vector positionPreGather = new Vector(0, 0);
-    public Vector positionGatherShelf = Vector.fromDeg(31.5, 94.2);
-    public Vector positionCubeGatherFloor = Vector.fromDeg(37.2, 35.5);
-    public Vector positionConeGatherFloor = Vector.fromDeg(38, 38);
-    public Vector positionGatherFloorFar = new Vector(0, 0);
+    //public Vector positionPreGather = Vector.fromDeg(0, 0);
+    public Vector positionGatherShelf = Vector.fromDeg(33, 92.6);
+    public Vector positionCubeGatherFloor = Vector.fromDeg(38.6, 31.9);
+    public Vector positionConeGatherFloor = Vector.fromDeg(38.6, 34.3);
+    //public Vector positionGatherFloorFar = Vector.fromDeg(0, 0);
 
     //cone arm positions
-    public Vector positionConeHiAngle = Vector.fromDeg(31, 115);
+    public Vector positionConeHiAngle = Vector.fromDeg(31, 110.7);
     public Vector positionConeHiStendo = Vector.fromDeg(31, -5.4);
-    public Vector positionConeHiHold = Vector.fromDeg(39, 117);
-    public Vector positionConeHiRelease = Vector.fromDeg(39, 100);
-    public Vector positionConeMedHold = Vector.fromDeg(31, 93);
-    public Vector positionConeMedRelease = Vector.fromDeg(31, 70);
-    public Vector positionConeLowRelease = Vector.fromDeg(31, 30);
+    public Vector positionConeHiHold = Vector.fromDeg(39, 110.7);
+    public Vector positionConeHiRelease = Vector.fromDeg(39, 97.3);
+    public Vector positionConeMedHold = Vector.fromDeg(33.5, 89.3);
+    public Vector positionConeMedRelease = Vector.fromDeg(33.5, 72.6);
+    public Vector positionConeLowRelease = Vector.fromDeg(30.6, 19.8);
   
     //cube arm positions
-    public Vector positionCubeHi = Vector.fromDeg(38, 100);
-    public Vector positionCubeMed = Vector.fromDeg(29, 75);
-    public Vector positionCubeLow = Vector.fromDeg(31, 25.0);
+    public Vector positionCubeHi = Vector.fromDeg(35, 102.3);
+    public Vector positionCubeMed = Vector.fromDeg(30.6, 74.5);
+    public Vector positionCubeLow = Vector.fromDeg(30.6, 25.8);
 }
