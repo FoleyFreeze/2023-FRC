@@ -3,10 +3,7 @@ package frc.robot.commands.Combos;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
@@ -16,6 +13,7 @@ import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Gripper.GatherCommand;
+import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.util.Vector;
 
 public class Score extends CommandBase{
@@ -53,30 +51,21 @@ public class Score extends CommandBase{
     }
 
     RobotContainer r;
-    
-    enum ManScoreMode {UP, SCORE, DOWN};
-    ManScoreMode scoreMode = ManScoreMode.UP;
 
     public Score(RobotContainer r){
         this.r = r;
         addRequirements(r.arm);
+        addRequirements(r.gripper);
+    }
+
+    @Override
+    public void initialize(){
+
     }
 
     @Override
     public void execute(){
-        switch(scoreMode){
-            case UP:
-                r.inputs.autoScore.onTrue(armUp(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.SCORE))));
-                break;
-            case SCORE:
-                r.inputs.autoScore.onTrue(armScore(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.DOWN))));
-                break;
-            case DOWN:
-                r.inputs.autoScore.onTrue(new ArmGoHome(r).andThen(new InstantCommand(() -> setMode(ManScoreMode.UP))));
-                break;
-        }
 
-        SmartDashboard.putString("ArmStep", scoreMode.toString());
     }
 
     @Override
@@ -84,30 +73,80 @@ public class Score extends CommandBase{
         return false;
     }
 
-    void setMode(ManScoreMode mode){
-        scoreMode = mode;
-    }
-
-    public static Command armUp(RobotContainer r){
+    public static Command armUp(RobotContainer r, Level level){
         Command command = new SequentialCommandGroup();
 
         if(r.inputs.isCube()){
-            command = new ArmMove(r, r.arm.cals.positionCubeHi);
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionCubeLow;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionCubeMed;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+                default:
+                    pos = r.arm.cals.positionCubeHi;
+                    break;
+            }
+            command = new ArmMove(r, pos);
         } else {
-            command = new ArmMove(r, r.arm.cals.positionConeHiHold);
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionConeLowRelease;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionConeMedHold;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+                default:
+                    pos = r.arm.cals.positionConeHiHold;
+                    break;
+            }
+            command = new ArmMove(r, pos);
         }
 
         return command;
     }
 
-    public static Command armScore(RobotContainer r){
+    public static Command armScore(RobotContainer r, Level level){
         Command command = new SequentialCommandGroup();
 
         if(r.inputs.isCube()){
             command = GatherCommand.shootIntake(r);
         } else {
-            command = new ArmMove(r, r.arm.cals.positionConeHiRelease).alongWith(
-                new InstantCommand(() -> r.gripper.open()));
+            Vector pos;
+            switch(level){
+                case BOTTOM:
+                    pos = r.arm.cals.positionConeLowRelease;
+                    break;
+                case MIDDLE:
+                    pos = r.arm.cals.positionConeMedRelease;
+                    break;
+                case TOP:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+                case NONE:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+                default:
+                    pos = r.arm.cals.positionConeHiRelease;
+                    break;
+            }
+
+            command = new ArmMove(r, pos);
         }
 
         return command;

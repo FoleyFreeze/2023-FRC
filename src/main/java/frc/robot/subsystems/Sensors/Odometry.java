@@ -37,7 +37,7 @@ public class Odometry implements AutoCloseable {
 
     public int badWheels = 0;
     private Vector[] prevWheelStates;
-    private double prevBotAng;
+    public double prevBotAng;
     public void update(double botAng, Vector[] wheelStates){
         if(prevWheelStates == null) {
             prevWheelStates = wheelStates;
@@ -106,7 +106,7 @@ public class Odometry implements AutoCloseable {
         } else {
             botAngle += (navXBotAng - prevNavXBotAng);
         }*/
-        botAngle = navXBotAng;//+= bestAngle;
+        botAngle += Angle.normRad(navXBotAng - prevNavXBotAng);//+= bestAngle;
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;

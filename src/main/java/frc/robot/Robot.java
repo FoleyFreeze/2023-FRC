@@ -4,23 +4,17 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.Arm.ArmGoHome;
-import frc.robot.commands.Arm.ArmMove;
-import frc.robot.commands.Arm.PositionProvider;
 import frc.robot.commands.Auton.AutonBuilder;
-import frc.robot.commands.Auton.AutonPos;
-import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
-import frc.robot.commands.Auton.AdvancedMovement.MultiDimensionalMotionProfile;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
-import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
+import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
+import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.subsystems.Drive.DriveTrain;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
@@ -80,25 +74,28 @@ public class Robot extends TimedRobot {
 
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
-    int startPos = r.startPosChooser.getSelected();
+    int simpleStartPos = r.simpleStartPosChooser.getSelected();
+    boolean simpleBalance = r.simpleBalanceChooser.getSelected();
+    Alliance team = DriverStation.getAlliance();
+
+    /*int startPos = r.startPosChooser.getSelected();
     boolean secondPiece = r.secondPieceChooser.getSelected();
     int action = r.actionChooser.getSelected();
     int path = r.pathChooser.getSelected();
-    int piece = r.pieceChooser.getSelected();
+    int piece = r.pieceChooser.getSelected();*/
 
     //casts everything to a string
-    String value = "" + useSpecialCommand + startPos + secondPiece + action + path + piece;
+    String value = "" + useSpecialCommand + simpleStartPos + simpleBalance + team;//startPos + secondPiece + action + path + piece;
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        //r.autonCommand = AutoBalance.getAutoBalanceCommand(r);
-        r.autonCommand = new InstantCommand(r.driveTrain::parkMode);
+        r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
       } else {
-        r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
+        /*r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
                                                     secondPiece, 
                                                     action, 
                                                     path, 
-                                                    piece);
+                                                    piece);*/
       }
     }
 
@@ -129,6 +126,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    r.driveTrain.setParkMode(false);
   }
 
   /** This function is called periodically during operator control. */
@@ -166,7 +164,7 @@ public class Robot extends TimedRobot {
 
         Vector xy = Vector.fromXY(0.5, 0.0);
         double zPwr = 0.0;
-        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations);
+        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
 
         for (Vector vector : driveVecs) {
           vector.r *= 10.0;

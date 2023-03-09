@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class Sensors extends SubsystemBase{
@@ -33,17 +34,18 @@ public class Sensors extends SubsystemBase{
     }
 
     public double getNavXAng(){
-        return -(navX.getFusedHeading() + navXOffset) / 360.0 * Math.PI * 2;//returns in radians (-pi -> pi)
+        return -Angle.normDeg(navX.getFusedHeading() + navXOffset) / 360.0 * Math.PI * 2;//returns in radians (-pi -> pi)
     }
 
     public void resetNavXAng(double ang){
-        navX.reset();
         navXOffset = ang - navX.getFusedHeading();
+        navX.reset();
         System.out.println("angle has been reset");
     }
 
     public void resetBotAng(){
         odo.botAngle = 0;
+        odo.prevBotAng = 0;
         resetNavXAng(0);
     }
 
@@ -82,6 +84,7 @@ public class Sensors extends SubsystemBase{
     public double maxPitchRoll = 0;
     @Override
     public void periodic(){
+
         double now = Timer.getFPGATimestamp();
         dt = now - prevTime;
         prevTime = now;

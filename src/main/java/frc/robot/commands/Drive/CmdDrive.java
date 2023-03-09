@@ -1,8 +1,11 @@
 package frc.robot.commands.Drive;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
+import frc.robot.util.Angle;
+import frc.robot.util.Util;
 import frc.robot.util.Vector;
 
 public class CmdDrive extends CommandBase{
@@ -47,18 +50,33 @@ public class CmdDrive extends CommandBase{
             }
         }
 
-        double pwrMultiplier;
         //Field mode v. pit mode
-        if(r.inputs.balanceMode.getAsBoolean()){
-            pwrMultiplier = r.driveTrain.cals.inchModePwr;
+        if(r.inputs.scoringSlowMode){
+            xy.r *= r.driveTrain.cals.scoringStrafePwr;
+            z *= r.driveTrain.cals.scoringRotPwr;
         } else if(r.inputs.getFieldMode()){
-            pwrMultiplier = r.driveTrain.cals.fieldModePwr;
+            xy.r *= r.driveTrain.cals.fieldModePwr;
+            z *= r.driveTrain.cals.fieldModePwr;
         } else {
-            pwrMultiplier = r.driveTrain.cals.pitModePwr;
+            xy.r *= r.driveTrain.cals.pitModePwr;
+            z *= r.driveTrain.cals.pitModePwr;
         }
 
-        xy.r *= pwrMultiplier;
-        z *= pwrMultiplier;
+        //Square inputs for smoother driving
+        xy.r = xy.r * xy.r;
+        z = z * z * Math.signum(r.inputs.getJoystickZR());
+
+        //Auto-align to substation logic
+        if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && Math.abs(r.inputs.getJoystickZR()) < 0.2){
+            double error = (0 - r.sensors.odo.botAngle) % (2 * Math.PI);
+                
+            if(Math.abs(error) > Math.PI){
+                if(error > 0) error -= 2 * Math.PI;
+                else error += 2 * Math.PI;
+            }
+
+            z = Util.bound(error * 0.4, -0.4, 0.4);
+        }
         
         r.driveTrain.driveSwerve(xy, z);
     }

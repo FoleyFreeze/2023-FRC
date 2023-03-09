@@ -1,6 +1,8 @@
 package frc.robot.subsystems.Drive;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
@@ -56,7 +58,7 @@ public class Wheel {
     }
 
     //Uses the drive vector obtained from the drive command in DriveTrain
-    public void drive(){
+    public void drive(boolean parkMode){
         double rawRelEnc = swerveMotor.getPosition();
         double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
 
@@ -83,7 +85,7 @@ public class Wheel {
         double targetRelEnc = rawRelEnc + (delta / 2.0 / Math.PI * cal.swerveRotationsPerRev);
 
         // if the wheel doesnt need to move, dont move it
-        if(outputPower != 0){
+        if(outputPower != 0 || parkMode){
             swerveMotor.setPosition(targetRelEnc);
             driveMotor.setPower(outputPower);
         } else {

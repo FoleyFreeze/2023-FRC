@@ -2,9 +2,12 @@ package frc.robot.subsystems.Gripper;
 
 import com.ctre.phoenix.CANifier.PWMChannel;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Motor.Motor;
@@ -19,6 +22,9 @@ public class Gripper extends SubsystemBase{
 
     Servo choiceGrip;
     double servoDisableTime;
+
+    GenericEntry lGripTempNT = Shuffleboard.getTab("Safety").add("lGrip Temp", 0).getEntry();
+    GenericEntry rGripTempNT = Shuffleboard.getTab("Safety").add("rGrip Temp", 0).getEntry();
 
     public Gripper (RobotContainer r, GripperCal cals){
         this.r = r;
@@ -66,6 +72,7 @@ public class Gripper extends SubsystemBase{
         return lGrip.getCurrent() + rGrip.getCurrent();
     }
 
+    double maxGripperCurrent = 0;
     boolean servoDisabled = false;
     @Override
     public void periodic(){
@@ -73,5 +80,16 @@ public class Gripper extends SubsystemBase{
             choiceGrip.setDisabled();
             servoDisabled = true;
         }
+
+        if(getIntakeCurrent() > maxGripperCurrent){
+            maxGripperCurrent = getIntakeCurrent();
+        }
+        SmartDashboard.putNumber("MaxGripCurr", maxGripperCurrent);
+
+        lGripTempNT.setDouble(lGrip.getTemp());
+        rGripTempNT.setDouble(rGrip.getTemp());
+
+        SmartDashboard.putNumber("LG_Current", lGrip.getCurrent());
+        SmartDashboard.putNumber("RG_Current", rGrip.getCurrent());
     }
 }

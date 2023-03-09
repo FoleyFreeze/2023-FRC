@@ -2,12 +2,15 @@ package frc.robot.subsystems.Inputs;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Arm.PositionProvider;
 import frc.robot.util.Vector;
 
 public class Inputs extends SubsystemBase{
@@ -31,12 +34,16 @@ public class Inputs extends SubsystemBase{
         this.cal = cal;
     }
 
+    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).getEntry();
+    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", Position.NONE.toString()).getEntry();
+    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Sel Zone", Zone.NONE.toString()).getEntry();
+
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     public void periodic(){
-        SmartDashboard.putString("Selected Level", selectedLevel.toString());
-        SmartDashboard.putString("Selected Pos", selectedPosition.toString());
-        SmartDashboard.putString("Selected Zone", selectedZone.toString());
+        levelNT.setString(selectedLevel.toString());
+        posNT.setString(selectedPosition.toString());
+        zoneNT.setString(selectedZone.toString());
         
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
@@ -110,6 +117,16 @@ public class Inputs extends SubsystemBase{
             return false;
         }
     }
+
+    public Trigger fieldAlignRight = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.ALIGN_RIGHT[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
 
     public double getJoystickX(){
         if(controller != null){
@@ -186,6 +203,16 @@ public class Inputs extends SubsystemBase{
         }
     });
 
+    public Trigger alignMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.ALIGN_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
     public Trigger balanceMode = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(controller != null){
@@ -195,6 +222,21 @@ public class Inputs extends SubsystemBase{
             }
         }
     });
+
+    public Trigger parkMode = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(controller != null){
+                return controller.getRawButton(cal.PARK_MODE[controllerType.ordinal()]);
+            } else {
+                return false;
+            }
+        }
+    });
+
+    public boolean inchMode = false;
+    public void setInchMode(boolean mode){
+        inchMode = mode;
+    }
 
     // ------------- End drive inputs ------------- //
 
@@ -248,6 +290,115 @@ public class Inputs extends SubsystemBase{
             }
         }
     });
+
+    public enum ManScoreMode {UP, SCORE};
+    public ManScoreMode scoreMode = ManScoreMode.UP;
+
+    public void setMode(ManScoreMode mode){
+        scoreMode = mode;
+    }
+    public void toggleMode(){
+        if(scoreMode == ManScoreMode.UP){
+            scoreMode = ManScoreMode.SCORE;
+        } else {
+            scoreMode = ManScoreMode.UP;
+        }
+    }
+
+    public PositionProvider armScorePos = new PositionProvider() {
+
+        @Override
+        public Vector getPosition() {
+            Vector pos;
+            if(scoreMode == ManScoreMode.UP){
+                if(r.inputs.isCube()){
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionCubeLow;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionCubeMed;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                    }
+                } else {
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionConeLowRelease;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionConeMedHold;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionConeHiHold;
+                            break;
+                    }
+                }
+            } else {
+                if(r.inputs.isCube()){
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionCubeLow;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionCubeMed;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionCubeHi;
+                            break;
+                    }
+                }else{
+                    switch(selectedLevel){
+                        case BOTTOM:
+                            pos = r.arm.cals.positionConeLowRelease;
+                            break;
+                        case MIDDLE:
+                            pos = r.arm.cals.positionConeMedRelease;
+                            break;
+                        case TOP:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                        case NONE:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                        default:
+                            pos = r.arm.cals.positionConeHiRelease;
+                            break;
+                    }
+                }
+            }
+
+            return pos;
+        }
+    };
+
+    public boolean scoringSlowMode = false;
+    public void slowModeTrue(){
+        scoringSlowMode = true;
+    }
+    public void slowModeFalse(){
+        scoringSlowMode = false;
+    }
     
 
     // ------------- End manipulator inputs ------------- //
@@ -275,7 +426,7 @@ public class Inputs extends SubsystemBase{
         if(cBoardTwo != null){
             return !cBoardTwo.getRawButton(cal.CUBE_V_CONE);
         } else {
-            return false;
+            return true;
         }
     }
 

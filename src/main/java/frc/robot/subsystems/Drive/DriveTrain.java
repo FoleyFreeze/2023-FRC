@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Drive;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -15,6 +17,9 @@ public class DriveTrain extends SubsystemBase {
     public Wheel[] wheels;
 
     FileManager fm = new FileManager("/home/lvuser/WheelEncoderOffsets.txt");
+
+    GenericEntry driveTempNT;
+    GenericEntry swerveTempNT;
 
     /* For driving, our 0 degrees point is facing forward
      * Clockwise turning is assumed to be a positive rotPwr input
@@ -32,6 +37,15 @@ public class DriveTrain extends SubsystemBase {
         }
 
         readAbsOffset();
+
+        driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", new double[]{0, 0, 0, 0}).getEntry();
+        swerveTempNT = Shuffleboard.getTab("Safety").add("swerveTemps", new double[]{0, 0, 0, 0}).getEntry();
+    }
+
+    public boolean parkMode = false;
+    public void setParkMode(boolean parkMode){
+        this.parkMode = parkMode;
+        System.out.println("Park mode set");
     }
 
     /* Takes in x and y power values and a z power, 
@@ -46,19 +60,23 @@ public class DriveTrain extends SubsystemBase {
             wheelLocations[i] = wheels[i].wheelLocation;
         }
 
-        Vector[] driveVecs = formulateDriveVecs(xy, z, wheels.length, wheelLocations);
+        Vector[] driveVecs = formulateDriveVecs(xy, z, wheels.length, wheelLocations, parkMode);
         for(int i = 0; i < wheels.length; i++){
             wheels[i].driveVec = driveVecs[i];
         }
 
         for(Wheel w: wheels){
-            w.drive();
+            w.drive(parkMode);
+            if(parkMode){
+                w.driveMotor.setBrakeMode(true);
+            } else {
+                w.driveMotor.setBrakeMode(false);
+            }
         }
     }
 
     //This guy separates math from setting values to actual wheels
-    public static Vector[] formulateDriveVecs(Vector xy, double z, int wheelLength, Vector[] wheelLocations)
-    {
+    public static Vector[] formulateDriveVecs(Vector xy, double z, int wheelLength, Vector[] wheelLocations, boolean parkMode){
         Vector[] driveVecs = new Vector[wheelLength];
 
         double maxWheelDist = 0;
@@ -68,20 +86,32 @@ public class DriveTrain extends SubsystemBase {
 
         double max = 0;
         for(int i = 0; i < wheelLength; i++){
-            //Finding the perpendicular angle from the wheel location points
-            double rotAng = wheelLocations[i].theta + Math.PI/2;
+            if(!parkMode){
+                //Finding the perpendicular angle from the wheel location points
+                double rotAng = wheelLocations[i].theta + Math.PI/2;
 
-            //normalize rotation vector's power based on distance from center of rot
-            double rotPwr = (wheelLocations[i].r / maxWheelDist) * z;
+                //normalize rotation vector's power based on distance from center of rot
+                double rotPwr = (wheelLocations[i].r / maxWheelDist) * z;
 
-            //Formulating vector for rotating around the center of rotation
-            Vector rotVec = new Vector(rotPwr, rotAng);
+                //Formulating vector for rotating around the center of rotation
+                Vector rotVec = new Vector(rotPwr, rotAng);
 
-            //Combining drive and rotate vectors
-            driveVecs[i] = Vector.addVectors(xy, rotVec);
+                //Combining drive and rotate vectors
+                driveVecs[i] = Vector.addVectors(xy, rotVec);
 
-            if(Math.abs(driveVecs[i].r) > max){
-                max = Math.abs(driveVecs[i].r);
+                if(Math.abs(driveVecs[i].r) > max){
+                    max = Math.abs(driveVecs[i].r);
+                }
+            } else {
+                //Finding the perpendicular angle from the wheel location points
+                double rotAng = wheelLocations[i].theta;
+
+                //Combining drive and rotate vectors
+                driveVecs[i] = new Vector(0, rotAng);
+
+                if(Math.abs(driveVecs[i].r) > max){
+                    max = Math.abs(driveVecs[i].r);
+                }
             }
         }
 
@@ -147,10 +177,7 @@ public class DriveTrain extends SubsystemBase {
 
     //turn all wheels inward and don't move - I imagine we will use this in lieu of driveswerve in commands
     public void parkMode(){
-        for(int i = 0; i < wheels.length; i++){
-            wheels[i].driveVec.theta = wheels[i].cal.wheelLocation.theta;
-            wheels[i].driveVec.r = 0;
-        }
+        
     }
 
     //get all four wheel vectors
@@ -165,9 +192,14 @@ public class DriveTrain extends SubsystemBase {
     public void periodic(){
         if(cals.disabled) return;
 
-        for(Wheel w : wheels){
-            SmartDashboard.putNumber("WheelTemp " + w.idx, w.swerveMotor.getTemp());
-            //SmartDashboard.putNumber("WheelAI " + w.idx, w.absEncoder.getVoltage());
+        double[] driveTemps = new double[4];
+        double[] swerveTemps = new double[4];
+        for(int i = 0; i < 4; i++){
+            driveTemps[i] = wheels[i].driveMotor.getTemp();
+            swerveTemps[i] = wheels[i].swerveMotor.getTemp();
         }
+
+        driveTempNT.setDoubleArray(driveTemps);
+        swerveTempNT.setDoubleArray(swerveTemps);
     }
 }

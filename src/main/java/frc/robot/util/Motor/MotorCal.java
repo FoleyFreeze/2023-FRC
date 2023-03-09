@@ -24,6 +24,7 @@ public class MotorCal {
     public double gearRatio = 1;
 
     public double currLim = 0;
+    public double rampRate = 0;
 
     public boolean brakeMode = false;
 
@@ -74,6 +75,11 @@ public class MotorCal {
 
     public MotorCal setBrakeMode(boolean brakeMode){
         this.brakeMode = brakeMode;
+        return this;
+    }
+
+    public MotorCal setRampRate(double rate){
+        this.rampRate = rate;
         return this;
     }
 }

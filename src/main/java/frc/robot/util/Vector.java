@@ -122,6 +122,16 @@ public class Vector {
         return r * Math.cos(theta);
     }
 
+    public Vector mirrorX(){
+        double newX = -this.getX();
+        double newY = this.getY();
+
+        r = fromXY(newX, newY).r;
+        theta = fromXY(newX, newY).theta;
+
+        return this;
+    }
+
     public double getY(){
         return r * Math.sin(theta);
     }
