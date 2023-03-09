@@ -93,10 +93,10 @@ public class Inputs extends SubsystemBase{
             }
             prevPortStatus[i] = portStatus[i];
         }
-        
 
         scorePosition();
     } 
+
 
 
     // ------------- Drive inputs ------------- //

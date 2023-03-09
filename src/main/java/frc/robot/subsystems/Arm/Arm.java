@@ -24,7 +24,7 @@ public class Arm extends SubsystemBase {
     public Motor stendoMotor; 
     
     Vector setPoint;
-    Vector setPointTwo;
+    //Vector setPointTwo;
     boolean isAngleOnly = false;
 
     double timeOfStendoReset;
@@ -51,14 +51,14 @@ public class Arm extends SubsystemBase {
     //move arm and stendo to new position
     public void move(Vector position){
         setPoint = position;
-        setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
+        //setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
         isAngleOnly = false;
     }
 
     //only move arm 
     public void moveArmOnly(Vector position){
         setPoint = position;
-        setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
+        //setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
         isAngleOnly = true;
     }
 
@@ -97,6 +97,7 @@ public class Arm extends SubsystemBase {
     public void setArmOffset(double angle, double stendo){
         angleMotor.setEncoderPosition(angle);
         stendoMotor.setEncoderPosition(stendo + getStendoPulleyOffset(angle));
+        jogOffset = new Vector(0,0);
     }
 
     public void learnArmOffset(){
@@ -110,6 +111,7 @@ public class Arm extends SubsystemBase {
         //but then on retraction it should hit the stop and relearn
         stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
         System.out.println("Reset arm angle/extension");
+        jogOffset = new Vector(0,0);
     }
 
     //adjust stendo length to account for the rotation of the pulley 
@@ -135,7 +137,9 @@ public class Arm extends SubsystemBase {
 
         SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
         SmartDashboard.putNumber("ArmStendoTemp",stendoMotor.getTemp());
-        if(maxArmCurr < angleMotor.getCurrent()) maxArmCurr = angleMotor.getCurrent();
+        double armCurrent = angleMotor.getCurrent();
+        SmartDashboard.putNumber("ArmCurrent",armCurrent);
+        if(maxArmCurr < armCurrent) maxArmCurr = angleMotor.getCurrent();
         SmartDashboard.putNumber("MaxArmCurrent", maxArmCurr);
         if(maxArmTemp < angleMotor.getTemp()) {
             maxArmTemp = angleMotor.getTemp();
@@ -147,8 +151,8 @@ public class Arm extends SubsystemBase {
         jogUpDownNT.setDouble(Angle.toDeg(jogOffset.theta));
         jogInOutNT.setDouble(jogOffset.r);
 
-        double currentAngle = angleMotor.getPosition();
-        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle);
+        double currentAngle = angleMotor.getPosition() - Math.toDegrees(jogOffset.theta);
+        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle) - jogOffset.r;
         Vector currPos = Vector.fromDeg(currentLength, currentAngle);
         SmartDashboard.putString("ArmPos", currPos.toStringPolar());
 
@@ -156,9 +160,10 @@ public class Arm extends SubsystemBase {
 
         if(setPoint != null){
             //offset and wanted setpoint combined
-            setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
+            //move jog to after limits
+            //setPointTwo = new Vector(setPoint.r + jogOffset.r, setPoint.theta + jogOffset.theta);
             
-            double setpointAngle = Math.toDegrees(setPointTwo.theta);
+            double setpointAngle = Math.toDegrees(setPoint.theta);
             double currentAngleError = setpointAngle - currentAngle;
 
             //interpolate - this prevents the gripper from hitting the ground
@@ -169,11 +174,15 @@ public class Arm extends SubsystemBase {
             lengthMax = Math.min(lengthMax,lengthMax2);
 
             //only letting stendo and angle move to their min/max
-            double angleSetpoint = Util.bound(Math.toDegrees(setPointTwo.theta), cals.angleMin, cals.angleMax);
-            double lengthSetpoint = Util.bound(setPointTwo.r, cals.lengthMin, lengthMax);
+            double angleSetpoint = Util.bound(Math.toDegrees(setPoint.theta), cals.angleMin, cals.angleMax);
+            double lengthSetpoint = Util.bound(setPoint.r, cals.lengthMin, lengthMax);
 
             //adjust for pulley offset
             lengthSetpoint += getStendoPulleyOffset(currentAngle);
+
+            //add jog r and theta
+            angleSetpoint += Math.toDegrees(jogOffset.theta);
+            lengthSetpoint += jogOffset.r;
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
@@ -190,8 +199,8 @@ public class Arm extends SubsystemBase {
 
     //mathify for error
     public Vector getError(){;
-        Vector currentVector = Vector.fromDeg(stendoMotor.getPosition(),angleMotor.getPosition());
-        return Vector.subVectors(setPointTwo, currentVector);
+        Vector currentVector = Vector.fromDeg(stendoMotor.getPosition() - jogOffset.r,angleMotor.getPosition() - Math.toDegrees(jogOffset.theta));
+        return Vector.subVectors(setPoint, currentVector);
     }
 
 

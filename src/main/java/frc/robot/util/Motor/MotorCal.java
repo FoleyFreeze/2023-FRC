@@ -63,6 +63,11 @@ public class MotorCal {
         return this;
     }
 
+    public MotorCal setDfilt(double dfilt){
+        this.dFilt = dfilt;
+        return this;
+    }
+
     public MotorCal setRatio(double ratio){
         gearRatio = ratio;
         return this;

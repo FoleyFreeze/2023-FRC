@@ -50,9 +50,4 @@ public class NullMotor implements Motor{
     public void setPIDPwrLim(double pwrLim) {
         
     }
-
-    @Override
-    public void setRampRate(double rate) {
-        
-    }
 }

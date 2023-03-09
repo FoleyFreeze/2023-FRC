@@ -22,24 +22,30 @@ public class DriveCal {
 
         public final double driveInPerSwerveRotation = -32/18.0 * 15/45.0 * 4 * Math.PI;
 
+        public double pidTime = 0.275;
+
         int idx;
         public String name;
     }
     
-    double swerveKp = 0.2;
-    double swerveKi = 0.000;
-    double swerveIZone = 1.0;
-    double swerveKd = 0.1;
+    double swerveKp = 0.4;//0.8;
+    double swerveKi = 0.000001;
+    double swerveIZone = 0.0;
+    double swerveKd = 1.3;
+    double swerveDfilt = 0.0;
     double swerveKf = 0;
-    double swerveLim = 0.5;
+    double swerveLim = 0.7;
     double swerveCurrLim = 45;
+    double swerveRamp = 0.04;
+
     double driveCurrLim = 60;
+    double driveRampRate = 0.4;
 
     public double resetAngleDelay = 3;
 
     public WheelCal FLWheel = new WheelCal();{
-        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert().setRampRate(0.4);
-        FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
+        FLWheel.driveMotor = new MotorCal(MotorType.SPARK, 6).invert().setRampRate(driveRampRate);
+        FLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 7).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim).setRampRate(swerveRamp);
 
         FLWheel.wheelLocation = Vector.fromXY(9.75, 8.75);//12.5, 10.75);
         FLWheel.encoderChannel = 2;
@@ -49,8 +55,8 @@ public class DriveCal {
     }
 
     public WheelCal FRWheel = new WheelCal();{
-        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 2).invert().setRampRate(0.4);
-        FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 3).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
+        FRWheel.driveMotor = new MotorCal(MotorType.SPARK, 2).invert().setRampRate(driveRampRate);
+        FRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 3).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim).setRampRate(swerveRamp);
 
         FRWheel.wheelLocation = Vector.fromXY(9.75, -8.75);//12.5, -10.75);
         FRWheel.encoderChannel = 1;
@@ -60,8 +66,8 @@ public class DriveCal {
     }
 
     public WheelCal RLWheel = new WheelCal();{
-        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 8).invert().setRampRate(0.4);
-        RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 9).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
+        RLWheel.driveMotor = new MotorCal(MotorType.SPARK, 8).invert().setRampRate(driveRampRate);
+        RLWheel.swerveMotor = new MotorCal(MotorType.SPARK, 9).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim).setRampRate(swerveRamp);
 
         RLWheel.wheelLocation = Vector.fromXY(-9.75, 8.75);//-12.5, 10.75);
         RLWheel.encoderChannel = 3;
@@ -71,8 +77,8 @@ public class DriveCal {
     }
 
     public WheelCal RRWheel = new WheelCal();{
-        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 20).invert().setRampRate(0.4);
-        RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 1).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim);
+        RRWheel.driveMotor = new MotorCal(MotorType.SPARK, 20).invert().setRampRate(driveRampRate);
+        RRWheel.swerveMotor = new MotorCal(MotorType.SPARK, 1).setPIDF(swerveKp, swerveKi, swerveKd, swerveKf).setIZone(swerveIZone).setPIDPwrLim(swerveLim).setCurrLim(swerveCurrLim).setRampRate(swerveRamp);
 
         RRWheel.wheelLocation = Vector.fromXY(-9.75, -8.75);//-12.5, -10.75);
         RRWheel.encoderChannel = 0;
@@ -90,6 +96,7 @@ public class DriveCal {
     public double scoringRotPwr = 0.2;
 
     public double autoAlignWaitTime = 1;
-    public double autoAlignKp = -0.3;
+    public double autoAlignKp = 0.3;
+    public double autoAlignKi = 1.0;
     public double autoAlignMaxPower = 0.2;
 }
