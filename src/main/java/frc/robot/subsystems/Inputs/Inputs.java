@@ -94,6 +94,9 @@ public class Inputs extends SubsystemBase{
             prevPortStatus[i] = portStatus[i];
         }
         
+        for(int i = 1; i <= 32; i++){
+            cBoardTwo.setOutput(i, false);
+        }
 
         scorePosition();
     } 
@@ -523,11 +526,12 @@ public class Inputs extends SubsystemBase{
     public Position selectedPosition = Position.NONE;
     public GamePiece selectedGamePiece = GamePiece.EITHER;
 
+    int buttonAssignment = -1;
 
     public void scorePosition(){
         int idx = -1;
         //This is so messed up what they're making me do here :((
-        if(cBoard != null){
+        if(cBoard != null && cBoardTwo != null){
             for(int i = 0; i < 10; i++){
                 if(cBoard.getRawButton(cal.SCORE_POS_IDX[i])){
                     idx = i;
@@ -575,7 +579,7 @@ public class Inputs extends SubsystemBase{
             }
         }
 
-        int buttonAssignment = idx + 1;
+        if(idx != -1) buttonAssignment = idx + 1;
         SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
 

@@ -8,6 +8,7 @@
       "/SmartDashboard/ArmMid": "Command",
       "/SmartDashboard/ArmUp": "Command",
       "/SmartDashboard/Auton": "String Chooser",
+      "/SmartDashboard/Balance Or Out": "String Chooser",
       "/SmartDashboard/Cone Pickup": "Command",
       "/SmartDashboard/Cube Pickup": "Command",
       "/SmartDashboard/Mid-Field Piece": "String Chooser",
