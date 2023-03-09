@@ -27,12 +27,20 @@ public class SparkMotor implements Motor{
 
         motor.setInverted(cal.inverted);
 
+        if(cal.rampRate != 0){
+            motor.setOpenLoopRampRate(cal.rampRate);
+            motor.setClosedLoopRampRate(cal.rampRate);
+        }
+
         PIDController.setP(cal.p);
         PIDController.setI(cal.i);
         PIDController.setIZone(cal.iZone);
         PIDController.setD(cal.d);
         PIDController.setFF(cal.ff);
+        PIDController.setDFilter(cal.dFilt);
 
+        powerLimMax = cal.pidLimUp;
+        powerLimMin = cal.pidLimDn;
         PIDController.setOutputRange(cal.pidLimDn,cal.pidLimUp);
 
         if(cal.currLim != 0){
@@ -42,8 +50,10 @@ public class SparkMotor implements Motor{
 
         if(cal.brakeMode){
             motor.setIdleMode(IdleMode.kBrake);
+            brakeMode = true;
         } else {
             motor.setIdleMode(IdleMode.kCoast);
+            brakeMode = false;
         }
     }
 
@@ -85,22 +95,26 @@ public class SparkMotor implements Motor{
         return motor.getMotorTemperature();
     }
 
+    boolean brakeMode;
     @Override
     public void setBrakeMode(boolean brakeMode) {
-        if(brakeMode){
-            motor.setIdleMode(IdleMode.kBrake);
-        } else {
-            motor.setIdleMode(IdleMode.kCoast);
+        if(brakeMode != this.brakeMode){
+            this.brakeMode = brakeMode;
+            if(brakeMode){
+                motor.setIdleMode(IdleMode.kBrake);
+            } else {
+                motor.setIdleMode(IdleMode.kCoast);
+            }
         }
     }
 
+    double powerLimMin,powerLimMax;
     @Override
     public void setPIDPwrLim(double pwrLim) {
-        PIDController.setOutputRange(-pwrLim,pwrLim);
-    }
-
-    @Override
-    public void setRampRate(double rate){
-        motor.setClosedLoopRampRate(rate);
+        if(pwrLim != powerLimMax){
+            PIDController.setOutputRange(-pwrLim,pwrLim);
+            powerLimMax = pwrLim;
+            powerLimMin = -pwrLim;
+        }
     }
 }

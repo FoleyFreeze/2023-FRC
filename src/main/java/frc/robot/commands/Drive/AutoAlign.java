@@ -12,11 +12,10 @@ public class AutoAlign {
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.driveTrain);
 
-       // sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(new Vector(0.4, 0), 0), r.driveTrain));
-       //                                                                           x   y   rot
+        //                                                                          x   y   rot
         sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(.16, 0),0), r.driveTrain).raceWith(new WaitCommand(0.55)));
-        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(0, 0),-0.15), r.driveTrain).raceWith(new WaitCommand(0.3)));
-        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromDeg(0.1, -65),0), r.driveTrain).raceWith(new WaitCommand(0.2)));
+        //sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(0, 0),-0.15), r.driveTrain).raceWith(new WaitCommand(0.3)));
+        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromDeg(0.1, -75),0), r.driveTrain).raceWith(new WaitCommand(0.2)));
 
         return sg;
     }
@@ -25,20 +24,11 @@ public class AutoAlign {
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.driveTrain);
 
-       // sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(new Vector(0.4, 0), 0), r.driveTrain));
-       //                                                                           x   y   rot
+        //                                                                          x   y   rot
         sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(.16, 0),0), r.driveTrain).raceWith(new WaitCommand(0.55)));
-        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(0, 0),0.15), r.driveTrain).raceWith(new WaitCommand(0.3)));
-        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromDeg(0.1, 65),0), r.driveTrain).raceWith(new WaitCommand(0.2)));
+        //sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromXY(0, 0),0.15), r.driveTrain).raceWith(new WaitCommand(0.3)));
+        sg.addCommands(new RunCommand(() -> r.driveTrain.driveSwerve(Vector.fromDeg(0.1, 75),0), r.driveTrain).raceWith(new WaitCommand(0.2)));
 
         return sg;
-    }
-
-    public static Command autoAlign(RobotContainer r, boolean right){
-        if(right){
-            return autoFieldRightAlign(r);
-        } else {
-            return autoFieldLeftAlign(r);
-        }
     }
 }

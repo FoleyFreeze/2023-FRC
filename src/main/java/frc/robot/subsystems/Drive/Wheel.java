@@ -2,6 +2,7 @@ package frc.robot.subsystems.Drive;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
@@ -57,6 +58,8 @@ public class Wheel {
         driveMotor.setEncoderPosition(offset);
     }
 
+    double prevAngleSetpoint = 0;
+    double angleTargetStartTime = 0;
     //Uses the drive vector obtained from the drive command in DriveTrain
     public void drive(boolean parkMode){
         double rawRelEnc = swerveMotor.getPosition();
@@ -84,14 +87,29 @@ public class Wheel {
 
         double targetRelEnc = rawRelEnc + (delta / 2.0 / Math.PI * cal.swerveRotationsPerRev);
 
-        // if the wheel doesnt need to move, dont move it
-        if(outputPower != 0 || parkMode){
-            swerveMotor.setPosition(targetRelEnc);
-            driveMotor.setPower(outputPower);
+        //if we are still targeting the same angle for cal time
+        boolean allowRotate = true;
+        if(Math.abs(targetRelEnc - prevAngleSetpoint) < 0.05){
+            allowRotate = Timer.getFPGATimestamp() < angleTargetStartTime + cal.pidTime;
         } else {
-            driveMotor.setPower(0);
-
+            prevAngleSetpoint = targetRelEnc;
+            angleTargetStartTime = Timer.getFPGATimestamp();
         }
+
+        if(allowRotate || true){
+            // if the wheel doesnt need to move, dont move it
+            if(Math.abs(outputPower) > 0.03 || parkMode){
+                swerveMotor.setPosition(targetRelEnc);
+                driveMotor.setPower(outputPower);
+            } else {
+                driveMotor.setPower(0);
+            }
+        } else {
+            swerveMotor.setPower(0);
+            driveMotor.setPower(outputPower);
+        }
+
+        
     }
 
     //returns drive wheel's distance in inches
