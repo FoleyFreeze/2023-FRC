@@ -174,7 +174,7 @@ public class RobotContainer {
     //1. move the arm, set slow mode true
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
-    inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos)/*.alongWith(new InstantCommand(() -> inputs.slowModeTrue()))*/.andThen(new ConditionalCommand(GatherCommand.shootIntake(this), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
+    inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
     inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));
@@ -190,6 +190,7 @@ public class RobotContainer {
     inputs.jogRight.onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
     inputs.jogLeft.onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
 
+    inputs.gather.onTrue(new ConditionalCommand(GatherCommand.shootIntake(this, false), GatherCommand.shootIntake(this, true), inputs.shift));
 
     Vector armUpVec = Vector.fromDeg(38, 110);
     //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));

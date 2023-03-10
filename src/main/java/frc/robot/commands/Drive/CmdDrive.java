@@ -78,6 +78,11 @@ public class CmdDrive extends CommandBase{
                     }
                     z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
                     z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
+                    //Only auto-snap on gathers if you are within 90 degrees of the target angle
+                    /*if(Math.abs(error) > Math.PI/2 && r.inputs.autoGather.getAsBoolean()){
+                        z = r.inputs.getJoystickZR();
+                        z = z * z * Math.signum(z);
+                    }*/
                     SmartDashboard.putNumber("Z",z);
                 } else {
                     //nothing to auto align to

@@ -125,7 +125,7 @@ public class Score extends CommandBase{
         Command command = new SequentialCommandGroup();
 
         if(r.inputs.isCube()){
-            command = GatherCommand.shootIntake(r);
+            command = GatherCommand.shootIntake(r, false);
         } else {
             Vector pos;
             switch(level){

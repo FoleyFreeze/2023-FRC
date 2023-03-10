@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Sensors;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
@@ -51,9 +53,9 @@ public class Odometry implements AutoCloseable {
             //based on whether we want to take an average of the current and previous wheel angles or just use the current
             double wheelAngle;
             if(cals.averageWheelAng){
-                wheelAngle = ((wheelStates[i].theta + botAng) + (prevWheelStates[i].theta + prevBotAng)) / 2.0;
+                wheelAngle = ((wheelStates[i].theta) + (prevWheelStates[i].theta)) / 2.0;
             } else {
-                wheelAngle = wheelStates[i].theta + botAng;
+                wheelAngle = wheelStates[i].theta;
             }
             realVecs[i] = new Vector(wheelStates[i].r - prevWheelStates[i].r, wheelAngle);
         }
@@ -72,6 +74,7 @@ public class Odometry implements AutoCloseable {
     public double totalXError = 0;
     public double totalYError = 0;
     public double totalAngError = 0;
+    public double totalStDevCor = 0;
     double prevAng = 999;
     public void getWheelDiffsOdo(double navXBotAng, double prevNavXBotAng, Vector[] realVecs){
         if(prevAng == 999){
@@ -84,19 +87,25 @@ public class Odometry implements AutoCloseable {
         }
 
         double[] bestValues = formulateBestValues(realVecs, wheelLocations);
-        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);;
+        Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
         double bestAngle = bestValues[2];
         double xError = bestValues[3];
         double yError = bestValues[4];
         double angError = bestValues[5];
+
+        if(DriverStation.isEnabled()){
+            System.out.format("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.0f,%.2f,%.2f\n",Timer.getFPGATimestamp(),realVecs[0].getX(),realVecs[0].getY(),realVecs[1].getX(),realVecs[1].getY(),realVecs[2].getX(),realVecs[2].getY(),realVecs[3].getX(),realVecs[3].getY(),navXBotAng,bestStrafe.getX(),bestStrafe.getY());
+        }
         
         //Send out a total error for a +- value
         totalXError += xError;
         totalYError += yError;
         totalAngError += angError;
+        totalStDevCor += bestValues[6];
         SmartDashboard.putNumber("+/- x-position", totalXError);
         SmartDashboard.putNumber("+/- y-position", totalYError);
         SmartDashboard.putNumber("+/- angle", totalAngError);
+        SmartDashboard.putNumber("corStDev", totalStDevCor);
 
         //Set the global pos & ang values
         bestStrafe.theta += botAngle;//Convert to field relative
@@ -106,7 +115,7 @@ public class Odometry implements AutoCloseable {
         } else {
             botAngle += (navXBotAng - prevNavXBotAng);
         }*/
-        botAngle += Angle.normRad(navXBotAng - prevNavXBotAng);//+= bestAngle;
+        botAngle = navXBotAng;//+= bestAngle;
         botLocation.add(bestStrafe);
 
         prevAng = botAngle;
@@ -189,7 +198,7 @@ public class Odometry implements AutoCloseable {
         Vector[][] strafes = new Vector[centersOfRot.length][centersOfRot[0].length];
         for(int i = 0; i < realVecs.length; i++){
             for(int corIdx = 0; corIdx < 3; corIdx++){
-                Vector cor = Vector.getInverted(centersOfRot[i][corIdx]);
+                Vector cor = centersOfRot[i][corIdx];
                 Vector newBotCenter = new Vector(cor.r, cor.theta + angles[i][corIdx]);
                 if(cor.r < 10000000.0){
                     strafes[i][corIdx] = Vector.subVectors(newBotCenter, cor);
@@ -251,6 +260,7 @@ public class Odometry implements AutoCloseable {
         Vector bestStrafeVal = Vector.averageVectors(condensedStrafes[bestStrafePos[0]], condensedStrafes[bestStrafePos[1]]);
         double bestAngVal = (condensedAngles[bestStrafePos[0]].r + condensedAngles[bestStrafePos[1]].r) / 2;
         //remove the bad wheels and their no-good values
+        
         for(int i = 0; i < condensedStrafes.length; i++){
             if(Math.abs(strafeStDev) > 0.01 && i != bestStrafePos[0] && i != bestStrafePos[1] &&
                Math.abs(Vector.subVectors(condensedStrafes[i], bestStrafeVal).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
@@ -273,7 +283,7 @@ public class Odometry implements AutoCloseable {
         double finalStrafeX = 0;
         double finalStrafeY = 0;
         double finalAngle = 0;
-        int finalLength = 0;
+        double finalLength = 0;
         for(int i = 0; i < realVecs.length; i++){
             if(badValues[i] == false){
                 double x = condensedStrafes[i].getX();
@@ -304,7 +314,7 @@ public class Odometry implements AutoCloseable {
         double yError = (highestStrafeY - lowestStrafeY) / 2;
         double angError = (highestAngle - lowestAngle) / 2;
 
-        return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError};
+        return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError, stDevCORs};
     }
 
     public static Vector[][] formulateCentersOfRot(Vector[] realVecs, Vector[] wheelLocations){
@@ -341,7 +351,7 @@ public class Odometry implements AutoCloseable {
                 double corX = (((x1 * y2) - (x2 * y1)) * (x3 - x4)) - (((x3 * y4) - (x4 * y3)) * (x1 - x2));
                 double corY = (((x1 * y2) - (x2 * y1)) * (y3 - y4)) - (((x3 * y4) - (x4 * y3)) * (y1 - y2));
                 
-                if(d < 0.0001 && d > -0.0001){
+                if(d < 0.01 && d > -0.01){
                     double movementAngle = realVecs[i].theta;
                     double otherWheelMovementAngle = realVecs[idxWrapper].theta;
 
@@ -490,7 +500,11 @@ public class Odometry implements AutoCloseable {
                 badWheels++;
             }
         }
-        botLocation.add(Vector.averageVectors(final2Vecs));
+        Vector deltaStrafe = Vector.averageVectors(final2Vecs);
+        deltaStrafe.theta -= botAngle;
+        botLocation.add(Vector.averageVectors(deltaStrafe));
+
+        botAngle += Angle.normRad(botAng - prevBotAng);
     }
 
     public Vector[] checkVStDevCriteria(Vector[] vecs){

@@ -160,15 +160,16 @@ public class Robot extends TimedRobot {
     System.out.println("First Length: " + vecs[0].value);
     System.out.println("Second Length: " + vecs[1].value);
     System.out.println("Third Length: " + vecs[2].value);*/
-    Vector[] wheelLocations = {Vector.fromXY(12.5, -10.75), Vector.fromXY(12.5, 10.75), Vector.fromXY(-12.5, 10.75), Vector.fromXY(-12.5, -10.75)};
+    Vector[] wheelLocations = {r.driveTrain.wheels[0].cal.wheelLocation,r.driveTrain.wheels[1].cal.wheelLocation,r.driveTrain.wheels[2].cal.wheelLocation,r.driveTrain.wheels[3].cal.wheelLocation};
 
-        Vector xy = Vector.fromXY(0.5, 0.0);
+        Vector xy = Vector.fromXY(0.0, 0.1);
         double zPwr = 0.0;
-        Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
+        //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
+        Vector[] driveVecs = {Vector.fromXY(0.43, 0.48),Vector.fromXY(-0.4,0.45),Vector.fromXY(-0.33,-0.37),Vector.fromXY(0.43,-0.48)};
 
-        for (Vector vector : driveVecs) {
-          vector.r *= 10.0;
-        }
+        //for (Vector vector : driveVecs) {
+        //  vector.r *= 10.0;
+        //}
         //driveVecs[0].r = 5.0;
         //driveVecs[1].r = 99;
         //driveVecs[2].r = 10000;

@@ -93,10 +93,6 @@ public class Inputs extends SubsystemBase{
             }
             prevPortStatus[i] = portStatus[i];
         }
-        
-        for(int i = 1; i <= 32; i++){
-            cBoardTwo.setOutput(i, false);
-        }
 
         scorePosition();
     } 
@@ -418,13 +414,15 @@ public class Inputs extends SubsystemBase{
         }
     }
 
-    public boolean shift(){
-        if(cBoardTwo != null){
-            return cBoardTwo.getRawButton(cal.SHIFT);
-        } else {
-            return false;
+    public Trigger shift = new Trigger(new BooleanSupplier() {
+        public boolean getAsBoolean(){
+            if(cBoardTwo != null){
+                return cBoardTwo.getRawButton(cal.SHIFT);
+            } else {
+                return false;
+            }
         }
-    }
+    });
 
     public boolean isCube(){
         if(cBoardTwo != null){
@@ -528,6 +526,7 @@ public class Inputs extends SubsystemBase{
     public GamePiece selectedGamePiece = GamePiece.EITHER;
 
     int buttonAssignment = -1;
+    int prevButton = -1;
 
     public void scorePosition(){
         int idx = -1;
@@ -583,6 +582,11 @@ public class Inputs extends SubsystemBase{
         if(idx != -1) buttonAssignment = idx + 1;
         SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
+            if(prevButton > 0){
+                cBoard.setOutput(prevButton, false);
+            }
+            prevButton = buttonAssignment;
+            cBoard.setOutput(buttonAssignment, true);
 
             //level logic
             if(buttonAssignment <= 9){

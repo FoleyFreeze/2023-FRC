@@ -18,7 +18,11 @@ public class GatherCommand {
                             .finallyDo((a) -> r.gripper.setIntakePower(0));
     }
     //run the gripper backwards .5 power (50%) for .3 secs then sets intake power to 0
-    public static Command shootIntake(RobotContainer r){
+    public static Command shootIntake(RobotContainer r, boolean inward){
+        double intakePwr = -0.5;
+        if(inward){
+            intakePwr = - intakePwr;
+        }
         return new RunCommand(() -> r.gripper.setIntakePower(-0.5), r.gripper)
                             .raceWith(new WaitCommand(0.6))
                             .andThen(new InstantCommand(() -> r.gripper.setIntakePower(0), r.gripper));

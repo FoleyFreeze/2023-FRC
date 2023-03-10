@@ -47,7 +47,7 @@ public class ArmCal {
     //public Vector positionPreGather = Vector.fromDeg(0, 0);
     public Vector positionGatherShelf = Vector.fromDeg(33, 92.6);
     public Vector positionCubeGatherFloor = Vector.fromDeg(38.6, 31.9);
-    public Vector positionConeGatherFloor = Vector.fromDeg(38.6, 34.3);
+    public Vector positionConeGatherFloor = Vector.fromDeg(38.6, 38.3);
     //public Vector positionGatherFloorFar = Vector.fromDeg(0, 0);
 
     //cone arm positions

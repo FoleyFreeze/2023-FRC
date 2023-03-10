@@ -64,7 +64,7 @@ public class Arm extends SubsystemBase {
 
     public void jogUp(){
         double jogDist = r.arm.cals.jogUpDist;
-        if(r.inputs.shift()){
+        if(r.inputs.shift.getAsBoolean()){
             jogDist *= 5;
         }
         jogOffset.theta += Angle.toRad(jogDist);
@@ -72,7 +72,7 @@ public class Arm extends SubsystemBase {
 
     public void jogDown(){
         double jogDist = r.arm.cals.jogUpDist;
-        if(r.inputs.shift()){
+        if(r.inputs.shift.getAsBoolean()){
             jogDist *= 5;
         }
         jogOffset.theta -= Angle.toRad(jogDist);
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase {
 
     public void jogIn(){
         double jogDist = r.arm.cals.jogOutDist;
-        if(r.inputs.shift()){
+        if(r.inputs.shift.getAsBoolean()){
             jogDist *= 5;
         }
         jogOffset.r -= jogDist;
@@ -88,7 +88,7 @@ public class Arm extends SubsystemBase {
 
     public void jogOut(){
         double jogDist = r.arm.cals.jogOutDist;
-        if(r.inputs.shift()){
+        if(r.inputs.shift.getAsBoolean()){
             jogDist *= 5;
         }
         jogOffset.r += jogDist;
@@ -128,6 +128,8 @@ public class Arm extends SubsystemBase {
     public void periodic(){
 
         if(cals.disabled) return;
+        SmartDashboard.putNumber("Pot Value", armPot.getVoltage());
+
         angleMotor.setBrakeMode(!DriverStation.isDisabled());
         if(r.inputs.getFieldMode()){
             angleMotor.setPIDPwrLim(0.75);
