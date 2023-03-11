@@ -61,6 +61,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    r.driveTrain.resetWheelReads();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -165,7 +167,8 @@ public class Robot extends TimedRobot {
         Vector xy = Vector.fromXY(0.0, 0.1);
         double zPwr = 0.0;
         //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
-        Vector[] driveVecs = {Vector.fromXY(0.43, 0.48),Vector.fromXY(-0.4,0.45),Vector.fromXY(-0.33,-0.37),Vector.fromXY(0.43,-0.48)};
+        //7.4940,2.7925,-0.0080,2.8923,0.0005,1.7952,-0.0048,1.8949,0.0033,
+        Vector[] driveVecs = {Vector.fromXY(2.7925, -0.008),Vector.fromXY(2.8923, 0.0005),Vector.fromXY(1.7952, -0.0048),Vector.fromXY(1.8949, 0.0033)};
 
         //for (Vector vector : driveVecs) {
         //  vector.r *= 10.0;

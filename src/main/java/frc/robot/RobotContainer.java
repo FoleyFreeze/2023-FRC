@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
+import frc.robot.commands.Arm.LearnArmOffset;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
@@ -163,7 +164,7 @@ public class RobotContainer {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
-    inputs.resetArm.whileTrue(new InstantCommand(arm::learnArmOffset).ignoringDisable(true));
+    inputs.resetArm.onTrue(new LearnArmOffset(this).ignoringDisable(false));
 
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));

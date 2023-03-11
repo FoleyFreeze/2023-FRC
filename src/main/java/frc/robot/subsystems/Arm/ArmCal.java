@@ -10,11 +10,11 @@ public class ArmCal {
 
     //                                                                                       used to be 17/66
     public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 18 / 72.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);
-    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(15).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
+    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(25).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
-    public double armPotOffset = 0;// in radians
-    public double armPotSlope = 0; // in radians per volt
+    public double armPotOffset = 0.415;// in volts
+    public double armPotSlope = 1.121; // in radians per volt
 
     //stendo angle offset
     public double stendoPulleyAngleOffset = 10;
@@ -26,7 +26,7 @@ public class ArmCal {
                                 
     public double[] lengthMax = {40, 40, 40, 40};
     public double[] angleAxis = { 0, 30, 60,160};
-    public double lengthMin = 30.6;
+    public double lengthMin = 30;
     public double initialStendoPosition = 34.2;
 
     public double jogUpDist = 1; //inches

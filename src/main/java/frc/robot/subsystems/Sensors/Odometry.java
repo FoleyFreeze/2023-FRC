@@ -3,6 +3,7 @@ package frc.robot.subsystems.Sensors;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
@@ -75,16 +76,10 @@ public class Odometry implements AutoCloseable {
     public double totalYError = 0;
     public double totalAngError = 0;
     public double totalStDevCor = 0;
-    double prevAng = 999;
+    double odoAngle = 0;
     public void getWheelDiffsOdo(double navXBotAng, double prevNavXBotAng, Vector[] realVecs){
-        if(prevAng == 999){
-            prevAng = botAngle;
-        }
 
-        Vector[] wheelLocations = new Vector[realVecs.length];
-        for(int i = 0; i < wheelLocations.length; i++){
-            wheelLocations[i] = wCal[i].wheelLocation;
-        }
+        Vector[] wheelLocations = {wCal[0].wheelLocation,wCal[1].wheelLocation,wCal[2].wheelLocation,wCal[3].wheelLocation};
 
         double[] bestValues = formulateBestValues(realVecs, wheelLocations);
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
@@ -94,7 +89,7 @@ public class Odometry implements AutoCloseable {
         double angError = bestValues[5];
 
         if(DriverStation.isEnabled()){
-            System.out.format("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.0f,%.2f,%.2f\n",Timer.getFPGATimestamp(),realVecs[0].getX(),realVecs[0].getY(),realVecs[1].getX(),realVecs[1].getY(),realVecs[2].getX(),realVecs[2].getY(),realVecs[3].getX(),realVecs[3].getY(),navXBotAng,bestStrafe.getX(),bestStrafe.getY());
+            System.out.format("%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.0f,%.4f,%.4f\n",Timer.getFPGATimestamp(),realVecs[0].getX(),realVecs[0].getY(),realVecs[1].getX(),realVecs[1].getY(),realVecs[2].getX(),realVecs[2].getY(),realVecs[3].getX(),realVecs[3].getY(),Angle.toDeg(navXBotAng),bestStrafe.getX(),bestStrafe.getY());
         }
         
         //Send out a total error for a +- value
@@ -105,7 +100,6 @@ public class Odometry implements AutoCloseable {
         SmartDashboard.putNumber("+/- x-position", totalXError);
         SmartDashboard.putNumber("+/- y-position", totalYError);
         SmartDashboard.putNumber("+/- angle", totalAngError);
-        SmartDashboard.putNumber("corStDev", totalStDevCor);
 
         //Set the global pos & ang values
         bestStrafe.theta += botAngle;//Convert to field relative
@@ -117,8 +111,9 @@ public class Odometry implements AutoCloseable {
         }*/
         botAngle = navXBotAng;//+= bestAngle;
         botLocation.add(bestStrafe);
+        odoAngle += bestAngle;
+        SmartDashboard.putNumber("OdoAngle", Math.toDegrees(odoAngle));
 
-        prevAng = botAngle;
     }
 
     static Vector[] averageVectorArray(Vector[][] vecs){
@@ -177,7 +172,18 @@ public class Odometry implements AutoCloseable {
     //Returns r, theta, angle, x error, y error, angle error
     public static double[] formulateBestValues(Vector[] realVecs, Vector[] wheelLocations){
         Vector[][] centersOfRot = formulateCentersOfRot(realVecs, wheelLocations);
-        
+        if(DriverStation.isEnabled() || Robot.isSimulation()){
+            String s = "";
+            for(Vector[] vv : centersOfRot){
+                for(Vector v : vv){
+                    s += String.format("%.2f,%.2f | ",v.getX(),v.getY());
+                }
+                s += "\n";
+            }
+            System.out.println(s);
+        }
+
+
         Vector[] allCenters = condenseArrayArray(centersOfRot);
         double stDevCORs = getStDev(allCenters);
 
@@ -186,7 +192,7 @@ public class Odometry implements AutoCloseable {
         for(int i = 0; i < realVecs.length; i++){
             for(int corIdx = 0; corIdx < 3; corIdx++){
                 Vector radius = Vector.subVectors(wheelLocations[i], centersOfRot[i][corIdx]);
-                if(radius.r < 10000000.0){
+                if(true || radius.r < 10000000.0){
                     angles[i][corIdx] = (realVecs[i].r/radius.r);
                 } else {
                     angles[i][corIdx] = 0;
@@ -200,7 +206,7 @@ public class Odometry implements AutoCloseable {
             for(int corIdx = 0; corIdx < 3; corIdx++){
                 Vector cor = centersOfRot[i][corIdx];
                 Vector newBotCenter = new Vector(cor.r, cor.theta + angles[i][corIdx]);
-                if(cor.r < 10000000.0){
+                if(true || cor.r < 10000000.0){
                     strafes[i][corIdx] = Vector.subVectors(newBotCenter, cor);
                 } else {
                     strafes[i][corIdx] = new Vector(realVecs[i]);

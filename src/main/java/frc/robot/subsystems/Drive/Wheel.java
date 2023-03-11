@@ -51,7 +51,7 @@ public class Wheel {
         //subtract the offset from learned volt offsets; convert to 
         encAngOffset = (absEncoder.getVoltage() - voltOffset) / 5.0 * 2 * Math.PI - Math.PI / 2.0;
         System.out.println(cal.name + " angle offset: " + Angle.toDeg(encAngOffset));
-        System.out.println(cal.name + " voltage: " + absEncoder.getVoltage());
+        System.out.println(cal.name + "current voltage: " + absEncoder.getVoltage());
     }
 
     public void resetPosition(double offset){
@@ -108,17 +108,46 @@ public class Wheel {
             swerveMotor.setPower(0);
             driveMotor.setPower(outputPower);
         }
-
         
     }
 
     //returns drive wheel's distance in inches
     public double getDist(){
-        return driveMotor.getPosition() / cal.driveRotationsPerIn + swerveMotor.getPosition() / cal.driveInPerSwerveRotation;
+        return getRawDrivePosition() / cal.driveRotationsPerIn + getRawSwervePosition() / cal.driveInPerSwerveRotation;
     }
 
     //returns the current motor angle in radians
     public double getAng(){
-        return swerveMotor.getPosition() / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
+        return getRawSwervePosition() / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
+    }
+
+    //cache the motor positions at the beginning of the periodic loop
+    public void resetPosReads(){
+        swerveRanThisTime = false;
+        driveRanThisTime = false;
+    }
+
+    double swervePosition;
+    boolean swerveRanThisTime;
+    private double getRawSwervePosition(){
+        if(swerveRanThisTime) {
+            return swervePosition;
+        } else {
+            swervePosition = swerveMotor.getPosition();
+            swerveRanThisTime = true;
+            return swervePosition;
+        }
+    }
+
+    double drivePosition;
+    boolean driveRanThisTime;
+    private double getRawDrivePosition(){
+        if(driveRanThisTime){
+            return drivePosition;
+        } else {
+            drivePosition = driveMotor.getPosition();
+            driveRanThisTime = true;
+            return drivePosition;
+        }
     }
 }

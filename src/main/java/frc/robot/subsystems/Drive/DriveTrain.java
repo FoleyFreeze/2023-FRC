@@ -38,8 +38,8 @@ public class DriveTrain extends SubsystemBase {
 
         readAbsOffset();
 
-        driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", new double[]{0, 0, 0, 0}).getEntry();
-        swerveTempNT = Shuffleboard.getTab("Safety").add("swerveTemps", new double[]{0, 0, 0, 0}).getEntry();
+        driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", "0, 0, 0, 0").getEntry();
+        swerveTempNT = Shuffleboard.getTab("Safety").add("swerveTemps", "0, 0, 0, 0").getEntry();
     }
 
     public boolean parkMode = false;
@@ -192,14 +192,22 @@ public class DriveTrain extends SubsystemBase {
     public void periodic(){
         if(cals.disabled) return;
 
-        double[] driveTemps = new double[4];
-        double[] swerveTemps = new double[4];
+        String driveTemps = "";
+        String swerveTemps = "";
         for(int i = 0; i < 4; i++){
-            driveTemps[i] = wheels[i].driveMotor.getTemp();
-            swerveTemps[i] = wheels[i].swerveMotor.getTemp();
+            driveTemps += wheels[i].driveMotor.getTemp() + ", ";
+            swerveTemps += wheels[i].swerveMotor.getTemp() + ", ";
         }
 
-        driveTempNT.setDoubleArray(driveTemps);
-        swerveTempNT.setDoubleArray(swerveTemps);
+        driveTempNT.setString(driveTemps);
+        swerveTempNT.setString(swerveTemps);
+
+        SmartDashboard.putNumber("FL Wheel Abs", wheels[1].absEncoder.getVoltage());
+    }
+
+    public void resetWheelReads(){
+        for(Wheel w : wheels){
+            w.resetPosReads();
+        }
     }
 }

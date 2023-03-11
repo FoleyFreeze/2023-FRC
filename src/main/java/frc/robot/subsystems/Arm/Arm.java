@@ -18,7 +18,7 @@ public class Arm extends SubsystemBase {
     RobotContainer r;
     public ArmCal cals; 
 
-    AnalogInput armPot;
+    public AnalogInput armPot;
 
     public Motor angleMotor;
     public Motor stendoMotor; 
@@ -30,7 +30,7 @@ public class Arm extends SubsystemBase {
     double timeOfStendoReset;
     double stendoCurrentTime;
 
-    Vector jogOffset = new Vector(0,0);
+    public Vector jogOffset = new Vector(0,0);
 
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
     GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
@@ -100,23 +100,9 @@ public class Arm extends SubsystemBase {
         jogOffset = new Vector(0,0);
     }
 
-    public void learnArmOffset(){
-        //get the arm position from a pot
-        //TODO: add this back in when this pot exists
-        //double currentAngle = armPot.getVoltage() * cals.armPotSlope + cals.armPotOffset;
-        double currentAngle = -11;
-        angleMotor.setEncoderPosition(currentAngle);
-
-        //the stendo should reset to a mid-ish position, 
-        //but then on retraction it should hit the stop and relearn
-        stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
-        System.out.println("Reset arm angle/extension");
-        jogOffset = new Vector(0,0);
-    }
-
     //adjust stendo length to account for the rotation of the pulley 
     //making the rope shorter when the arm is up
-    private double getStendoPulleyOffset(double angle){
+    public double getStendoPulleyOffset(double angle){
         double rad = Math.toRadians(angle + cals.stendoPulleyAngleOffset);
         return cals.stendoPulleyLengthOffset * Math.cos(rad);
     }
@@ -190,7 +176,7 @@ public class Arm extends SubsystemBase {
             angleMotor.setPosition(angleSetpoint);
             SmartDashboard.putNumber("Arm Setpoint", angleSetpoint);
             if(isAngleOnly){
-                stendoMotor.setPower(0);
+                //stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
             } else {
                 stendoMotor.setPosition(lengthSetpoint);
