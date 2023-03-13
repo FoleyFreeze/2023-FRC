@@ -164,35 +164,35 @@ public class Robot extends TimedRobot {
     System.out.println("Third Length: " + vecs[2].value);*/
     Vector[] wheelLocations = {r.driveTrain.wheels[0].cal.wheelLocation,r.driveTrain.wheels[1].cal.wheelLocation,r.driveTrain.wheels[2].cal.wheelLocation,r.driveTrain.wheels[3].cal.wheelLocation};
 
-        Vector xy = Vector.fromXY(0.0, 0.1);
-        double zPwr = 0.0;
-        //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
-        //7.4940,2.7925,-0.0080,2.8923,0.0005,1.7952,-0.0048,1.8949,0.0033,
-        Vector[] driveVecs = {Vector.fromXY(2.7925, -0.008),Vector.fromXY(2.8923, 0.0005),Vector.fromXY(1.7952, -0.0048),Vector.fromXY(1.8949, 0.0033)};
+    Vector xy = Vector.fromXY(0.0, 0.1);
+    double zPwr = 0.0;
+    //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
+    //7.4940,2.7925,-0.0080,2.8923,0.0005,1.7952,-0.0048,1.8949,0.0033,
+    Vector[] driveVecs = {Vector.fromXY(2.7925, -0.008),Vector.fromXY(2.8923, 0.0005),Vector.fromXY(1.7952, -0.0048),Vector.fromXY(1.8949, 0.0033)};
 
-        //for (Vector vector : driveVecs) {
-        //  vector.r *= 10.0;
-        //}
-        //driveVecs[0].r = 5.0;
-        //driveVecs[1].r = 99;
-        //driveVecs[2].r = 10000;
-        //driveVecs[3].r = 5.0;
+    //for (Vector vector : driveVecs) {
+    //  vector.r *= 10.0;
+    //}
+    //driveVecs[0].r = 5.0;
+    //driveVecs[1].r = 99;
+    //driveVecs[2].r = 10000;
+    //driveVecs[3].r = 5.0;
 
-        //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
+    //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
 
-        //System.out.println("FR Centers Of Rot: " + centersOfRot[0][0] + " : " + centersOfRot[0][1] + " : " + centersOfRot[0][2]);
-        //System.out.println("FL Centers Of Rot: " + centersOfRot[1][0] + " : " + centersOfRot[1][1] + " : " + centersOfRot[1][2]);
-        //System.out.println("RL Centers Of Rot: " + centersOfRot[2][0] + " : " + centersOfRot[2][1] + " : " + centersOfRot[2][2]);
-        //System.out.println("RR Centers Of Rot: " + centersOfRot[3][0] + " : " + centersOfRot[3][1] + " : " + centersOfRot[3][2]);
+    //System.out.println("FR Centers Of Rot: " + centersOfRot[0][0] + " : " + centersOfRot[0][1] + " : " + centersOfRot[0][2]);
+    //System.out.println("FL Centers Of Rot: " + centersOfRot[1][0] + " : " + centersOfRot[1][1] + " : " + centersOfRot[1][2]);
+    //System.out.println("RL Centers Of Rot: " + centersOfRot[2][0] + " : " + centersOfRot[2][1] + " : " + centersOfRot[2][2]);
+    //System.out.println("RR Centers Of Rot: " + centersOfRot[3][0] + " : " + centersOfRot[3][1] + " : " + centersOfRot[3][2]);
 
-        double[] vals = Odometry.formulateBestValues(driveVecs, wheelLocations);
-        Vector strafe = new Vector(vals[0], vals[1]);
-        double angle = vals[2];
-        double error = vals[3];
+    double[] vals = Odometry.formulateBestValuesMatrix(driveVecs, wheelLocations);
+    Vector strafe = new Vector(vals[0], vals[1]);
+    double angle = vals[2];
+    double error = vals[3];
 
-        System.out.println("Strafe: " + strafe);
-        System.out.println("Angle: " + angle);
-        System.out.println("Error " + error);
+    System.out.println("Strafe: " + strafe);
+    System.out.println("Angle: " + angle);
+    System.out.println("Error " + error);
   }
 
   /** This function is called periodically whilst in simulation. */

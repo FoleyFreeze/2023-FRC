@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Sensors;
 
+import org.ejml.simple.SimpleMatrix;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -81,7 +83,13 @@ public class Odometry implements AutoCloseable {
 
         Vector[] wheelLocations = {wCal[0].wheelLocation,wCal[1].wheelLocation,wCal[2].wheelLocation,wCal[3].wheelLocation};
 
-        double[] bestValues = formulateBestValues(realVecs, wheelLocations);
+        double[] bestValues;
+        try{
+            bestValues = formulateBestValuesMatrix(realVecs, wheelLocations);
+        } catch(Exception e){
+            e.printStackTrace();
+            bestValues = new double[] {0,0,0,0,0,0,0};
+        }
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
         double bestAngle = bestValues[2];
         double xError = bestValues[3];
@@ -114,6 +122,169 @@ public class Odometry implements AutoCloseable {
         odoAngle += bestAngle;
         SmartDashboard.putNumber("OdoAngle", Math.toDegrees(odoAngle));
 
+    }
+
+    //Returns r, theta, angle, x error, y error, angle error
+    public static double[] formulateBestValuesMatrix(Vector[] realVecs, Vector[] wheelLocations){
+        Vector centerOfRot = getLeastSquaresCenterOfRotation(realVecs, wheelLocations);
+
+        //angle logic
+        double[] angles = new double[realVecs.length];
+        for(int i = 0; i < realVecs.length; i++){
+            Vector radius = Vector.subVectors(wheelLocations[i], centerOfRot);
+            angles[i] = (realVecs[i].r/radius.r);
+        }
+
+        //strafe logic
+        Vector[] strafes = new Vector[realVecs.length];
+        for(int i = 0; i < realVecs.length; i++){
+            Vector newBotCenter = new Vector(centerOfRot.r, centerOfRot.theta + angles[i]);
+            strafes[i] = Vector.subVectors(newBotCenter, centerOfRot);
+        }
+
+        //Bad wheel detection
+        double strafeStDev = getStDev(strafes);
+
+        //hacky bs
+        Vector[] vectorAngles = new Vector[angles.length];
+        for(int i = 0; i < angles.length; i++){
+            vectorAngles[i] = new Vector(angles[i], 0);
+        }
+        //Ironically, you only really want to look at the magnitude instead of angle to find the angles
+        //get rid of repeat values
+        double angleStDev = getStDev(vectorAngles);
+
+        boolean[] badValues = {false, false, false, false};//true means it's bad
+
+        double bestStrafeDiff = Double.POSITIVE_INFINITY;
+        int[] bestStrafePos = new int[2];
+        double bestAngleDiff = Double.POSITIVE_INFINITY;
+        int[] bestAngPos = new int[2];
+
+        //Find the best values we have
+        for(int i = 0; i < strafes.length; i++){
+            for(int compareIdx = 1; compareIdx < strafes.length-1; compareIdx++){
+                int idxWrapper = (i + compareIdx) % strafes.length;
+                if(Math.abs(Vector.subVectors(strafes[i], strafes[idxWrapper]).r) < bestStrafeDiff){
+                    bestStrafeDiff = Math.abs(Vector.subVectors(strafes[i], strafes[idxWrapper]).r);
+                    bestStrafePos[0] = i;
+                    bestStrafePos[1] = idxWrapper;
+                }
+                if(Math.abs(strafes[i].r - strafes[idxWrapper].r) < bestAngleDiff){
+                    bestAngleDiff = Math.abs(strafes[i].r - strafes[idxWrapper].r);
+                    bestAngPos[0] = i;
+                    bestAngPos[1] = idxWrapper;
+                }
+            }
+        }
+
+        Vector bestStrafeVal = Vector.averageVectors(strafes[bestStrafePos[0]], strafes[bestStrafePos[1]]);
+        double bestAngVal = (strafes[bestStrafePos[0]].r + strafes[bestStrafePos[1]].r) / 2;
+        //remove the bad wheels and their no-good values
+        
+        for(int i = 0; i < strafes.length; i++){
+            if(Math.abs(strafeStDev) > 0.01 && i != bestStrafePos[0] && i != bestStrafePos[1] &&
+               Math.abs(Vector.subVectors(strafes[i], bestStrafeVal).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
+                badValues[i] = true;
+            }
+            if(Math.abs(angleStDev) > 0.01 && i != bestAngPos[0] && i != bestAngPos[1] &&
+               Math.abs(strafes[i].r - bestAngVal) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
+                badValues[i] = true;
+            }
+        }
+
+        double highestStrafeX = Double.NEGATIVE_INFINITY;
+        double highestStrafeY = Double.NEGATIVE_INFINITY;
+        double lowestStrafeX = Double.POSITIVE_INFINITY;
+        double lowestStrafeY = Double.POSITIVE_INFINITY;
+
+        double highestAngle = Double.NEGATIVE_INFINITY;
+        double lowestAngle = Double.POSITIVE_INFINITY;
+
+        double finalStrafeX = 0;
+        double finalStrafeY = 0;
+        double finalAngle = 0;
+        double finalLength = 0;
+        for(int i = 0; i < realVecs.length; i++){
+            if(badValues[i] == false){
+                double x = strafes[i].getX();
+                double y = strafes[i].getY();
+                double angle = vectorAngles[i].r;
+
+                finalStrafeX += x;
+                if(x >= highestStrafeX) highestStrafeX = x;
+                if(x <= lowestStrafeX) lowestStrafeX = x;
+
+                finalStrafeY += y;
+                if(y >= highestStrafeY) highestStrafeY = y;
+                if(y <= lowestStrafeY) lowestStrafeY = y;
+
+                finalAngle += angle;
+                if(angle >= highestAngle) highestAngle = angle;
+                if(angle <= lowestAngle) lowestAngle = angle;
+                
+                finalLength++;
+            }
+        }
+        if(finalLength == 0) finalLength = 1;
+        Vector finalStrafe = Vector.fromXY(finalStrafeX/finalLength, finalStrafeY/finalLength);
+        finalAngle /= finalLength;
+
+        //The +/- values on where we think we could be
+        double xError = (highestStrafeX - lowestStrafeX) / 2;
+        double yError = (highestStrafeY - lowestStrafeY) / 2;
+        double angError = (highestAngle - lowestAngle) / 2;
+
+        return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError, 0};
+    }
+
+    //this builds off the idea that even if slipping, we still expect the wheel angles to be in a valid swerve config
+    //because of that we can create a singular best estimate of the COR and then select from all the resulting
+    //individual wheel strafes and angles to determine if any wheels are slipping
+    static Vector getLeastSquaresCenterOfRotation(Vector[] movementVecs, Vector[] locationVecs){
+        
+        Vector[] normalVecs = new Vector[movementVecs.length];
+        for(int i=0;i<movementVecs.length;i++){
+            Vector v = movementVecs[i];
+            if(v.r > 0){
+                normalVecs[i] = new Vector(1,v.theta+Math.PI/2);
+            } else {
+                normalVecs[i] = new Vector(-1,v.theta+Math.PI/2);
+            }
+        }
+
+        double[][] S = new double[2][2];
+        for(Vector v : normalVecs){
+            //get the normal vector and normalize it
+            double x = v.getX();
+            double y = v.getY();
+
+            S[0][0] += x*x;
+            S[0][1] += x*y;
+            S[1][0] += x*y;
+            S[1][1] += y*y;
+        }
+
+        double[][] C = new double[2][1];
+        for(int i=0;i<locationVecs.length;i++){
+            double v1x = normalVecs[i].getX();
+            double v1y = normalVecs[i].getY();
+            double v2x = locationVecs[i].getX();
+            double v2y = locationVecs[i].getY();
+
+            C[0][0] += v2x * (v1x*v1x - 1) + v2y * v1x*v1y;
+            C[1][0] += v2x * v1x*v1y + v2y * (v1y*v1y - 1);
+        }
+
+        //solve matrix equation via p = inv(S)*C
+        //borrow the matrix library WPILib already uses for this
+        SimpleMatrix sMat = new SimpleMatrix(S);
+        SimpleMatrix cMat = new SimpleMatrix(C);
+        SimpleMatrix out = sMat.invert().mult(cMat);
+
+        Vector point = Vector.fromXY(out.get(0),out.get(1));
+
+        return point;
     }
 
     static Vector[] averageVectorArray(Vector[][] vecs){
@@ -323,6 +494,27 @@ public class Odometry implements AutoCloseable {
         return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError, stDevCORs};
     }
 
+    public static Vector getIntersection(Vector v1, Vector v2, Vector v3, Vector v4){
+        double y1 = v1.getY();
+        double y2 = v2.getY();
+        double y3 = v3.getY();
+        double y4 = v4.getY();
+
+        double x1 = v1.getX();
+        double x2 = v2.getX();
+        double x3 = v3.getX();
+        double x4 = v4.getX();
+
+        double d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        
+        double corX = (((x1 * y2) - (x2 * y1)) * (x3 - x4)) - (((x3 * y4) - (x4 * y3)) * (x1 - x2));
+        double corY = (((x1 * y2) - (x2 * y1)) * (y3 - y4)) - (((x3 * y4) - (x4 * y3)) * (y1 - y2));
+
+        System.out.format("%.3f,%.0f,%.0f\n",d,corX/d,corY/d);
+
+        return Vector.fromXY(corX/d, corY/d);
+    }
+
     public static Vector[][] formulateCentersOfRot(Vector[] realVecs, Vector[] wheelLocations){
 
         Vector[] newWheelLocations = new Vector[wheelLocations.length];
@@ -357,14 +549,14 @@ public class Odometry implements AutoCloseable {
                 double corX = (((x1 * y2) - (x2 * y1)) * (x3 - x4)) - (((x3 * y4) - (x4 * y3)) * (x1 - x2));
                 double corY = (((x1 * y2) - (x2 * y1)) * (y3 - y4)) - (((x3 * y4) - (x4 * y3)) * (y1 - y2));
                 
-                if(d < 0.01 && d > -0.01){
+                if(Math.abs(d) < 0.0){
                     double movementAngle = realVecs[i].theta;
                     double otherWheelMovementAngle = realVecs[idxWrapper].theta;
 
                     if(Math.abs(movementAngle - Angle.normRad(otherWheelMovementAngle - Math.PI)) < 0.1){//Parallel angles in a rotation
                         centersOfRot[i][corIdx-1] = Vector.fromXY(0, 0);
                     } else {//parallel angles in a strafe
-                        centersOfRot[i][corIdx-1] = new Vector(10000000000000.0, movementAngle + Math.PI/2);
+                        centersOfRot[i][corIdx-1] = new Vector(1e9, movementAngle + Math.PI/2);
                     }
                 } else {
                     corX /= d;
