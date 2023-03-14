@@ -76,6 +76,8 @@ public class Gripper extends SubsystemBase{
     boolean servoDisabled = false;
     @Override
     public void periodic(){
+        if(cals.disabled == true) return;
+
         if(Timer.getFPGATimestamp() > servoDisableTime && servoDisabled == false){
             choiceGrip.setDisabled();
             servoDisabled = true;

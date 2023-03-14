@@ -79,15 +79,30 @@ public class Odometry implements AutoCloseable {
     public double totalAngError = 0;
     public double totalStDevCor = 0;
     double odoAngle = 0;
+    double timeOfError = 0;
     public void getWheelDiffsOdo(double navXBotAng, double prevNavXBotAng, Vector[] realVecs){
 
         Vector[] wheelLocations = {wCal[0].wheelLocation,wCal[1].wheelLocation,wCal[2].wheelLocation,wCal[3].wheelLocation};
+
+        /*
+        for(Vector v : realVecs){
+            double tr = v.r * 1000;
+            tr = Math.round(tr);
+            double tt = v.theta * 1000;
+            tt = Math.round(tt);
+            v.r = tr / 1000;
+            v.theta = tt / 1000;
+        }
+        */
 
         double[] bestValues;
         try{
             bestValues = formulateBestValuesMatrix(realVecs, wheelLocations);
         } catch(Exception e){
-            e.printStackTrace();
+            if(Timer.getFPGATimestamp() - timeOfError > 5){
+                timeOfError = Timer.getFPGATimestamp();
+                e.printStackTrace();
+            }
             bestValues = new double[] {0,0,0,0,0,0,0};
         }
         Vector bestStrafe = new Vector(bestValues[0], bestValues[1]);
@@ -97,7 +112,16 @@ public class Odometry implements AutoCloseable {
         double angError = bestValues[5];
 
         if(DriverStation.isEnabled()){
-            System.out.format("%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.0f,%.4f,%.4f\n",Timer.getFPGATimestamp(),realVecs[0].getX(),realVecs[0].getY(),realVecs[1].getX(),realVecs[1].getY(),realVecs[2].getX(),realVecs[2].getY(),realVecs[3].getX(),realVecs[3].getY(),Angle.toDeg(navXBotAng),bestStrafe.getX(),bestStrafe.getY());
+            /*     
+            System.out.format("%.2f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\n",Timer.getFPGATimestamp(),
+            realVecs[0].r,realVecs[0].theta,
+            realVecs[1].r,realVecs[1].theta,
+            realVecs[2].r,realVecs[2].theta,
+            realVecs[3].r,realVecs[3].theta,
+            bestStrafe.getX(),bestStrafe.getY());
+            */
+            
+            //System.out.format("%f,%.18f,%.18f,%.18f,%.18f,%.18f,%.18f,%.18f,%.18f,%f,%f,%f\n",Timer.getFPGATimestamp(),realVecs[0].getX(),realVecs[0].getY(),realVecs[1].getX(),realVecs[1].getY(),realVecs[2].getX(),realVecs[2].getY(),realVecs[3].getX(),realVecs[3].getY(),Angle.toDeg(navXBotAng),bestStrafe.getX(),bestStrafe.getY());
         }
         
         //Send out a total error for a +- value
@@ -120,25 +144,80 @@ public class Odometry implements AutoCloseable {
         botAngle = navXBotAng;//+= bestAngle;
         botLocation.add(bestStrafe);
         odoAngle += bestAngle;
+        odoAngle %= 2*Math.PI;
         SmartDashboard.putNumber("OdoAngle", Math.toDegrees(odoAngle));
 
     }
 
     //Returns r, theta, angle, x error, y error, angle error
     public static double[] formulateBestValuesMatrix(Vector[] realVecs, Vector[] wheelLocations){
-        Vector centerOfRot = getLeastSquaresCenterOfRotation(realVecs, wheelLocations);
+        Vector[] normalVecs = new Vector[realVecs.length];
+        double normalVecMean = 0;
+        boolean thetaCheck = true;
+        for(int i=0;i<realVecs.length;i++){
+            Vector v = realVecs[i];
+            normalVecs[i] = new Vector(1,v.theta+Math.PI/2);
+            if(i>0){
+                thetaCheck &= normalVecs[i].theta == normalVecs[i-1].theta;
+            }
+
+            //find mean angle
+            if(i == 0){
+                normalVecMean = normalVecs[i].theta % (2*Math.PI);
+            } else {
+                double tdiff = normalVecs[i].theta - normalVecMean;
+                if(tdiff > Math.PI){
+                    tdiff -= 2*Math.PI;
+                } else if(tdiff < -Math.PI){
+                    tdiff += 2*Math.PI;
+                }
+                normalVecMean += tdiff/(i+1);
+                normalVecMean %= 2*Math.PI;
+            }
+        }
+        
+        if(thetaCheck){
+            normalVecs[0].theta += 1e-5;
+        }
+        double sumOfDiff = 0;
+        for(Vector v: normalVecs){
+            double tdiff = v.theta - normalVecMean;
+            if(tdiff > Math.PI){
+                tdiff -= 2*Math.PI;
+            } else if(tdiff < -Math.PI){
+                tdiff += 2*Math.PI;
+            }
+            sumOfDiff += Math.abs(tdiff);
+        }
+        Vector centerOfRot = getLeastSquaresCenterOfRotation(normalVecs, wheelLocations);
+        //if we get a bad center and all angles are similar, try again
+        double centerThrsh = 250;
+        if(sumOfDiff < 0.01 && centerOfRot.r < centerThrsh){
+            normalVecs[0].theta += 1e-3;
+            centerOfRot = getLeastSquaresCenterOfRotation(normalVecs, wheelLocations);
+            if(centerOfRot.r < centerThrsh){
+                //if center is still bad, then use a manual one
+                centerOfRot = new Vector(1e6,normalVecMean);
+            }
+        }
+        
+        SmartDashboard.putString("Center Of Rot", centerOfRot.toString());
 
         //angle logic
         double[] angles = new double[realVecs.length];
         for(int i = 0; i < realVecs.length; i++){
-            Vector radius = Vector.subVectors(wheelLocations[i], centerOfRot);
-            angles[i] = (realVecs[i].r/radius.r);
+            Vector radius = Vector.subVectors(centerOfRot, wheelLocations[i]);
+            if(realVecs[i].cross2D(radius) > 0){
+                angles[i] = (realVecs[i].r/radius.r);
+            } else {
+                angles[i] = -(realVecs[i].r/radius.r);
+            }
         }
 
         //strafe logic
         Vector[] strafes = new Vector[realVecs.length];
         for(int i = 0; i < realVecs.length; i++){
-            Vector newBotCenter = new Vector(centerOfRot.r, centerOfRot.theta + angles[i]);
+            Vector newBotCenter = new Vector(centerOfRot.r, centerOfRot.theta - angles[i]);
             strafes[i] = Vector.subVectors(newBotCenter, centerOfRot);
         }
 
@@ -210,6 +289,7 @@ public class Odometry implements AutoCloseable {
                 double x = strafes[i].getX();
                 double y = strafes[i].getY();
                 double angle = vectorAngles[i].r;
+                if(vectorAngles[i].theta > Math.PI/2) angle = -angle;
 
                 finalStrafeX += x;
                 if(x >= highestStrafeX) highestStrafeX = x;
@@ -235,52 +315,31 @@ public class Odometry implements AutoCloseable {
         double yError = (highestStrafeY - lowestStrafeY) / 2;
         double angError = (highestAngle - lowestAngle) / 2;
 
-        return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError, 0};
+        return new double[] {finalStrafe.r, finalStrafe.theta, finalAngle, xError, yError, angError, centerOfRot.getX(), centerOfRot.getY()};
     }
 
     //this builds off the idea that even if slipping, we still expect the wheel angles to be in a valid swerve config
     //because of that we can create a singular best estimate of the COR and then select from all the resulting
     //individual wheel strafes and angles to determine if any wheels are slipping
-    static Vector getLeastSquaresCenterOfRotation(Vector[] movementVecs, Vector[] locationVecs){
-        
-        Vector[] normalVecs = new Vector[movementVecs.length];
-        for(int i=0;i<movementVecs.length;i++){
-            Vector v = movementVecs[i];
-            if(v.r > 0){
-                normalVecs[i] = new Vector(1,v.theta+Math.PI/2);
-            } else {
-                normalVecs[i] = new Vector(-1,v.theta+Math.PI/2);
-            }
+    static Vector getLeastSquaresCenterOfRotation(Vector[] normalVecs, Vector[] locationVecs){
+
+        SimpleMatrix A = new SimpleMatrix(4,2);
+        SimpleMatrix b = new SimpleMatrix(4,1);
+        for(int i=0;i<normalVecs.length;i++){
+            double dx = normalVecs[i].getY();
+            double dy = normalVecs[i].getX();
+            double x = locationVecs[i].getX();
+            double y = locationVecs[i].getY();
+
+            A.set(i,0,dx);
+            A.set(i,1,-dy);
+
+            b.set(i, x*dx - y*dy);
         }
 
-        double[][] S = new double[2][2];
-        for(Vector v : normalVecs){
-            //get the normal vector and normalize it
-            double x = v.getX();
-            double y = v.getY();
-
-            S[0][0] += x*x;
-            S[0][1] += x*y;
-            S[1][0] += x*y;
-            S[1][1] += y*y;
-        }
-
-        double[][] C = new double[2][1];
-        for(int i=0;i<locationVecs.length;i++){
-            double v1x = normalVecs[i].getX();
-            double v1y = normalVecs[i].getY();
-            double v2x = locationVecs[i].getX();
-            double v2y = locationVecs[i].getY();
-
-            C[0][0] += v2x * (v1x*v1x - 1) + v2y * v1x*v1y;
-            C[1][0] += v2x * v1x*v1y + v2y * (v1y*v1y - 1);
-        }
-
-        //solve matrix equation via p = inv(S)*C
+        //solve matrix equation via p = inv(A)*b
         //borrow the matrix library WPILib already uses for this
-        SimpleMatrix sMat = new SimpleMatrix(S);
-        SimpleMatrix cMat = new SimpleMatrix(C);
-        SimpleMatrix out = sMat.invert().mult(cMat);
+        SimpleMatrix out = A.pseudoInverse().mult(b);
 
         Vector point = Vector.fromXY(out.get(0),out.get(1));
 

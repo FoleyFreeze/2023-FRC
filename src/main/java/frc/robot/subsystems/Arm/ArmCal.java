@@ -6,7 +6,7 @@ import frc.robot.util.Motor.MotorCal.MotorType;
 
 public class ArmCal {
     
-    final public boolean disabled = false;
+    final public boolean disabled = true;
 
     //                                                                                       used to be 17/66
     public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 18 / 72.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true);

@@ -15,7 +15,9 @@ import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
+import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
+import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.subsystems.Sensors.Odometry;
 import frc.robot.util.Vector;
 
@@ -167,8 +169,36 @@ public class Robot extends TimedRobot {
     Vector xy = Vector.fromXY(0.0, 0.1);
     double zPwr = 0.0;
     //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
-    //7.4940,2.7925,-0.0080,2.8923,0.0005,1.7952,-0.0048,1.8949,0.0033,
-    Vector[] driveVecs = {Vector.fromXY(2.7925, -0.008),Vector.fromXY(2.8923, 0.0005),Vector.fromXY(1.7952, -0.0048),Vector.fromXY(1.8949, 0.0033)};
+    //25.1902,0.0705,-0.4432,0.0714,-0.4431,0.0719,-0.4430,0.0705,-0.4432,-9,-0.0711,-0.4432
+    //25.2107,0.0705,-0.4432,0.0714,-0.4431,0.0719,-0.4430,0.0705,-0.4432,-9,0.0711,0.4430
+
+    for(int i=0;i</*Math.pow(5,8)*/100000;i++){
+      /* 
+      double a = (i / Math.pow(5,7) -2) * 0.00001;
+      double b = ((i / ((int)Math.pow(5,6)) % 5) -2) * 0.000001;
+      double c = ((i / ((int)Math.pow(5,5)) % 5) -2) * 0.000001;
+      double d = ((i / ((int)Math.pow(5,4)) % 5) -2) * 0.000001;
+      double e = ((i / ((int)Math.pow(5,3)) % 5) -2) * 0.000001;
+      double f = ((i / ((int)Math.pow(5,2)) % 5) -2) * 0.000001;
+      double g = ((i / ((int)Math.pow(5,1)) % 5) -2) * 0.000001;
+      double h = ((i % 5) - 2) * 0.000001;
+      */
+      double a = Math.random() * 0.0002 - 0.0001;
+      double b = Math.random() * 0.0002 - 0.0001;
+      double c = Math.random() * 0.0002 - 0.0001;
+      double d = Math.random() * 0.0002 - 0.0001;
+      double e = Math.random() * 0.0002 - 0.0001;
+      double f = Math.random() * 0.0002 - 0.0001;
+      double g = Math.random() * 0.0002 - 0.0001;
+      double h = Math.random() * 0.0002 - 0.0001;
+      
+      //16.24,,,,,0.3818,-0.0097
+      Vector v0 = Vector.fromXY(0.3,-0.3);
+      Vector v1 = (new Vector(0.4,wheelLocations[0].theta+Math.PI/2)).add(v0);
+      Vector v2 = (new Vector(0.4,wheelLocations[1].theta+Math.PI/2)).add(v0);
+      Vector v3 = (new Vector(0.4,wheelLocations[2].theta+Math.PI/2)).add(v0);
+      Vector v4 = (new Vector(0.4,wheelLocations[3].theta+Math.PI/2)).add(v0);
+    Vector[] driveVecs = {v1,v2,v3,v4};
 
     //for (Vector vector : driveVecs) {
     //  vector.r *= 10.0;
@@ -190,9 +220,16 @@ public class Robot extends TimedRobot {
     double angle = vals[2];
     double error = vals[3];
 
-    System.out.println("Strafe: " + strafe);
-    System.out.println("Angle: " + angle);
-    System.out.println("Error " + error);
+      if(strafe.getY() > 0){
+        System.out.println("!!!");
+        System.out.println("Strafe: " + strafe);
+      System.out.println("Angle: " + angle);
+      System.out.println("Error " + error);
+      }
+
+      System.out.println(i);
+    
+    }
   }
 
   /** This function is called periodically whilst in simulation. */

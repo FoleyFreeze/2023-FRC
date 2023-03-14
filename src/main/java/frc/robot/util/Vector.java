@@ -7,6 +7,10 @@ public class Vector {
 
     public Vector(double r, double theta){
         //theta is in radians
+        if(r < 0){
+            r = -r;
+            theta += Math.PI;
+        }
         this.r = r;
         this.theta = theta;
         //OH YEAHHHH
@@ -100,6 +104,10 @@ public class Vector {
     public Vector negate(){
         r = -r;
         return this;
+    }
+
+    public double cross2D(Vector v){
+        return (this.getX() * v.getY()) - (this.getY() * v.getX());
     }
 
     public Vector add(Vector v){

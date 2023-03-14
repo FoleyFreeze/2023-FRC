@@ -25,6 +25,7 @@ public class CmdDrive extends CommandBase{
     }
 
     double iAccum = 0;
+    double lastAngle = 0;
 
     @Override
     public void execute(){
@@ -40,19 +41,22 @@ public class CmdDrive extends CommandBase{
         xy.r = xy.r * xy.r;
         z = z * z * Math.signum(z);
 
-        //auto align
-        if(true /*r.inputs.getFieldAlign()*/){
+        //auto align, only if the navx exists
+        if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
             if (z != 0){
                 lastRotateTime = Timer.getFPGATimestamp();
                 iAccum = 0;
+                lastAngle = r.sensors.odo.botAngle;
             } else if(Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
                 //select setpoint
-                double setpoint = 999;
+                double setpoint = lastAngle;
+                boolean useI = xy.r > 0;
                 if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube()){
                     //target score angle for lvl3 cones
+                    useI = true;
                     if(r.inputs.fieldAlignRight.getAsBoolean()){
                         setpoint = Math.toRadians(-164.25);
                     } else {
@@ -70,7 +74,7 @@ public class CmdDrive extends CommandBase{
                         else error += 2*Math.PI;
                     }
 
-                    if(error > Math.toRadians(8)){
+                    if(!useI || error > Math.toRadians(8)){
                         //keep i low to prevent oscillation
                         iAccum = 0;
                     } else {
@@ -89,6 +93,8 @@ public class CmdDrive extends CommandBase{
                     z=0;
                     iAccum = 0;
                 }
+            } else {
+                lastAngle = r.sensors.odo.botAngle;
             }
         }
 
