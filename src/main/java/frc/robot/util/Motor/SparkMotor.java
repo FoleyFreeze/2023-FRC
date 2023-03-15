@@ -22,8 +22,6 @@ public class SparkMotor implements Motor{
 
         motor.restoreFactoryDefaults();
 
-        
-
         encoder = motor.getEncoder();
         PIDController = motor.getPIDController();
 

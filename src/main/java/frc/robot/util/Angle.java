@@ -1,6 +1,11 @@
 package frc.robot.util;
 
 public class Angle {
+
+    public static double shortestPath(double start, double end){
+        double out = end - start;
+        return normRad(out);
+    }
     
     public static double normRad(double ang){
         ang %= 2 * Math.PI;

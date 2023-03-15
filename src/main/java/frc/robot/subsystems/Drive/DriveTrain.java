@@ -1,12 +1,16 @@
 package frc.robot.subsystems.Drive;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
+import frc.robot.subsystems.Inputs.Inputs.Level;
+import frc.robot.subsystems.Inputs.Inputs.ManScoreMode;
 import frc.robot.util.FileManager;
+import frc.robot.util.Util;
 import frc.robot.util.Vector;
 
 public class DriveTrain extends SubsystemBase {
@@ -48,11 +52,75 @@ public class DriveTrain extends SubsystemBase {
         System.out.println("Park mode set");
     }
 
+    //automatically maintains heading if rotation is not commanded
+    double lastRotateTime = 0;
+    double iAccum = 0;
+    double targetHeading = 0;
+    public double swerveAutoAngle(double drivePower, double anglePower){
+        //auto align, only if the navx exists
+        double z = 0;
+        if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
+            if (anglePower != 0){
+                lastRotateTime = Timer.getFPGATimestamp();
+                iAccum = 0;
+                targetHeading = r.sensors.odo.botAngle;
+            } else if(Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
+                //select setpoint
+                double setpoint = targetHeading;
+                boolean usePID = drivePower > 0;
+                if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
+                    //target shelf angle
+                    setpoint = Math.toRadians(0);
+                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube()){
+                    //target score angle for lvl3 cones
+                    usePID = true;
+                    if(r.inputs.fieldAlignRight.getAsBoolean()){
+                        setpoint = Math.toRadians(-164.25);
+                    } else {
+                        setpoint = Math.toRadians(-195);
+                    }
+                }
+
+                //error is between -360 -> 360
+                double error = (setpoint - r.sensors.odo.botAngle) % (2*Math.PI);
+                if(Math.abs(error) > Math.PI){
+                    if(error > 0) error -= 2*Math.PI;
+                    else error += 2*Math.PI;
+                }
+                
+                if(!usePID || error > Math.toRadians(8)){
+                    //keep i low to prevent oscillation
+                    iAccum = 0;
+                } else {
+                    iAccum += error * r.sensors.dt;
+                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
+                    z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
+                }
+            } else {
+                z = 0;
+                iAccum = 0;
+                targetHeading = r.sensors.odo.botAngle;
+            }
+
+        } else {
+            //no navx
+            z = 0;
+            iAccum = 0;
+            targetHeading = r.sensors.odo.botAngle;
+            lastRotateTime = Timer.getFPGATimestamp();
+        }
+
+        return z;
+    }
+
     /* Takes in x and y power values and a z power, 
      * which is a rotation pwr between -1 and 1
      */
     public void driveSwerve(Vector xy, double z){
         if(cals.disabled) return;
+
+        //maintain selected heading
+        z = swerveAutoAngle(xy.r, z);
 
         //Grabs the calculated drive vectors and sets it into the actual wheel array
         Vector[] wheelLocations = new Vector[wheels.length];
@@ -130,6 +198,11 @@ public class DriveTrain extends SubsystemBase {
         Vector Power = new Vector(velocity);
         Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS;
         driveSwerve(Power, 0);
+    }
+
+    public void swerveMPA(double velocity, double accel){
+        double power = (AutonCal.kA * accel) + (AutonCal.kV * velocity) + AutonCal.kS;
+        driveSwerve(new Vector(0,0), power);
     }
 
     //Reads the wheel positions file, using our file manager logic from 2022

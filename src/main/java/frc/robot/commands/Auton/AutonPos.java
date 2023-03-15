@@ -1,5 +1,9 @@
 package frc.robot.commands.Auton;
 
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import frc.robot.util.Vector;
 
 public class AutonPos {
@@ -34,7 +38,16 @@ public class AutonPos {
         return this;
     }
 
-    
+    //construct at start
+    public static AprilTagFieldLayout tagLayout;
+    static {
+        try{
+            tagLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public static final AutonPos[] START_POSITIONS = {
         new AutonPos(0, 0, 0),//Rightmost scoring spot
         new AutonPos(0, 0, 0),
