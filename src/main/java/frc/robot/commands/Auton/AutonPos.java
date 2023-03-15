@@ -80,10 +80,10 @@ public class AutonPos {
     };
 
     public static final AutonPos[] MID_FIELD_POS = {
-        new AutonPos(0, 0, 0),//left piece
-        new AutonPos(0, 0, 0),//left middle
-        new AutonPos(0, 0, 0),//right middle
-        new AutonPos(0, 0, 0),//right piece
+        new AutonPos(0, 0, 0),//substation
+        new AutonPos(0, 0, 0),//sub middle
+        new AutonPos(0, 0, 0),//far middle
+        new AutonPos(0, 0, 0),//far
     };
 
     public static final AutonPos[] JUST_DRIVE_OUT = {

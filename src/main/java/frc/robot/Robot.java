@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
+import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
 import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.subsystems.Drive.DriveCal;
@@ -78,8 +79,11 @@ public class Robot extends TimedRobot {
 
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
-    int simpleStartPos = r.simpleStartPosChooser.getSelected();
-    boolean simpleBalance = r.simpleBalanceChooser.getSelected();
+    int autonChooser = r.autonChooser.getSelected();
+    int startPos = r.autonStartPosChooser.getSelected();
+
+    /*int simpleStartPos = r.simpleStartPosChooser.getSelected();
+    boolean simpleBalance = r.simpleBalanceChooser.getSelected();*/
     Alliance team = DriverStation.getAlliance();
 
     /*int startPos = r.startPosChooser.getSelected();
@@ -89,13 +93,16 @@ public class Robot extends TimedRobot {
     int piece = r.pieceChooser.getSelected();*/
 
     //casts everything to a string
-    String value = "" + useSpecialCommand + simpleStartPos + simpleBalance + team;//startPos + secondPiece + action + path + piece;
+    String value = "" + autonChooser + startPos + team + useSpecialCommand;// + simpleStartPos + simpleBalance +*/ team + startPos + secondPiece + action + path + piece;
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
+        //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
+        
       } else {
-        /*r.autonCommand = AutonBuilder.buildAuton(r, startPos, 
+        r.autonCommand = AutonCommand.autonCommand(r, team, autonChooser, startPos);
+        /*r.autonCommand = AutonBuilder.buildAuton(r, team,
+                                                    startPos, 
                                                     secondPiece, 
                                                     action, 
                                                     path, 

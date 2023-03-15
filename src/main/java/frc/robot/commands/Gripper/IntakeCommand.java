@@ -8,7 +8,13 @@ public class IntakeCommand extends CommandBase{
     
     RobotContainer r;
     double startTime;
+    
     public IntakeCommand (RobotContainer r){
+        this(r, true);
+    }
+
+    public IntakeCommand(RobotContainer r, boolean cube){
+        //Auton constructor
         this.r = r;
     }
 

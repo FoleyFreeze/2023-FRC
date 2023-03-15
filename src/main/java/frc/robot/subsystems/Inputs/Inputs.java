@@ -425,6 +425,7 @@ public class Inputs extends SubsystemBase{
     });
 
     public boolean isCube(){
+        if(DriverStation.isAutonomous()) return true;
         if(cBoardTwo != null){
             return !cBoardTwo.getRawButton(cal.CUBE_V_CONE);
         } else {
@@ -433,6 +434,7 @@ public class Inputs extends SubsystemBase{
     }
 
     public boolean isShelf(){
+        if(DriverStation.isAutonomous()) return false;
         if(cBoardTwo != null){
             return cBoardTwo.getRawButton(cal.SHELF_V_FLOOR);
         } else {

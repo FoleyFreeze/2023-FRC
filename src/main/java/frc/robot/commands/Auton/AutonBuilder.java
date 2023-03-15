@@ -1,6 +1,7 @@
 package frc.robot.commands.Auton;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
@@ -18,7 +19,7 @@ public class AutonBuilder {
      * hope it just works the first time and
      * I don't have to debug this too much :()
      */
-    public static Command buildAuton(RobotContainer r, int startPosChooser, boolean secondPieceChooser, int actionChooser, int pathChooser, int pieceChooser){
+    public static Command buildAuton(RobotContainer r, Alliance team, int startPosChooser, boolean secondPieceChooser, int actionChooser, int pathChooser, int pieceChooser){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         sg.addCommands(new SetStartPos(r, AutonPos.START_POSITIONS[startPosChooser]));
@@ -29,8 +30,8 @@ public class AutonBuilder {
             }
 
             if(actionChooser == 1 || actionChooser == 2){//This just moves the bot out of the community with a basic drive command
-                sg.addCommands(new DistanceDrive(r, AutonPos.FIRST_DRIVE[pathChooser].mirrorY(DriverStation.getAlliance().equals(DriverStation.Alliance.Red))));
-                sg.addCommands(new DistanceDrive(r, AutonPos.JUST_DRIVE_OUT[pathChooser].mirrorY(DriverStation.getAlliance().equals(DriverStation.Alliance.Red))));
+                sg.addCommands(new DistanceDrive(r, AutonPos.FIRST_DRIVE[pathChooser].mirrorY(team.equals(DriverStation.Alliance.Red))));
+                sg.addCommands(new DistanceDrive(r, AutonPos.JUST_DRIVE_OUT[pathChooser].mirrorY(team.equals(DriverStation.Alliance.Red))));
             }
 
             if(actionChooser == 3){//This is the auto-balance after a one-ball auton

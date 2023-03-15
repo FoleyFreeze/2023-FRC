@@ -15,8 +15,7 @@ public class Lights extends SubsystemBase{
     RobotContainer r;
     InputCal cal;
 
-    AddressableLED ledOne;
-    AddressableLED ledTwo;
+    AddressableLED led;
 
     AddressableLEDBuffer ledBuffer;
 
@@ -25,15 +24,11 @@ public class Lights extends SubsystemBase{
         this.cal = cal;
         if(disabled) return;
 
-        ledOne = new AddressableLED(cal.LED_PORT);
-        ledTwo = new AddressableLED(cal.LED_TWO_PORT);
+        led = new AddressableLED(cal.LED_PORT);
         ledBuffer = new AddressableLEDBuffer(cal.BUFFER_LENGTH);
 
-        ledOne.setLength(ledBuffer.getLength());
-        ledOne.start();
-
-        ledTwo.setLength(ledBuffer.getLength());
-        ledTwo.start();
+        led.setLength(ledBuffer.getLength());
+        led.start();
     }
 
     int offset = 0;
@@ -73,9 +68,8 @@ public class Lights extends SubsystemBase{
             }
         }
 
-        if(ledOne != null){
-            ledOne.setData(ledBuffer);
-            ledTwo.setData(ledBuffer);
+        if(led != null){
+            led.setData(ledBuffer);
         }
     }
 }

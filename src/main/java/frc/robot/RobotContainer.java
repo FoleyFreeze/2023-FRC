@@ -60,15 +60,18 @@ public class RobotContainer {
 
   public SendableChooser<Integer> specialAutonChooser;
 
-  public SendableChooser<Integer> simpleStartPosChooser;
-  public SendableChooser<Boolean> simpleBalanceChooser;
-  public SendableChooser<Boolean> driveOutOnlyChooser;
+  public SendableChooser<Integer> autonChooser;
+  public SendableChooser<Integer> autonStartPosChooser;
 
-  public SendableChooser<Integer> startPosChooser;
+  /*public SendableChooser<Integer> simpleStartPosChooser;
+  public SendableChooser<Boolean> simpleBalanceChooser;
+  public SendableChooser<Boolean> driveOutOnlyChooser;*/
+
+  /*public SendableChooser<Integer> startPosChooser;
   public SendableChooser<Boolean> secondPieceChooser;
   public SendableChooser<Integer> actionChooser;
   public SendableChooser<Integer> pathChooser;
-  public SendableChooser<Integer> pieceChooser;
+  public SendableChooser<Integer> pieceChooser;*/
 
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -88,12 +91,28 @@ public class RobotContainer {
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
 
-    specialAutonChooser = new SendableChooser<>();
+    /*specialAutonChooser = new SendableChooser<>();
     specialAutonChooser.setDefaultOption("No Special Command", 0);
     specialAutonChooser.addOption("Special Command", 1);
-    SmartDashboard.putData("Special Chooser", specialAutonChooser);
+    SmartDashboard.putData("Special Chooser", specialAutonChooser);*/
 
-    simpleStartPosChooser = new SendableChooser<>();
+    autonChooser = new SendableChooser<>();
+    autonChooser.setDefaultOption("Do Nothing", 0);
+    autonChooser.addOption("Drive Out", 1);
+    autonChooser.addOption("Score and Drive Out", 2);
+    autonChooser.addOption("Score and Balance", 3);
+    autonChooser.addOption("Score, Pickup, Balance", 4);
+    autonChooser.addOption("Two-Score and Balance", 5);
+    SmartDashboard.putData("Auton", autonChooser);
+
+    autonStartPosChooser = new SendableChooser<>();
+    autonStartPosChooser.setDefaultOption("Substation", 0);
+    autonStartPosChooser.addOption("Mid-Substation", 1);
+    autonStartPosChooser.addOption("Mid-Far", 2);
+    autonStartPosChooser.addOption("Far", 3);
+    SmartDashboard.putData("Start Position", autonStartPosChooser);
+
+    /*simpleStartPosChooser = new SendableChooser<>();
     simpleStartPosChooser.setDefaultOption("Middle Far", 0);
     simpleStartPosChooser.addOption("Middle Substation", 1);
     simpleStartPosChooser.addOption("Far", 2);
@@ -103,19 +122,18 @@ public class RobotContainer {
     simpleBalanceChooser = new SendableChooser<>();
     simpleBalanceChooser.setDefaultOption("Drive Out", false);
     simpleBalanceChooser.setDefaultOption("Balance", true);
-    SmartDashboard.putData("Balance Or Out", simpleBalanceChooser);
+    SmartDashboard.putData("Balance Or Out", simpleBalanceChooser);*/
 
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
     /*startPosChooser = new SendableChooser<>();
-    startPosChooser.setDefaultOption("Right-Right", 0);
-    startPosChooser.addOption("Right-Middle", 1);
-    startPosChooser.addOption("Right-Left", 2);
-    startPosChooser.addOption("Community-Right", 3);
-    startPosChooser.addOption("Community-Middle", 4);
-    startPosChooser.addOption("Community-Left", 5);
-    startPosChooser.addOption("Left-Right", 6);
-    startPosChooser.addOption("Left-Middle", 7);
-    startPosChooser.addOption("Left-Left", 8);
+    startPosChooser.setDefaultOption("Sub-Cube-Sub", 0);
+    startPosChooser.addOption("Sub-Cube-Far", 1);
+    startPosChooser.addOption("Sub-Cone", 2);
+    startPosChooser.addOption("Mid-Cube-Sub", 3);
+    startPosChooser.addOption("Mid-Cube-Far", 4);
+    startPosChooser.addOption("Far-Cone", 5);
+    startPosChooser.addOption("Far-Cube-Sub", 6);
+    startPosChooser.addOption("Far-Cube-Far", 7);
     SmartDashboard.putData("Start Position", startPosChooser);
 
     secondPieceChooser = new SendableChooser<>();
@@ -139,10 +157,10 @@ public class RobotContainer {
     SmartDashboard.putData("Path", pathChooser);
 
     pieceChooser = new SendableChooser<>();
-    pieceChooser.setDefaultOption("Left", 0);
-    pieceChooser.addOption("Mid Left", 1);
-    pieceChooser.addOption("Mid Right", 2);
-    pieceChooser.addOption("Right", 3);
+    pieceChooser.setDefaultOption("Sub", 0);
+    pieceChooser.addOption("Mid Sub", 1);
+    pieceChooser.addOption("Mid Far", 2);
+    pieceChooser.addOption("Far", 3);
     SmartDashboard.putData("Mid-Field Piece", pieceChooser);*/
 
     // Configure the trigger bindings
