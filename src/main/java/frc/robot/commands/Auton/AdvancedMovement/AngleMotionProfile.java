@@ -5,24 +5,25 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 import java.lang.Math;
 
-public class DriveMotionProfile extends CommandBase{
+public class AngleMotionProfile extends CommandBase{
     public RobotContainer r;
-    private Vector startLoc;
-    private Vector endLoc;
+    private double startLoc;
+    private double endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
 
-    public DriveMotionProfile(RobotContainer r, Vector endLoc){
+    public AngleMotionProfile(RobotContainer r, double endAngle){
         this.r = r;
-        this.endLoc = endLoc;
+        this.endLoc = endAngle;
         addRequirements(r.driveTrain);
     }
 
     //the distances are individual
     //but the times are cumulative
-    private Vector totalDistance;
+    private double totalDistance;
     private double startTime;
     private double decelTime;
     private double maxVelTime;
@@ -32,52 +33,55 @@ public class DriveMotionProfile extends CommandBase{
     private double maxVelDist;
     public void initialize(){
 
-        startLoc = new Vector(r.sensors.odo.botLocation);
+        startLoc = r.sensors.odo.botAngle;
         
-        totalDistance = Vector.subVectors(endLoc, startLoc);
+        double totalAngle = Angle.shortestPath(startLoc, endLoc); 
+        totalDistance = totalAngle * r.dCal.wheelCals[0].wheelLocation.r;
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
        
-        if (totalDistance.r >= distThreshold){
+        if (totalDistance >= distThreshold){
             //3 step (Accel - constV - Decel)
             accelDist = distThreshold / 2;
             decelDist = distThreshold / 2;
-            maxVelDist = totalDistance.r - distThreshold;
+            maxVelDist = totalDistance - distThreshold;
             accelTime =  Math.sqrt(distThreshold / AutonCal.maxAccel);
-            System.out.println("" + accelTime);
+            //System.out.println("" + accelTime);
             maxVelTime = accelTime + maxVelDist / AutonCal.maxVel;
             decelTime = maxVelTime + accelTime;
         } else{
             //2 step (Accel - Decel)
             maxVelTime = 0;
             maxVelDist = 0;
-            accelDist = totalDistance.r / 2;
-            decelDist = totalDistance.r / 2;
-            accelTime =  Math.sqrt(totalDistance.r / AutonCal.maxAccel);
+            accelDist = totalDistance / 2;
+            decelDist = totalDistance / 2;
+            accelTime =  Math.sqrt(totalDistance / AutonCal.maxAccel);
             decelTime = 2 * accelTime;
         }
         startTime = Timer.getFPGATimestamp();
     }
     
+    enum Stages {NONE, STAGE_ONE, STAGE_TWO, STAGE_THREE};
+    Stages stage = Stages.NONE;
+
     public void execute (){
         double runTime = Timer.getFPGATimestamp() - startTime;
         
         double[] state = getAVP(runTime);
-        Vector targetPos = new Vector(state[0],totalDistance.theta);
-        Vector targetVel = new Vector(state[1],totalDistance.theta);
+        double targetPos = state[0];
+        double targetVel = state[1];
         double targetAccel = state[2];
-        
+
         //PID
-        Vector currentPos = r.sensors.odo.botLocation;
-        Vector distVec = new Vector(startLoc).sub(currentPos).add(targetPos);
-        double errorMag = distVec.r;
-        distVec.r *= AutonCal.kP_MP;
-        Vector totalVel = new Vector(targetVel).add(distVec);
+        double currentPos = r.sensors.odo.botAngle;
+        double dist = Angle.shortestPath(currentPos, targetPos) * r.dCal.wheelCals[0].wheelLocation.r;
+        double errorMag = dist;
+        dist *= AutonCal.kP_MP;
+        double totalVel = targetVel + dist;
 
         //output
-        r.driveTrain.swerveMP(totalVel, targetAccel);
+        r.driveTrain.swerveMPA(totalVel, targetAccel);
         
-        System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
-        
+        System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
     }
 
     public boolean isFinished(){
@@ -109,11 +113,11 @@ public class DriveMotionProfile extends CommandBase{
             //stage 3
             double t3 = t - decelTime;
             targetAccel = -AutonCal.maxAccel;
-            targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance.r;
+            targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance;
             targetVel = t3 * targetAccel;
         } else { 
             //end
-            targetPos = totalDistance.r;
+            targetPos = totalDistance;
             targetVel = 0;
             targetAccel = 0;
         }

@@ -407,6 +407,8 @@ public class Inputs extends SubsystemBase{
     // ------------- Control Board inputs ------------- //
     
     public boolean getFieldMode(){
+        if(DriverStation.isFMSAttached()) return true;
+
         if(cBoardTwo != null){
             return cBoardTwo.getRawButton(cal.FIELD_MODE);
         } else {

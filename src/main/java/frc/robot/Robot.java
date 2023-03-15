@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -12,6 +13,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.Auton.AutonBuilder;
+import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
+import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
@@ -152,6 +156,15 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
+
+    //DriveMotionProfile mp = new DriveMotionProfile(r, Vector.fromXY(60,0));
+    AngleMotionProfile mp = new AngleMotionProfile(r, Math.PI);
+    mp.initialize();
+    for(double t=0;t<3;t+=0.02){
+      double[] avp = mp.getAVP(t);
+      System.out.format("%.2f,%.2f,%.2f,%.2f\n",t,avp[2],avp[1],avp[0]);
+    }
+
     /*Vector startPoint = Vector.fromXY(0, 0);
     AutonPos[] waypoints = {new AutonPos(54, 0, 0), new AutonPos(54, 108, 0)};
 
@@ -164,72 +177,25 @@ public class Robot extends TimedRobot {
     System.out.println("First Length: " + vecs[0].value);
     System.out.println("Second Length: " + vecs[1].value);
     System.out.println("Third Length: " + vecs[2].value);*/
-    Vector[] wheelLocations = {r.driveTrain.wheels[0].cal.wheelLocation,r.driveTrain.wheels[1].cal.wheelLocation,r.driveTrain.wheels[2].cal.wheelLocation,r.driveTrain.wheels[3].cal.wheelLocation};
 
+    /*
+    Vector[] wheelLocations = {r.driveTrain.wheels[0].cal.wheelLocation,r.driveTrain.wheels[1].cal.wheelLocation,r.driveTrain.wheels[2].cal.wheelLocation,r.driveTrain.wheels[3].cal.wheelLocation};
     Vector xy = Vector.fromXY(0.0, 0.1);
     double zPwr = 0.0;
-    //Vector[] driveVecs = DriveTrain.formulateDriveVecs(xy, zPwr, 4, wheelLocations, false);
-    //25.1902,0.0705,-0.4432,0.0714,-0.4431,0.0719,-0.4430,0.0705,-0.4432,-9,-0.0711,-0.4432
-    //25.2107,0.0705,-0.4432,0.0714,-0.4431,0.0719,-0.4430,0.0705,-0.4432,-9,0.0711,0.4430
 
-    for(int i=0;i</*Math.pow(5,8)*/100000;i++){
-      /* 
-      double a = (i / Math.pow(5,7) -2) * 0.00001;
-      double b = ((i / ((int)Math.pow(5,6)) % 5) -2) * 0.000001;
-      double c = ((i / ((int)Math.pow(5,5)) % 5) -2) * 0.000001;
-      double d = ((i / ((int)Math.pow(5,4)) % 5) -2) * 0.000001;
-      double e = ((i / ((int)Math.pow(5,3)) % 5) -2) * 0.000001;
-      double f = ((i / ((int)Math.pow(5,2)) % 5) -2) * 0.000001;
-      double g = ((i / ((int)Math.pow(5,1)) % 5) -2) * 0.000001;
-      double h = ((i % 5) - 2) * 0.000001;
-      */
-      double a = Math.random() * 0.0002 - 0.0001;
-      double b = Math.random() * 0.0002 - 0.0001;
-      double c = Math.random() * 0.0002 - 0.0001;
-      double d = Math.random() * 0.0002 - 0.0001;
-      double e = Math.random() * 0.0002 - 0.0001;
-      double f = Math.random() * 0.0002 - 0.0001;
-      double g = Math.random() * 0.0002 - 0.0001;
-      double h = Math.random() * 0.0002 - 0.0001;
-      
-      //16.24,,,,,0.3818,-0.0097
-      Vector v0 = Vector.fromXY(0.3,-0.3);
-      Vector v1 = (new Vector(0.4,wheelLocations[0].theta+Math.PI/2)).add(v0);
-      Vector v2 = (new Vector(0.4,wheelLocations[1].theta+Math.PI/2)).add(v0);
-      Vector v3 = (new Vector(0.4,wheelLocations[2].theta+Math.PI/2)).add(v0);
-      Vector v4 = (new Vector(0.4,wheelLocations[3].theta+Math.PI/2)).add(v0);
+    Vector v0 = Vector.fromXY(0.2,0.2);
+    Vector v1 = (new Vector(0.4,wheelLocations[0].theta+Math.PI/2)).add(v0);
+    Vector v2 = (new Vector(0.4,wheelLocations[1].theta+Math.PI/2)).add(v0);
+    Vector v3 = (new Vector(0.4,wheelLocations[2].theta+Math.PI/2)).add(v0);
+    Vector v4 = (new Vector(0.4,wheelLocations[3].theta+Math.PI/2)).add(v0);
     Vector[] driveVecs = {v1,v2,v3,v4};
-
-    //for (Vector vector : driveVecs) {
-    //  vector.r *= 10.0;
-    //}
-    //driveVecs[0].r = 5.0;
-    //driveVecs[1].r = 99;
-    //driveVecs[2].r = 10000;
-    //driveVecs[3].r = 5.0;
-
-    //Vector[][] centersOfRot = Odometry.formulateCentersOfRot(driveVecs, wheelLocations);
-
-    //System.out.println("FR Centers Of Rot: " + centersOfRot[0][0] + " : " + centersOfRot[0][1] + " : " + centersOfRot[0][2]);
-    //System.out.println("FL Centers Of Rot: " + centersOfRot[1][0] + " : " + centersOfRot[1][1] + " : " + centersOfRot[1][2]);
-    //System.out.println("RL Centers Of Rot: " + centersOfRot[2][0] + " : " + centersOfRot[2][1] + " : " + centersOfRot[2][2]);
-    //System.out.println("RR Centers Of Rot: " + centersOfRot[3][0] + " : " + centersOfRot[3][1] + " : " + centersOfRot[3][2]);
 
     double[] vals = Odometry.formulateBestValuesMatrix(driveVecs, wheelLocations);
     Vector strafe = new Vector(vals[0], vals[1]);
     double angle = vals[2];
     double error = vals[3];
-
-      if(strafe.getY() > 0){
-        System.out.println("!!!");
-        System.out.println("Strafe: " + strafe);
-      System.out.println("Angle: " + angle);
-      System.out.println("Error " + error);
-      }
-
-      System.out.println(i);
+    */
     
-    }
   }
 
   /** This function is called periodically whilst in simulation. */
