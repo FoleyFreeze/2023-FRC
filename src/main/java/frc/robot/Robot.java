@@ -102,7 +102,8 @@ public class Robot extends TimedRobot {
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
         //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
-        
+        //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));
+        r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(120,0)).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
       } else {
         r.autonCommand = AutonCommand.autonCommand(r, team, autonChooser, startPos);
         /*r.autonCommand = AutonBuilder.buildAuton(r, team,

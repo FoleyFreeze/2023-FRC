@@ -31,14 +31,22 @@ public class AngleMotionProfile extends CommandBase{
     private double accelDist;
     private double decelDist;
     private double maxVelDist;
+    boolean inverted = false;
     public void initialize(){
 
         startLoc = r.sensors.odo.botAngle;
+
+        System.out.format("Start: %.1f, End: %.1f\n",startLoc,endLoc);
         
         double totalAngle = Angle.shortestPath(startLoc, endLoc); 
         totalDistance = totalAngle * r.dCal.wheelCals[0].wheelLocation.r;
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
-       
+
+        if(totalDistance < 0){
+            inverted = true;
+            totalDistance = -totalDistance;
+        }
+
         if (totalDistance >= distThreshold){
             //3 step (Accel - constV - Decel)
             accelDist = distThreshold / 2;
@@ -71,17 +79,26 @@ public class AngleMotionProfile extends CommandBase{
         double targetVel = state[1];
         double targetAccel = state[2];
 
+        if(inverted){
+            targetAccel *= -1;
+            targetVel *= -1;
+            targetPos *= -1;
+        }
+
         //PID
         double currentPos = r.sensors.odo.botAngle;
-        double dist = Angle.shortestPath(currentPos, targetPos) * r.dCal.wheelCals[0].wheelLocation.r;
+        double delta = Angle.shortestPath(startLoc, currentPos);
+        double targetAngle = targetPos / r.dCal.wheelCals[0].wheelLocation.r;
+        double dist = (targetAngle - delta) * r.dCal.wheelCals[0].wheelLocation.r;
         double errorMag = dist;
         dist *= AutonCal.kP_MP;
         double totalVel = targetVel + dist;
 
         //output
-        r.driveTrain.swerveMPA(totalVel, targetAccel);
+        double power = (AutonCal.kA * targetAccel) + (AutonCal.kV * totalVel) + AutonCal.kS;
+        r.driveTrain.swerveMPA(power);
         
-        System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
+        System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
     }
 
     public boolean isFinished(){

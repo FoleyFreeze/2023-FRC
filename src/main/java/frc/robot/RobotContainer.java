@@ -91,10 +91,10 @@ public class RobotContainer {
     CommandScheduler cs = CommandScheduler.getInstance();
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
 
-    /*specialAutonChooser = new SendableChooser<>();
+    specialAutonChooser = new SendableChooser<>();
     specialAutonChooser.setDefaultOption("No Special Command", 0);
     specialAutonChooser.addOption("Special Command", 1);
-    SmartDashboard.putData("Special Chooser", specialAutonChooser);*/
+    SmartDashboard.putData("Special Chooser", specialAutonChooser);
 
     autonChooser = new SendableChooser<>();
     autonChooser.setDefaultOption("Do Nothing", 0);

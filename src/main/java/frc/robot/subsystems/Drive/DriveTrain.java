@@ -55,10 +55,10 @@ public class DriveTrain extends SubsystemBase {
     //automatically maintains heading if rotation is not commanded
     double lastRotateTime = 0;
     double iAccum = 0;
-    double targetHeading = 0;
+    public double targetHeading = 0;
     public double swerveAutoAngle(double drivePower, double anglePower){
         //auto align, only if the navx exists
-        double z = 0;
+        double z = anglePower;
         if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
             if (anglePower != 0){
                 lastRotateTime = Timer.getFPGATimestamp();
@@ -88,8 +88,13 @@ public class DriveTrain extends SubsystemBase {
                     else error += 2*Math.PI;
                 }
                 
-                if(!usePID || error > Math.toRadians(8)){
+                if(!usePID){
+                    z = 0;
+                    iAccum = 0;
+                } else if(error > Math.toRadians(8)){
                     //keep i low to prevent oscillation
+                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
+                    z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
                     iAccum = 0;
                 } else {
                     iAccum += error * r.sensors.dt;
@@ -97,14 +102,12 @@ public class DriveTrain extends SubsystemBase {
                     z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
                 }
             } else {
-                z = 0;
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
             }
 
         } else {
             //no navx
-            z = 0;
             iAccum = 0;
             targetHeading = r.sensors.odo.botAngle;
             lastRotateTime = Timer.getFPGATimestamp();
@@ -193,15 +196,11 @@ public class DriveTrain extends SubsystemBase {
         return driveVecs;
     }
 
-    public void swerveMP(Vector velocity, double accel){
-        //SmartDashboard.putNumber("velocity", velocity.r);
-        Vector Power = new Vector(velocity);
-        Power.r = (AutonCal.kA * accel) + (AutonCal.kV * velocity.r) + AutonCal.kS;
-        driveSwerve(Power, 0);
+    public void swerveMP(Vector power){
+        driveSwerve(power, 0);
     }
 
-    public void swerveMPA(double velocity, double accel){
-        double power = (AutonCal.kA * accel) + (AutonCal.kV * velocity) + AutonCal.kS;
+    public void swerveMPA(double power){
         driveSwerve(new Vector(0,0), power);
     }
 

@@ -40,12 +40,13 @@ public class Sensors extends SubsystemBase{
     public void resetNavXAng(double ang){
         navXOffset = ang - navX.getFusedHeading();
         navX.reset();
+        odo.botAngle = ang;
+        odo.prevBotAng = ang;
+        r.driveTrain.targetHeading = ang;
         System.out.println("angle has been reset");
     }
 
     public void resetBotAng(){
-        odo.botAngle = 0;
-        odo.prevBotAng = 0;
         resetNavXAng(0);
     }
 

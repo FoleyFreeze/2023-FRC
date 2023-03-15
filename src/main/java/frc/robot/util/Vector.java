@@ -102,7 +102,8 @@ public class Vector {
     }
 
     public Vector negate(){
-        r = -r;
+        //r = -r;
+        theta += Math.PI;
         return this;
     }
 

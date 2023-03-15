@@ -74,9 +74,12 @@ public class DriveMotionProfile extends CommandBase{
         Vector totalVel = new Vector(targetVel).add(distVec);
 
         //output
-        r.driveTrain.swerveMP(totalVel, targetAccel);
+        totalVel.r *= AutonCal.kV;
+        Vector power = new Vector(AutonCal.kA * targetAccel, targetVel.theta).add(totalVel);
+        power.r += AutonCal.kS;
+        r.driveTrain.swerveMP(power);
         
-        System.out.format("t:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
+        System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power.r,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
         
     }
 
