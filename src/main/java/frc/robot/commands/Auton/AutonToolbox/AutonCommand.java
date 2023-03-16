@@ -13,6 +13,8 @@ import frc.robot.RobotContainer;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
+import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -20,71 +22,84 @@ import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class AutonCommand {
+    /*TODO:
+    1) Get field-relative positions from the library
+    2) Make all the swaps to motion profile drive
+    2.5) Find a strat for splitting it between rotate and drive
+    3) Test!!!!!11!!!1!!1!!!
+    */ 
     public static Command autonCommand(RobotContainer r, Alliance alliance, int selectedAuton, int startPos){
+        
+        System.out.println("Creating MP Auton Command");
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        Vector[] startPositions = {Vector.fromXY(0, 0),
-                                   Vector.fromXY(0, 0),
-                                   Vector.fromXY(0, 0),
-                                   Vector.fromXY(0, 0)};
-        double[] startAng = {165, 165, 165, 165};
+        Vector[] startPositions = {AutonPos.substation.xy,
+                                   AutonPos.subMid.xy,
+                                   AutonPos.farMid.xy,
+                                   AutonPos.far.xy};
+        double[] startAng = {AutonPos.substation.value,
+                             AutonPos.subMid.value,
+                             AutonPos.farMid.value,
+                             AutonPos.far.value};
 
-        Vector[] driveOutOne = {Vector.fromXY(0, 0),
-                                Vector.fromXY(0, 30),
-                                Vector.fromXY(0, -30),
-                                Vector.fromXY(0, 0)};
-        double[] driveOutOneAng = {0, 0, 0, 0};
+        Vector[] driveOutOne = {AutonPos.driveSub.xy,
+                                AutonPos.driveSub.xy,
+                                AutonPos.driveFar.xy,
+                                AutonPos.driveFar.xy};
+        double[] driveOutOneAng = {AutonPos.driveSub.value,
+                                   AutonPos.driveSub.value,
+                                   AutonPos.driveFar.value,
+                                   AutonPos.driveFar.value};
 
-        Vector[] driveOutTwo = {Vector.fromXY(85, 0),
-                                Vector.fromXY(85, 0),
-                                Vector.fromXY(85, 0),
-                                Vector.fromXY(85, 0)};
-        double[] driveOutTwoAng = {0, 0, 0, 0};
+        Vector[] driveOutTwo = {AutonPos.driveOutSub.xy,
+                                AutonPos.driveOutSub.xy,
+                                AutonPos.driveOutFar.xy,
+                                AutonPos.driveOutFar.xy};
 
-        Vector[] driveToPiece = {Vector.fromXY(0, 180.2),
-                                 Vector.fromXY(0, 180.2),
-                                 Vector.fromXY(0, 36.2),
-                                 Vector.fromXY(0, 36.2)};
-        double[] driveToPieceAng = {0, 0, 0, 0};
+        Vector[] driveToPiece = {AutonPos.drivePieceSub.xy,
+                                 AutonPos.drivePieceSub.xy,
+                                 AutonPos.drivePieceFar.xy,
+                                 AutonPos.drivePieceFar.xy};
+        double[] driveToPieceAng = {AutonPos.drivePieceSub.value,
+                                    AutonPos.drivePieceSub.value,
+                                    AutonPos.drivePieceFar.value,
+                                    AutonPos.drivePieceFar.value};
 
-        Vector[] driveToScore = {Vector.fromXY(-150, 0),
-                                 Vector.fromXY(-150, 0),
-                                 Vector.fromXY(-150, 0),
-                                 Vector.fromXY(-150, 0)};
-        double[] driveToScoreAng = {180, 180, 180, 180};
+        Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
+                                 AutonPos.driveScoreSub.xy,
+                                 AutonPos.driveScoreFar.xy,
+                                 AutonPos.driveScoreFar.xy};
+        double[] driveToScoreAng = {AutonPos.driveScoreSub.value,
+                                    AutonPos.driveScoreSub.value,
+                                    AutonPos.driveScoreFar.value,
+                                    AutonPos.driveScoreFar.value};
 
-        Vector[] driveToBalanceCommunity = {Vector.fromXY(0, -52),
-                                            Vector.fromXY(0, -24),
-                                            Vector.fromXY(0, 24),
-                                            Vector.fromXY(0, 52)};
-        Vector[] driveToBalanceOutside = {Vector.fromXY(-12, -52),
-                                          Vector.fromXY(-12, -52),
-                                          Vector.fromXY(-12, 52),
-                                          Vector.fromXY(-12, 52)};
-        double driveToBalanceAngle = 90;
+        Vector driveToBalanceCommunity = new Vector(AutonPos.driveToBalComm.xy);
+        Vector driveToBalanceOutside = new Vector(AutonPos.driveToBalOutside.xy);
+        double driveToBalanceAngle = AutonPos.driveToBalComm.value;
 
         if(alliance.equals(Alliance.Red)){
             for(int i = 0; i < 4; i++){
-                startPositions[i].theta = -startPositions[i].theta;
+                startPositions[i] = new Vector(startPositions[i]).mirrorY();
                 startAng[i] = -startAng[i];
 
-                driveOutOne[i].theta = -driveOutOne[i].theta;
+                driveOutOne[i] = new Vector(driveOutOne[i]).mirrorY();
                 driveOutOneAng[i] = -driveOutOneAng[i];
 
-                driveOutTwo[i].theta = -driveOutTwo[i].theta;
-                driveOutTwoAng[i] = -driveOutTwoAng[i];
+                driveOutTwo[i] = new Vector(driveOutTwo[i]).mirrorY();
 
-                driveToPiece[i].theta = -driveToPiece[i].theta;
+                driveToPiece[i] = new Vector(driveToPiece[i]).mirrorY();
                 driveToPieceAng[i] = -driveToPieceAng[i];
-
-                driveToBalanceCommunity[i].theta = -driveToBalanceCommunity[i].theta;
-                driveToBalanceOutside[i].theta = -driveToBalanceOutside[i].theta;
             }
+            driveToBalanceCommunity = new Vector(driveToBalanceCommunity).mirrorY();
+            driveToBalanceOutside = new Vector(driveToBalanceOutside).mirrorY();
+
             driveToBalanceAngle = -driveToBalanceAngle;
         }
 
+        sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));
         sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotLocation(startPositions[startPos])));
-        sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotAngle(Angle.toRad(startAng[startPos]))));
+        sg.addCommands(new InstantCommand(() -> r.sensors.resetNavXAng(startAng[startPos])));
 
         //Do nothing command
         if(selectedAuton == 0) {
@@ -97,45 +112,50 @@ public class AutonCommand {
         }
 
         //First Drive Out
-        if(selectedAuton == 1 || selectedAuton == 4 || selectedAuton == 5){
-            sg.addCommands(new DistanceDrive(r, driveOutOne[startPos], driveOutOneAng[startPos])
-                .alongWith(new WaitCommand(1.0)
-                .andThen(new ArmGoHome(r))
-                .alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0)))));
+        if(selectedAuton == 1 || selectedAuton == 2 || selectedAuton == 4 || selectedAuton == 5){
+            sg.addCommands(new AngleMotionProfile(r, driveOutOneAng[startPos]));
+            if(startPos == 1 || startPos == 2){
+                sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos], driveOutOneAng[startPos]));
+            }
         }
 
         //Drive Out Only
-        if(selectedAuton == 2){
-            sg.addCommands(new DistanceDrive(r, driveOutTwo[startPos], driveOutTwoAng[startPos]));
+        if(selectedAuton == 1 || selectedAuton == 2){
+            sg.addCommands(new DriveMotionProfile(r, driveOutTwo[startPos], driveOutOneAng[startPos]));
         }
         
         //Piece Gather
         if(selectedAuton == 4 || selectedAuton == 5){
-            sg.addCommands(new DistanceDrive(r, driveToPiece[startPos])
-                .alongWith(GatherCommand.gatherCommand(r)));
+            //sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos]));
+            sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos], driveOutOneAng[startPos])
+                .raceWith(GatherCommand.gatherCommand(r)));
+            sg.addCommands(new ArmGoHome(r));
         }
 
         //Score #2
         if(selectedAuton == 5){
-            sg.addCommands(new DistanceDrive(r, driveToScore[startPos], driveToScoreAng[startPos])
-                .alongWith(new WaitCommand(1.0).andThen(new ArmMove(r, r.arm.cals.positionCubeHi)))
-                .andThen(scoreOnlyCube(r)));
+             
+            sg.addCommands(new AngleMotionProfile(r, driveToScoreAng[startPos]));
+            //sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos]));
+            DriveMotionProfile dmp = new DriveMotionProfile(r, driveToScore[startPos], driveToScoreAng[startPos]);
+            sg.addCommands(dmp.alongWith(new NegativeWait(1.5, dmp).andThen(new ArmMove(r, r.arm.cals.positionCubeHi))));
+            sg.addCommands(scoreOnlyCube(r));
         }
 
         //Balance
         if(selectedAuton >= 3){
             final Vector SELECTED_DRIVE_TO_BALANCE;
+            boolean flip;
             if(selectedAuton == 4){
-                SELECTED_DRIVE_TO_BALANCE = driveToBalanceCommunity[startPos];
+                SELECTED_DRIVE_TO_BALANCE = driveToBalanceOutside;
+                flip = true;
             } else {
-                SELECTED_DRIVE_TO_BALANCE = driveToBalanceCommunity[startPos];
+                SELECTED_DRIVE_TO_BALANCE = driveToBalanceCommunity;
+                flip = false;
             }
-            sg.addCommands(new DriveForTime(r, SELECTED_DRIVE_TO_BALANCE, driveToBalanceAngle)
-                .alongWith(new ConditionalCommand(
-                    new WaitCommand(1.0).andThen(new ArmGoHome(r)), 
-                    new WaitCommand(0.0), () -> selectedAuton == 3))
-                .alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
-            sg.addCommands(AutoBalance.getAutoBalanceCommand(r));
+            sg.addCommands(new AngleMotionProfile(r, driveToBalanceAngle));
+            sg.addCommands(new DriveMotionProfile(r, SELECTED_DRIVE_TO_BALANCE, driveToBalanceAngle));
+            sg.addCommands(AutoBalance.getAutoBalanceCommand(r, flip));
         }
         
         return sg;
@@ -153,7 +173,9 @@ public class AutonCommand {
         //move the arm to hi release position
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiRelease));
         //driver backwards and spin gripper backwards
-        sg.addCommands((new DistanceDrive(r, Vector.fromXY(15, 0))).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
+        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
+        //lower arm
+        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
     
         return sg;
     }
@@ -162,9 +184,11 @@ public class AutonCommand {
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         //eject it
-        sg.addCommands(new RunCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed), r.gripper));
+        sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(-0.5), r.gripper).raceWith(new WaitCommand(0.2)));
         //drive backwards
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(15, 0)));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(0.2, 0), 0.9));
+        //lower arm
+        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 
         return sg;
     }

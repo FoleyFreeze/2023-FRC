@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
@@ -35,7 +37,7 @@ import frc.robot.util.Vector;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private RobotContainer r;
+  private RobotContainer r = new RobotContainer();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -45,14 +47,11 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    r = new RobotContainer();
     
     //SmartDashboard.putData("40%",new InstantCommand(()->s.set(0.25)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
     //SmartDashboard.putData("50%",new InstantCommand(()->s.set(0.5)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
     //SmartDashboard.putData("60%",new InstantCommand(()->s.set(0.65)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
   }
-
-  Servo s = new Servo(0);
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -86,8 +85,8 @@ public class Robot extends TimedRobot {
     int autonChooser = r.autonChooser.getSelected();
     int startPos = r.autonStartPosChooser.getSelected();
 
-    /*int simpleStartPos = r.simpleStartPosChooser.getSelected();
-    boolean simpleBalance = r.simpleBalanceChooser.getSelected();*/
+    int simpleStartPos = r.simpleStartPosChooser.getSelected();
+    boolean simpleBalance = r.simpleBalanceChooser.getSelected();
     Alliance team = DriverStation.getAlliance();
 
     /*int startPos = r.startPosChooser.getSelected();
@@ -97,13 +96,14 @@ public class Robot extends TimedRobot {
     int piece = r.pieceChooser.getSelected();*/
 
     //casts everything to a string
-    String value = "" + autonChooser + startPos + team + useSpecialCommand;// + simpleStartPos + simpleBalance +*/ team + startPos + secondPiece + action + path + piece;
+    String value = "" + autonChooser + startPos + team + useSpecialCommand + simpleStartPos + simpleBalance ;//+ team + startPos + secondPiece + action + path + piece;
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
         //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
         //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));
-        r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(120,0)).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
+        //r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(150,0)).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
+        r.autonCommand = new RunCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed), r.gripper).raceWith(new WaitCommand(0.3));
       } else {
         r.autonCommand = AutonCommand.autonCommand(r, team, autonChooser, startPos);
         /*r.autonCommand = AutonBuilder.buildAuton(r, team,
@@ -165,13 +165,17 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {
 
-    //DriveMotionProfile mp = new DriveMotionProfile(r, Vector.fromXY(60,0));
-    AngleMotionProfile mp = new AngleMotionProfile(r, Math.PI);
+    /*
+    r.sensors.resetNavXAng(Math.PI);
+    r.sensors.odo.setBotLocation(Vector.fromXY(261.378, 36.229));
+    DriveMotionProfile mp = new DriveMotionProfile(r, Vector.fromXY(86.000, 34.360));
+    //AngleMotionProfile mp = new AngleMotionProfile(r, Math.PI);
     mp.initialize();
     for(double t=0;t<3;t+=0.02){
       double[] avp = mp.getAVP(t);
       System.out.format("%.2f,%.2f,%.2f,%.2f\n",t,avp[2],avp[1],avp[0]);
     }
+    */
 
     /*Vector startPoint = Vector.fromXY(0, 0);
     AutonPos[] waypoints = {new AutonPos(54, 0, 0), new AutonPos(54, 108, 0)};

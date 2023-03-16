@@ -40,6 +40,8 @@ public class DriveTrain extends SubsystemBase {
             wheels[i].resetPosition(0);
         }
 
+        targetHeading = r.sensors.getNavXAng();
+
         readAbsOffset();
 
         driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", "0, 0, 0, 0").getEntry();
@@ -91,7 +93,7 @@ public class DriveTrain extends SubsystemBase {
                 if(!usePID){
                     z = 0;
                     iAccum = 0;
-                } else if(error > Math.toRadians(8)){
+                } else if(Math.abs(error) > Math.toRadians(8)){
                     //keep i low to prevent oscillation
                     z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
                     z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
@@ -196,7 +198,9 @@ public class DriveTrain extends SubsystemBase {
         return driveVecs;
     }
 
-    public void swerveMP(Vector power){
+    public void swerveMP(Vector power, double targetAngle){
+        targetHeading = targetAngle;
+        power.theta -= r.sensors.odo.botAngle;
         driveSwerve(power, 0);
     }
 

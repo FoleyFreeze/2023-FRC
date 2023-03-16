@@ -26,6 +26,7 @@ import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.subsystems.Inputs.Inputs.ManScoreMode;
 import frc.robot.subsystems.Sensors.SensorCal;
 import frc.robot.subsystems.Sensors.Sensors;
+import frc.robot.subsystems.Sensors.Vision;
 import frc.robot.util.Vector;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -51,6 +52,7 @@ public class RobotContainer {
   public Inputs inputs;
   public Lights lights;
   public Sensors sensors;
+  public Vision vision;
   public DriveTrain driveTrain;
   public Arm arm;
   public Gripper gripper;
@@ -63,9 +65,9 @@ public class RobotContainer {
   public SendableChooser<Integer> autonChooser;
   public SendableChooser<Integer> autonStartPosChooser;
 
-  /*public SendableChooser<Integer> simpleStartPosChooser;
+  public SendableChooser<Integer> simpleStartPosChooser;
   public SendableChooser<Boolean> simpleBalanceChooser;
-  public SendableChooser<Boolean> driveOutOnlyChooser;*/
+  public SendableChooser<Boolean> driveOutOnlyChooser;
 
   /*public SendableChooser<Integer> startPosChooser;
   public SendableChooser<Boolean> secondPieceChooser;
@@ -84,6 +86,8 @@ public class RobotContainer {
     inputs = new Inputs(this, iCal);
     lights = new Lights(this, iCal);
     sensors = new Sensors(this, new SensorCal());
+    vision = new Vision();
+    vision.init();
     driveTrain = new DriveTrain(this, dCal);
     arm = new Arm(this, new ArmCal());
     gripper = new Gripper(this, new GripperCal());
@@ -92,9 +96,9 @@ public class RobotContainer {
     cs.setDefaultCommand(driveTrain, new CmdDrive(this));
 
     specialAutonChooser = new SendableChooser<>();
-    specialAutonChooser.setDefaultOption("No Special Command", 0);
-    specialAutonChooser.addOption("Special Command", 1);
-    SmartDashboard.putData("Special Chooser", specialAutonChooser);
+    specialAutonChooser.setDefaultOption("MP Auton", 0);
+    specialAutonChooser.addOption("Simple Auton", 1);
+    SmartDashboard.putData("Simplicity Chooser", specialAutonChooser);
 
     autonChooser = new SendableChooser<>();
     autonChooser.setDefaultOption("Do Nothing", 0);
@@ -112,17 +116,17 @@ public class RobotContainer {
     autonStartPosChooser.addOption("Far", 3);
     SmartDashboard.putData("Start Position", autonStartPosChooser);
 
-    /*simpleStartPosChooser = new SendableChooser<>();
+    simpleStartPosChooser = new SendableChooser<>();
     simpleStartPosChooser.setDefaultOption("Middle Far", 0);
     simpleStartPosChooser.addOption("Middle Substation", 1);
     simpleStartPosChooser.addOption("Far", 2);
     simpleStartPosChooser.addOption("Substation", 3);
-    SmartDashboard.putData("Start Position", simpleStartPosChooser);
+    SmartDashboard.putData("Simple Start Position", simpleStartPosChooser);
 
     simpleBalanceChooser = new SendableChooser<>();
     simpleBalanceChooser.setDefaultOption("Drive Out", false);
     simpleBalanceChooser.setDefaultOption("Balance", true);
-    SmartDashboard.putData("Balance Or Out", simpleBalanceChooser);*/
+    SmartDashboard.putData("Balance Or Out", simpleBalanceChooser);
 
     //These are technically reversed from what the code is interpreting in inputs for the sake of ease of reading from the driver station
     /*startPosChooser = new SendableChooser<>();
@@ -183,6 +187,7 @@ public class RobotContainer {
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetArm.onTrue(new LearnArmOffset(this).ignoringDisable(false));
+    //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
@@ -211,7 +216,9 @@ public class RobotContainer {
 
     inputs.gather.onTrue(new ConditionalCommand(GatherCommand.shootIntake(this, false), GatherCommand.shootIntake(this, true), inputs.shift));
 
-    Vector armUpVec = Vector.fromDeg(38, 110);
+    SmartDashboard.putData("PI_Toggle",new InstantCommand(vision::togglePi).ignoringDisable(true));
+
+    //Vector armUpVec = Vector.fromDeg(38, 110);
     //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));
     //SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.addVectors(armUpVec, Vector.fromXY(5, 0))));
     //SmartDashboard.putData("ArmGather", new ArmMove(this, Vector.fromDeg(38, 20)));

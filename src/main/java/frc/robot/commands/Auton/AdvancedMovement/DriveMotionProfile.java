@@ -13,10 +13,13 @@ public class DriveMotionProfile extends CommandBase{
     private Vector startLoc;
     private Vector endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
+    boolean DEBUG = true;
+    double targetAngle;
 
-    public DriveMotionProfile(RobotContainer r, Vector endLoc){
+    public DriveMotionProfile(RobotContainer r, Vector endLoc, double targetAngle){
         this.r = r;
         this.endLoc = endLoc;
+        this.targetAngle = targetAngle;
         addRequirements(r.driveTrain);
     }
 
@@ -37,6 +40,8 @@ public class DriveMotionProfile extends CommandBase{
         totalDistance = Vector.subVectors(endLoc, startLoc);
         double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
        
+        System.out.format("DMP Starting at t:%.1f. Start: %s, End: %s\n",Timer.getFPGATimestamp(),startLoc.toString(),endLoc.toString());
+
         if (totalDistance.r >= distThreshold){
             //3 step (Accel - constV - Decel)
             accelDist = distThreshold / 2;
@@ -77,9 +82,9 @@ public class DriveMotionProfile extends CommandBase{
         totalVel.r *= AutonCal.kV;
         Vector power = new Vector(AutonCal.kA * targetAccel, targetVel.theta).add(totalVel);
         power.r += AutonCal.kS;
-        r.driveTrain.swerveMP(power);
+        r.driveTrain.swerveMP(power,targetAngle);
         
-        System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power.r,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
+        if(DEBUG) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power.r,errorMag,targetPos.r,targetVel.r,targetAccel,accelTime,maxVelTime,decelTime);
         
     }
 
@@ -90,6 +95,7 @@ public class DriveMotionProfile extends CommandBase{
 
     public void end(){
         r.driveTrain.driveSwerve(new Vector(0,0), 0);
+        System.out.format("DMP Ending at t:%.1f.\n",Timer.getFPGATimestamp());
     }
 
     //position/velocity/position
@@ -125,5 +131,9 @@ public class DriveMotionProfile extends CommandBase{
         avp[1] = targetVel;
         avp[2] = targetAccel;
         return avp;
+    }
+
+    public double getTime(){
+        return startTime + decelTime;
     }
 }

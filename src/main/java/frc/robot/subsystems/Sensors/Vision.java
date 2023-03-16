@@ -20,13 +20,14 @@ public class Vision extends SubsystemBase {
     private int listener;
     private ByteBuffer poseData;
     public ConcurrentLinkedQueue<VisionDataEntry> visionProduct;
-    public Vision() {
 
+    public Vision() {
+        super();
     }
 
     public ConcurrentLinkedQueue<VisionDataEntry> init() {
         rioTime = NetworkTableInstance.getDefault().getDoubleTopic("/Vision/RIO Time").getEntry(Timer.getFPGATimestamp());
-        active = NetworkTableInstance.getDefault().getBooleanTopic("Active").getEntry(true);
+        active = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Active").getEntry(true);
         poseMsg = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Pose Data Bytes").subscribe("raw", null);
         visionProduct = new ConcurrentLinkedQueue<VisionDataEntry>();
         listener = NetworkTableInstance.getDefault().addListener(poseMsg, 
@@ -58,6 +59,7 @@ public class Vision extends SubsystemBase {
     public void periodic() {
 
         rioTime.set(Timer.getFPGATimestamp());
+        NetworkTableInstance.getDefault().flush();
     
     }
 
@@ -66,6 +68,12 @@ public class Vision extends SubsystemBase {
         // put the state (true or false) into the network table topic that will acivate or deactivate the Pi
         active.set(state);
 
+    }
+
+
+    public void togglePi(){
+        boolean status = active.get();
+        active.set(!status);
     }
     
 }

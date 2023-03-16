@@ -33,17 +33,21 @@ public class Sensors extends SubsystemBase{
         odo = new Odometry(new OdometryCals(), r.dCal.wheelCals);
     }
 
+    private double getRawNavX(){
+        return -Math.toRadians(navX.getFusedHeading());
+    }
+
     public double getNavXAng(){
-        return -Angle.normDeg(navX.getFusedHeading() + navXOffset) / 360.0 * Math.PI * 2;//returns in radians (-pi -> pi)
+        return Angle.normRad(getRawNavX() + navXOffset);
     }
 
     public void resetNavXAng(double ang){
-        navXOffset = ang - navX.getFusedHeading();
         navX.reset();
+        navXOffset = ang - getRawNavX();
         odo.botAngle = ang;
         odo.prevBotAng = ang;
         r.driveTrain.targetHeading = ang;
-        System.out.println("angle has been reset");
+        System.out.println("angle has been reset to " + Math.toDegrees(ang));
     }
 
     public void resetBotAng(){

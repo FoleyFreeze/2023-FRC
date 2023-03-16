@@ -1,5 +1,6 @@
 package frc.robot.commands.Arm;
 
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 import frc.robot.util.Vector;
 
@@ -10,6 +11,11 @@ public class ArmGoHome extends ArmMove{
     }
 
     @Override
+    public void initialize(){
+        System.out.println("ArmGoHome started at time " + Timer.getFPGATimestamp());
+    }
+
+    @Override
     public void execute(){
         r.arm.move(Vector.fromDeg(r.arm.cals.positionHome.r, r.arm.angleMotor.getPosition()));
     }
@@ -17,6 +23,7 @@ public class ArmGoHome extends ArmMove{
     //home position (angle motor only)
     @Override
     public void end(boolean interrupted){
+        System.out.println("ArmGoHome ended at time " + Timer.getFPGATimestamp());
         if(!interrupted){
             r.arm.move(position);
         }

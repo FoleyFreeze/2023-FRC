@@ -10,13 +10,14 @@ public class AutonPos {
     public Vector xy;
     public double value;
 
-    public AutonPos(Vector xy, double theta){
+    public AutonPos(Vector xy, double deg){
         this.xy = xy;
-        this.value = theta;
+        this.value = Math.toRadians(deg);
     }
 
     public AutonPos(double x, double y, double value){
         this.xy = Vector.fromXY(x, y);
+        this.value = Math.toRadians(value);
     }
 
     public AutonPos (AutonPos pos){
@@ -71,6 +72,37 @@ public class AutonPos {
     public static final AutonPos APRIL_BLUE_RIGHT = new AutonPos(0, 0, 0);
 
     public static final AutonPos APRIL_BLUE_SUBSTATION = new AutonPos(0, 0, 0);
+
+
+    //Start Positions
+    public static AutonPos substation = new AutonPos(54.25 + 4, 20.19 + 88.0 - 2, 165);
+    public static AutonPos subMid = new AutonPos(54.25 + 4, 20.19 + 55.0 - 2, 165);
+    public static AutonPos farMid = new AutonPos(54.25 + 4, 20.19 + 44.0 - 2, 165);
+    public static AutonPos far = new AutonPos(54.25 + 4, 20.19 + 11.0 + 2, -165);
+
+    //First Drives
+    public static AutonPos driveSub = new AutonPos(86, 156.61 + 25, 0).offset(12, 0, 0);
+    public static AutonPos driveFar = new AutonPos(86, 59.36 - 25, 0).offset(12, 0, 0);
+
+    //Drive Outs
+    public static AutonPos driveOutSub = new AutonPos(175, 156.61 + 25, 0);
+    public static AutonPos driveOutFar = new AutonPos(230, 59.36 - 25, 0);
+
+    //Drive To Piece
+    public static AutonPos drivePieceSub = new AutonPos(266, 180.2, 0);
+    public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(0, 3, 0);
+
+    //Drive To Score
+    public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180);
+    public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 180).offset(12, 12, 0);
+
+    //Drive To Balance
+    public static AutonPos driveToBalComm = new AutonPos(86, 108, 90);
+    public static AutonPos driveToBalOutside = new AutonPos(230, 108, 90);
+
+    //Arm Offset
+    public static double initArmStendo = 32.5;
+    public static double initArmAngle = -3.9;
 
 
     public static final AutonPos[] SCORING_POSITIONS = {

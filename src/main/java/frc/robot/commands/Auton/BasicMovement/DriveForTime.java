@@ -32,6 +32,7 @@ public class DriveForTime extends CommandBase {
 
     @Override
     public void initialize(){
+        System.out.println("DriveForTime started at time " + Timer.getFPGATimestamp());
         startTime = Timer.getFPGATimestamp();
     }
 
@@ -62,6 +63,7 @@ public class DriveForTime extends CommandBase {
 
     @Override
     public void end(boolean interrupted){
+        System.out.println("DriveForTime ended at time " + Timer.getFPGATimestamp());
         r.driveTrain.driveSwerve(Vector.fromXY(0, 0), 0);
     }
 }

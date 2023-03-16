@@ -131,9 +131,9 @@ public class Vector {
         return r * Math.cos(theta);
     }
 
-    public Vector mirrorX(){
-        double newX = -this.getX();
-        double newY = this.getY();
+    public Vector mirrorY(){
+        double newX = this.getX();
+        double newY = -this.getY();
 
         r = fromXY(newX, newY).r;
         theta = fromXY(newX, newY).theta;

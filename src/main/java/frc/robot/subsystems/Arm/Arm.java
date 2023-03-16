@@ -106,6 +106,15 @@ public class Arm extends SubsystemBase {
         double rad = Math.toRadians(angle + cals.stendoPulleyAngleOffset);
         return cals.stendoPulleyLengthOffset * Math.cos(rad);
     }
+
+    public void learnArmOffset(){
+        double currentAngle = -11;
+        angleMotor.setEncoderPosition(currentAngle);
+
+        stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
+        System.out.println("Reset arm angle/extension");
+        jogOffset = new Vector(0,0);
+    }
     
     double maxArmCurr = 0;
     double maxArmTemp = 0;

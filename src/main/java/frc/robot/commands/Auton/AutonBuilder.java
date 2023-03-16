@@ -19,6 +19,7 @@ public class AutonBuilder {
      * hope it just works the first time and
      * I don't have to debug this too much :()
      */
+    /* 
     public static Command buildAuton(RobotContainer r, Alliance team, int startPosChooser, boolean secondPieceChooser, int actionChooser, int pathChooser, int pieceChooser){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
@@ -75,4 +76,5 @@ public class AutonBuilder {
     static boolean isCube(int scorePos){
         return scorePos == 1 || scorePos == 4 || scorePos == 7;
     }
+    */
 }

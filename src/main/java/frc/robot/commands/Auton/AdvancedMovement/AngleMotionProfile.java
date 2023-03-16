@@ -14,6 +14,8 @@ public class AngleMotionProfile extends CommandBase{
     private double startLoc;
     private double endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
+    boolean DEBUG = true;
+
 
     public AngleMotionProfile(RobotContainer r, double endAngle){
         this.r = r;
@@ -36,11 +38,11 @@ public class AngleMotionProfile extends CommandBase{
 
         startLoc = r.sensors.odo.botAngle;
 
-        System.out.format("Start: %.1f, End: %.1f\n",startLoc,endLoc);
+        System.out.format("AMP Starting at t:%.1f. Start: %.1f, End: %.1f\n",Timer.getFPGATimestamp(),startLoc,endLoc);
         
         double totalAngle = Angle.shortestPath(startLoc, endLoc); 
         totalDistance = totalAngle * r.dCal.wheelCals[0].wheelLocation.r;
-        double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
+        double distThreshold = (AutonCal.AmaxVel * AutonCal.AmaxVel) / AutonCal.AmaxAccel;
 
         if(totalDistance < 0){
             inverted = true;
@@ -52,9 +54,9 @@ public class AngleMotionProfile extends CommandBase{
             accelDist = distThreshold / 2;
             decelDist = distThreshold / 2;
             maxVelDist = totalDistance - distThreshold;
-            accelTime =  Math.sqrt(distThreshold / AutonCal.maxAccel);
+            accelTime =  Math.sqrt(distThreshold / AutonCal.AmaxAccel);
             //System.out.println("" + accelTime);
-            maxVelTime = accelTime + maxVelDist / AutonCal.maxVel;
+            maxVelTime = accelTime + maxVelDist / AutonCal.AmaxVel;
             decelTime = maxVelTime + accelTime;
         } else{
             //2 step (Accel - Decel)
@@ -62,7 +64,7 @@ public class AngleMotionProfile extends CommandBase{
             maxVelDist = 0;
             accelDist = totalDistance / 2;
             decelDist = totalDistance / 2;
-            accelTime =  Math.sqrt(totalDistance / AutonCal.maxAccel);
+            accelTime =  Math.sqrt(totalDistance / AutonCal.AmaxAccel);
             decelTime = 2 * accelTime;
         }
         startTime = Timer.getFPGATimestamp();
@@ -91,14 +93,14 @@ public class AngleMotionProfile extends CommandBase{
         double targetAngle = targetPos / r.dCal.wheelCals[0].wheelLocation.r;
         double dist = (targetAngle - delta) * r.dCal.wheelCals[0].wheelLocation.r;
         double errorMag = dist;
-        dist *= AutonCal.kP_MP;
+        dist *= AutonCal.AkP_MP;
         double totalVel = targetVel + dist;
 
         //output
-        double power = (AutonCal.kA * targetAccel) + (AutonCal.kV * totalVel) + AutonCal.kS;
+        double power = (AutonCal.AkA * targetAccel) + (AutonCal.AkV * totalVel) + AutonCal.AkS;
         r.driveTrain.swerveMPA(power);
         
-        System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
+        if(DEBUG) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
     }
 
     public boolean isFinished(){
@@ -108,6 +110,7 @@ public class AngleMotionProfile extends CommandBase{
 
     public void end(){
         r.driveTrain.driveSwerve(new Vector(0,0), 0);
+        System.out.format("AMP Ending at t:%.1f.\n",Timer.getFPGATimestamp());
     }
 
     //position/velocity/position
@@ -118,18 +121,18 @@ public class AngleMotionProfile extends CommandBase{
         double targetPos;
         if (t < accelTime){ 
             //stage 1
-            targetAccel = AutonCal.maxAccel;
+            targetAccel = AutonCal.AmaxAccel;
             targetPos = 0.5 * targetAccel * t * t;
             targetVel = targetAccel * t;
         } else if (t < maxVelTime) { 
             //stage 2
             targetAccel = 0;
-            targetVel = AutonCal.maxVel;
+            targetVel = AutonCal.AmaxVel;
             targetPos = ((t - accelTime) * targetVel) + accelDist;
         } else if (t < decelTime) { 
             //stage 3
             double t3 = t - decelTime;
-            targetAccel = -AutonCal.maxAccel;
+            targetAccel = -AutonCal.AmaxAccel;
             targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance;
             targetVel = t3 * targetAccel;
         } else { 

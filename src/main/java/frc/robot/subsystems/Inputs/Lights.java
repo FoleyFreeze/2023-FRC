@@ -3,6 +3,7 @@ package frc.robot.subsystems.Inputs;
 import edu.wpi.first.hal.PWMJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,7 +11,7 @@ import frc.robot.RobotContainer;
 
 public class Lights extends SubsystemBase{
 
-    public final boolean disabled = true;
+    public final boolean disabled = false;
     
     RobotContainer r;
     InputCal cal;
@@ -36,7 +37,7 @@ public class Lights extends SubsystemBase{
     @Override
     public void periodic(){
         if(disabled) return;
-        if(r.inputs.alignMode.getAsBoolean()){
+        if(r.inputs.balanceMode.getAsBoolean()){
             if(Timer.getFPGATimestamp() > switchTime){
                 for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
                     int offsetWrapper = (i + offset) % ledBuffer.getLength();
@@ -50,6 +51,11 @@ public class Lights extends SubsystemBase{
                 switchTime = Timer.getFPGATimestamp() + 0.3;
             }
 
+        } else if(r.inputs.parkMode.getAsBoolean()){
+            Color colorSet = new Color(255, 0, 0);
+            for(int i = 0; i < ledBuffer.getLength(); i++){
+                ledBuffer.setLED(i, colorSet);
+            }
         } else{
             switchTime = Timer.getFPGATimestamp();
             Color colorSet;
@@ -59,9 +65,9 @@ public class Lights extends SubsystemBase{
                 colorSet = new Color(255, 50, 0);
             }*/
             if(r.inputs.isCube()){
-                colorSet = new Color(210, 145, 255);
+                colorSet = new Color(255, 0, 255);
             } else {
-                colorSet = new Color(255, 255, 0);
+                colorSet = new Color(255, 100, 0);
             }
             for(int i = 0; i < ledBuffer.getLength(); i++){
                 ledBuffer.setLED(i, colorSet);
