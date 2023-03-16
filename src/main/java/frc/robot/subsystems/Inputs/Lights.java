@@ -49,7 +49,20 @@ public class Lights extends SubsystemBase{
                 }
                 offset++;
                 switchTime = Timer.getFPGATimestamp() + 0.3;
+            }if(r.inputs.alignMode.getAsBoolean()){
+            if(Timer.getFPGATimestamp() > switchTime){
+                for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
+                    int offsetWrapper = (i + offset) % ledBuffer.getLength();
+                    int offsetPlusOne = (i + offset + 1) % ledBuffer.getLength();
+                    int offsetPlusTwo = (i + offset + 2) % ledBuffer.getLength();
+                    ledBuffer.setLED(offsetWrapper, new Color(0, 255, 255));
+                    ledBuffer.setLED(offsetPlusOne, new Color(0, 0, 255));
+                    ledBuffer.setLED(offsetPlusTwo, new Color(255, 255, 255));
+                }
+                offset++;
+                switchTime = Timer.getFPGATimestamp() + 0.3;
             }
+}
 
         } else if(r.inputs.parkMode.getAsBoolean()){
             Color colorSet = new Color(255, 0, 0);
@@ -77,5 +90,27 @@ public class Lights extends SubsystemBase{
         if(led != null){
             led.setData(ledBuffer);
         }
+    }
+
+    public void skittles()
+        {
+            if(Timer.getFPGATimestamp() > switchTime){
+                for(int i = 0; i + 2 < ledBuffer.getLength(); i += 5){
+                    int offsetWrapper = (i + offset) % ledBuffer.getLength();
+                    int offsetPlusOne = (i + offset + 1) % ledBuffer.getLength();
+                    int offsetPlusTwo = (i + offset + 2) % ledBuffer.getLength();
+                    int offsetPlusThree = (i + offset + 3) % ledBuffer.getLength();
+                    int offsetPlusFour = (i + offset + 4) % ledBuffer.getLength();
+                    int offsetPlusFive = (i + offset + 5) % ledBuffer.getLength();
+                    ledBuffer.setLED(offsetWrapper, new Color(255, 0, 0));
+                    ledBuffer.setLED(offsetPlusOne, new Color(255, 165, 0));
+                    ledBuffer.setLED(offsetPlusTwo, new Color(255, 255, 0));
+                    ledBuffer.setLED(offsetPlusThree, new Color(0, 255, 0));
+                    ledBuffer.setLED(offsetPlusFour, new Color(0, 0, 255));
+                    ledBuffer.setLED(offsetPlusFive, new Color(255, 0, 255));
+                }
+                offset++;
+                switchTime = Timer.getFPGATimestamp() + 0.3;
+            }
     }
 }
