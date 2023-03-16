@@ -13,7 +13,7 @@ public class DriveMotionProfile extends CommandBase{
     private Vector startLoc;
     private Vector endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
-    boolean DEBUG = true;
+    boolean DEBUG = false;
     double targetAngle;
 
     public DriveMotionProfile(RobotContainer r, Vector endLoc, double targetAngle){

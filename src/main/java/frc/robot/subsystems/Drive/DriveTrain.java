@@ -73,6 +73,7 @@ public class DriveTrain extends SubsystemBase {
                 if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
+                    targetHeading = r.sensors.odo.botAngle;
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube()){
                     //target score angle for lvl3 cones
                     usePID = true;
@@ -81,6 +82,7 @@ public class DriveTrain extends SubsystemBase {
                     } else {
                         setpoint = Math.toRadians(-195);
                     }
+                    targetHeading = r.sensors.odo.botAngle;
                 }
 
                 //error is between -360 -> 360

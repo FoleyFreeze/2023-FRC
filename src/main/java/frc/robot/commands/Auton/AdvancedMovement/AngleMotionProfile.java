@@ -14,7 +14,7 @@ public class AngleMotionProfile extends CommandBase{
     private double startLoc;
     private double endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
-    boolean DEBUG = true;
+    boolean DEBUG = false;
 
 
     public AngleMotionProfile(RobotContainer r, double endAngle){

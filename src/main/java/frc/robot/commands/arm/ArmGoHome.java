@@ -12,7 +12,7 @@ public class ArmGoHome extends ArmMove{
 
     @Override
     public void initialize(){
-        System.out.println("ArmGoHome started at time " + Timer.getFPGATimestamp());
+        //System.out.println("ArmGoHome started at time " + Timer.getFPGATimestamp());
     }
 
     @Override
