@@ -48,9 +48,6 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     
-    //SmartDashboard.putData("40%",new InstantCommand(()->s.set(0.25)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
-    //SmartDashboard.putData("50%",new InstantCommand(()->s.set(0.5)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
-    //SmartDashboard.putData("60%",new InstantCommand(()->s.set(0.65)).andThen(new WaitCommand(1)).andThen(()->s.setDisabled()));
   }
 
   /**
@@ -100,10 +97,10 @@ public class Robot extends TimedRobot {
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
+        r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
         //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));
-        //r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(150,0)).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
-        r.autonCommand = new RunCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed), r.gripper).raceWith(new WaitCommand(0.3));
+        //r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(60,0),0).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
+        //r.autonCommand = new RunCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed), r.gripper).raceWith(new WaitCommand(0.3));
       } else {
         r.autonCommand = AutonCommand.autonCommand(r, team, autonChooser, startPos);
         /*r.autonCommand = AutonBuilder.buildAuton(r, team,
@@ -122,6 +119,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = r.getAutonomousCommand();
+    r.sensors.initPitchRoll();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -155,6 +153,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    r.sensors.initPitchRoll();
   }
 
   /** This function is called periodically during test mode. */

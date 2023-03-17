@@ -7,6 +7,8 @@ package frc.robot;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Arm.LearnArmOffset;
+import frc.robot.commands.Auton.AutonBuilder;
+import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
@@ -16,6 +18,7 @@ import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.ArmCal;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
+import frc.robot.subsystems.Drive.PreMatchAlign;
 import frc.robot.subsystems.Gripper.Gripper;
 import frc.robot.subsystems.Gripper.GripperCal;
 import frc.robot.subsystems.Inputs.InputCal;
@@ -218,6 +221,10 @@ public class RobotContainer {
     inputs.gather.onTrue(new ConditionalCommand(GatherCommand.shootIntake(this, false), GatherCommand.shootIntake(this, true), inputs.shift));
 
     SmartDashboard.putData("PI_Toggle",new InstantCommand(vision::togglePi).ignoringDisable(true));
+    SmartDashboard.putData("Align Wheels 4 Auto", new PreMatchAlign(this));
+
+    SmartDashboard.putData("Open Gipper", new InstantCommand(() -> gripper.open()));
+    SmartDashboard.putData("Close Gipper", new InstantCommand(() -> gripper.close()));
 
     //Vector armUpVec = Vector.fromDeg(38, 110);
     //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));

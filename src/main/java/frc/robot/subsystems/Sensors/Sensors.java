@@ -30,7 +30,7 @@ public class Sensors extends SubsystemBase{
         this.cal = cal;
 
         navX = new AHRS();
-        odo = new Odometry(new OdometryCals(), r.dCal.wheelCals);
+        odo = new Odometry(new OdometryCals(), r.dCal.wheelCals, r);
     }
 
     private double getRawNavX(){
@@ -76,6 +76,14 @@ public class Sensors extends SubsystemBase{
         }
     }
 
+    public double getPitch(){
+        return navX.getPitch() - pitchOffset;
+    }
+
+    public double getRoll(){
+        return navX.getRoll() - rollOffset;
+    }
+
     public double getAbsPitchRoll(){
         double pitch = navX.getPitch() - pitchOffset;
         double roll = navX.getRoll() - rollOffset;
@@ -109,5 +117,7 @@ public class Sensors extends SubsystemBase{
         SmartDashboard.putNumber("Roll/Pitch", temp);
         if(temp > maxPitchRoll) maxPitchRoll = temp;
         SmartDashboard.putNumber("MaxPitch/Roll", maxPitchRoll);
+        SmartDashboard.putNumber("Pitch", getPitch());
+        SmartDashboard.putNumber("Roll", getRoll());
     }
 }

@@ -22,12 +22,8 @@ import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class AutonCommand {
-    /*TODO:
-    1) Get field-relative positions from the library
-    2) Make all the swaps to motion profile drive
-    2.5) Find a strat for splitting it between rotate and drive
-    3) Test!!!!!11!!!1!!1!!!
-    */ 
+
+    public static double startAngle = 0;
     public static Command autonCommand(RobotContainer r, Alliance alliance, int selectedAuton, int startPos){
         
         System.out.println("Creating MP Auton Command");
@@ -90,6 +86,9 @@ public class AutonCommand {
 
                 driveToPiece[i] = new Vector(driveToPiece[i]).mirrorY();
                 driveToPieceAng[i] = -driveToPieceAng[i];
+
+                driveToScore[i] = new Vector(driveToScore[i]).mirrorY();
+                driveToScoreAng[i] = -driveToScoreAng[i];
             }
             driveToBalanceCommunity = new Vector(driveToBalanceCommunity).mirrorY();
             driveToBalanceOutside = new Vector(driveToBalanceOutside).mirrorY();
@@ -100,6 +99,8 @@ public class AutonCommand {
         sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));
         sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotLocation(startPositions[startPos])));
         sg.addCommands(new InstantCommand(() -> r.sensors.resetNavXAng(startAng[startPos])));
+
+        startAngle = startAng[startPos];
 
         //Do nothing command
         if(selectedAuton == 0) {

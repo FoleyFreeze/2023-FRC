@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Arm;
 
+import java.sql.Driver;
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,6 +36,8 @@ public class Arm extends SubsystemBase {
 
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
     GenericEntry maxArmTempTimeNT = Shuffleboard.getTab("Safety").add("MaxArmTempTime", 0).getEntry();
+
+    GenericEntry maxStendoTempNT = Shuffleboard.getTab("Safety").add("MaxStendoTemp", 0).getEntry();
 
     GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up Down", 0).getEntry();
     GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In Out", 0).getEntry();
@@ -116,34 +120,27 @@ public class Arm extends SubsystemBase {
         jogOffset = new Vector(0,0);
     }
     
-    double maxArmCurr = 0;
     double maxArmTemp = 0;
-    double maxArmTempTime = 0;
+    double maxStendoTemp = 0;
     @Override
     public void periodic(){
 
         if(cals.disabled) return;
         SmartDashboard.putNumber("Pot Value", armPot.getVoltage());
 
-        angleMotor.setBrakeMode(!DriverStation.isDisabled());
+        determineAngleBrake();
+
         if(r.inputs.getFieldMode()){
             angleMotor.setPIDPwrLim(0.75);
         } else {
             angleMotor.setPIDPwrLim(0.25);
         }
 
-        SmartDashboard.putNumber("ArmAngleTemp",angleMotor.getTemp());
-        SmartDashboard.putNumber("ArmStendoTemp",stendoMotor.getTemp());
-        double armCurrent = angleMotor.getCurrent();
-        SmartDashboard.putNumber("ArmCurrent",armCurrent);
-        if(maxArmCurr < armCurrent) maxArmCurr = angleMotor.getCurrent();
-        SmartDashboard.putNumber("MaxArmCurrent", maxArmCurr);
-        if(maxArmTemp < angleMotor.getTemp()) {
-            maxArmTemp = angleMotor.getTemp();
-            maxArmTempTime = Timer.getFPGATimestamp();
-        }
+        if(angleMotor.getTemp() > maxArmTemp) maxArmTemp = angleMotor.getTemp();
+        if(stendoMotor.getTemp() > maxStendoTemp) maxStendoTemp = stendoMotor.getTemp();
+
         maxArmTempNT.setDouble(maxArmTemp);
-        maxArmTempTimeNT.setDouble(maxArmTempTime);
+        maxStendoTempNT.setDouble(maxStendoTemp);
         
         jogUpDownNT.setDouble(Angle.toDeg(jogOffset.theta));
         jogInOutNT.setDouble(jogOffset.r);
@@ -183,7 +180,6 @@ public class Arm extends SubsystemBase {
 
             //stendo power to none and pulls arm into new position
             angleMotor.setPosition(angleSetpoint);
-            SmartDashboard.putNumber("Arm Setpoint", angleSetpoint);
             if(isAngleOnly){
                 //stendoMotor.setPower(0);
                 stendoCurrentTime = 0;
@@ -191,6 +187,19 @@ public class Arm extends SubsystemBase {
                 stendoMotor.setPosition(lengthSetpoint);
                 determineStendoReset(lengthSetpoint);
             }
+        }
+    }
+
+    
+    boolean ranAutoAtLeastOnce = false;
+    private void determineAngleBrake(){
+        if(!ranAutoAtLeastOnce && DriverStation.isAutonomous() && DriverStation.isEnabled()){
+            ranAutoAtLeastOnce = true;
+        }
+        if(ranAutoAtLeastOnce && DriverStation.isFMSAttached()){
+            angleMotor.setBrakeMode(true);
+        } else {
+            angleMotor.setBrakeMode(!DriverStation.isDisabled());
         }
     }
 

@@ -4,7 +4,9 @@ import edu.wpi.first.hal.PWMJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -19,6 +21,8 @@ public class Lights extends SubsystemBase{
     AddressableLED led;
 
     AddressableLEDBuffer ledBuffer;
+    PowerDistribution pdh;
+    boolean switchableChannel = true;
 
     public Lights(RobotContainer r, InputCal cal){
         this.r = r;
@@ -30,6 +34,15 @@ public class Lights extends SubsystemBase{
 
         led.setLength(ledBuffer.getLength());
         led.start();
+
+        pdh = new PowerDistribution(1, ModuleType.kRev);
+    }
+
+    public void underglow(boolean on){
+        if(on != switchableChannel){
+            pdh.setSwitchableChannel(on);
+            switchableChannel = on;
+        }
     }
 
     int offset = 0;
@@ -37,6 +50,9 @@ public class Lights extends SubsystemBase{
     @Override
     public void periodic(){
         if(disabled) return;
+
+        underglow(DriverStation.isFMSAttached() || DriverStation.isEnabled());
+        
         if(r.inputs.balanceMode.getAsBoolean()){
             if(Timer.getFPGATimestamp() > switchTime){
                 for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){

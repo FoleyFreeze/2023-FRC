@@ -3,8 +3,6 @@ package frc.robot.subsystems.Drive;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -109,6 +107,20 @@ public class Wheel {
             driveMotor.setPower(outputPower);
         }
         
+    }
+
+    public void driveAngleOnly(double angle){
+        double rawRelEnc = swerveMotor.getPosition();
+        double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
+
+        //Make sure we go the shortest way
+        double delta = (driveVec.theta - currAng) % (2 * Math.PI);
+        if(delta < 0) delta += 2*Math.PI;
+        //delta is now between 0-2pi
+
+        double targetRelEnc = rawRelEnc + (delta / 2.0 / Math.PI * cal.swerveRotationsPerRev);
+
+        swerveMotor.setPosition(targetRelEnc);
     }
 
     //returns drive wheel's distance in inches

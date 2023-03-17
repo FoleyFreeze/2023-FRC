@@ -22,7 +22,7 @@ public class LearnArmOffset extends CommandBase{
     public void initialize(){
         startTime = Timer.getFPGATimestamp();
         //get the arm position from a pot
-        currentAngle = Math.toDegrees((r.arm.armPot.getVoltage() - r.arm.cals.armPotOffset) * r.arm.cals.armPotSlope);
+        currentAngle = Math.toDegrees((r.arm.armPot.getVoltage() - r.arm.cals.armPotOffset) * r.arm.cals.armPotSlope) -11;
         r.arm.angleMotor.setEncoderPosition(currentAngle);
         //angleMotor.setEncoderPosition(-11);
 
@@ -35,7 +35,6 @@ public class LearnArmOffset extends CommandBase{
         //the stendo should reset to a mid-ish position, 
         //but then on retraction it should hit the stop and relearn
         //stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
-        SmartDashboard.putNumber("Stendo Current", r.arm.stendoMotor.getCurrent());
         r.arm.stendoMotor.setPower(-0.3);
         r.arm.moveArmOnly(Vector.fromDeg(0, currentAngle));
     }

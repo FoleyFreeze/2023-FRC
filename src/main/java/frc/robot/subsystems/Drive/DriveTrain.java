@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Drive;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -66,7 +67,7 @@ public class DriveTrain extends SubsystemBase {
                 lastRotateTime = Timer.getFPGATimestamp();
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
-            } else if(Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
+            } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
@@ -74,7 +75,7 @@ public class DriveTrain extends SubsystemBase {
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                     targetHeading = r.sensors.odo.botAngle;
-                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube()){
+                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
                     if(r.inputs.fieldAlignRight.getAsBoolean()){
@@ -82,6 +83,10 @@ public class DriveTrain extends SubsystemBase {
                     } else {
                         setpoint = Math.toRadians(-195);
                     }
+                    targetHeading = r.sensors.odo.botAngle;
+                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
+                    usePID = true;
+                    setpoint = Math.toRadians(180);
                     targetHeading = r.sensors.odo.botAngle;
                 }
 
@@ -147,6 +152,12 @@ public class DriveTrain extends SubsystemBase {
             } else {
                 w.driveMotor.setBrakeMode(false);
             }
+        }
+    }
+
+    public void driveAngleOnly(double angle){
+        for(Wheel w : wheels){
+            w.driveAngleOnly(angle);
         }
     }
 
@@ -280,7 +291,10 @@ public class DriveTrain extends SubsystemBase {
         driveTempNT.setString(driveTemps);
         swerveTempNT.setString(swerveTemps);
 
-        SmartDashboard.putNumber("FL Wheel Abs", wheels[1].absEncoder.getVoltage());
+        for(Wheel w : wheels){
+            SmartDashboard.putNumber(w.cal.name + " Abs", w.absEncoder.getVoltage());
+        }
+        
     }
 
     public void resetWheelReads(){

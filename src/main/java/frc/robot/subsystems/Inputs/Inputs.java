@@ -120,11 +120,12 @@ public class Inputs extends SubsystemBase{
 
     public Trigger fieldAlignRight = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(controller != null){
+            /*if(controller != null){
                 return controller.getRawButton(cal.ALIGN_RIGHT[controllerType.ordinal()]);
             } else {
                 return false;
-            }
+            }*/
+            return selectedPosition == Position.LEFT;
         }
     });
 

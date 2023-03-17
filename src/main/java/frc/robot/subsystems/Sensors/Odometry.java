@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
@@ -19,9 +20,12 @@ public class Odometry implements AutoCloseable {
     public Vector botLocation;
     public double botAngle;
 
-    public Odometry(OdometryCals cals, WheelCal[] wCal){
+    RobotContainer r;
+
+    public Odometry(OdometryCals cals, WheelCal[] wCal, RobotContainer r){
         this.cals = cals;
         this.wCal = wCal;
+        this.r = r;
 
         setBotLocation(Vector.fromXY(0, 0));
         botAngle = 0;
@@ -97,7 +101,7 @@ public class Odometry implements AutoCloseable {
 
         double[] bestValues;
         try{
-            bestValues = formulateBestValuesMatrix(realVecs, wheelLocations);
+            bestValues = formulateBestValuesMatrix(realVecs, wheelLocations, r.sensors.getPitch(), r.sensors.getRoll());
         } catch(Exception e){
             if(Timer.getFPGATimestamp() - timeOfError > 5){
                 timeOfError = Timer.getFPGATimestamp();
@@ -129,9 +133,9 @@ public class Odometry implements AutoCloseable {
         totalYError += yError;
         totalAngError += angError;
         totalStDevCor += bestValues[6];
-        SmartDashboard.putNumber("+/- x-position", totalXError);
-        SmartDashboard.putNumber("+/- y-position", totalYError);
-        SmartDashboard.putNumber("+/- angle", totalAngError);
+        //SmartDashboard.putNumber("+/- x-position", totalXError);
+        //SmartDashboard.putNumber("+/- y-position", totalYError);
+        //SmartDashboard.putNumber("+/- angle", totalAngError);
 
         //Set the global pos & ang values
         bestStrafe.theta += botAngle;//Convert to field relative
@@ -150,7 +154,7 @@ public class Odometry implements AutoCloseable {
     }
 
     //Returns r, theta, angle, x error, y error, angle error
-    public static double[] formulateBestValuesMatrix(Vector[] realVecs, Vector[] wheelLocations){
+    public static double[] formulateBestValuesMatrix(Vector[] realVecs, Vector[] wheelLocations, double pitch, double roll){
         Vector[] normalVecs = new Vector[realVecs.length];
         double normalVecMean = 0;
         boolean thetaCheck = true;
@@ -235,13 +239,26 @@ public class Odometry implements AutoCloseable {
 
         boolean[] badValues = {false, false, false, false};//true means it's bad
 
-        double bestStrafeDiff = Double.POSITIVE_INFINITY;
+        //double bestStrafeDiff = Double.POSITIVE_INFINITY;
         int[] bestStrafePos = new int[2];
-        double bestAngleDiff = Double.POSITIVE_INFINITY;
-        int[] bestAngPos = new int[2];
+        //double bestAngleDiff = Double.POSITIVE_INFINITY;
+        //int[] bestAngPos = new int[2];
 
         //Find the best values we have
-        for(int i = 0; i < strafes.length; i++){
+        if(Math.abs(pitch) > Math.abs(roll)){
+            if(pitch > 0){
+                bestStrafePos = new int[]{2, 3};
+            } else {
+                bestStrafePos = new int[]{0, 1};
+            }
+        } else {
+            if(roll > 0){
+                bestStrafePos = new int[]{1, 2};
+            } else {
+                bestStrafePos = new int[]{0, 3};
+            }
+        }
+        /*for(int i = 0; i < strafes.length; i++){
             for(int compareIdx = 1; compareIdx < strafes.length-1; compareIdx++){
                 int idxWrapper = (i + compareIdx) % strafes.length;
                 if(Math.abs(Vector.subVectors(strafes[i], strafes[idxWrapper]).r) < bestStrafeDiff){
@@ -255,10 +272,10 @@ public class Odometry implements AutoCloseable {
                     bestAngPos[1] = idxWrapper;
                 }
             }
-        }
+        }*/
 
         Vector bestStrafeVal = Vector.averageVectors(strafes[bestStrafePos[0]], strafes[bestStrafePos[1]]);
-        double bestAngVal = (strafes[bestStrafePos[0]].r + strafes[bestStrafePos[1]].r) / 2;
+        //double bestAngVal = (strafes[bestStrafePos[0]].r + strafes[bestStrafePos[1]].r) / 2;
         //remove the bad wheels and their no-good values
         
         for(int i = 0; i < strafes.length; i++){
@@ -266,10 +283,10 @@ public class Odometry implements AutoCloseable {
                Math.abs(Vector.subVectors(strafes[i], bestStrafeVal).r) > strafeStDev * OdometryCals.maxStandardDeviationsStrafeCOR){
                 badValues[i] = true;
             }
-            if(Math.abs(angleStDev) > 0.01 && i != bestAngPos[0] && i != bestAngPos[1] &&
+            /*if(Math.abs(angleStDev) > 0.01 && i != bestAngPos[0] && i != bestAngPos[1] &&
                Math.abs(strafes[i].r - bestAngVal) > angleStDev * OdometryCals.maxStandardDeviationsAngleCOR){
                 badValues[i] = true;
-            }
+            }*/
         }
 
         double highestStrafeX = Double.NEGATIVE_INFINITY;

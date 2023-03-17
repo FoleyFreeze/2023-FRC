@@ -26,6 +26,8 @@ public class Gripper extends SubsystemBase{
     GenericEntry lGripTempNT = Shuffleboard.getTab("Safety").add("lGrip Temp", 0).getEntry();
     GenericEntry rGripTempNT = Shuffleboard.getTab("Safety").add("rGrip Temp", 0).getEntry();
 
+    GenericEntry maxGripCurrNT = Shuffleboard.getTab("Safety").add("Grip Curr", 0).getEntry();
+
     public Gripper (RobotContainer r, GripperCal cals){
         this.r = r;
         this.cals = cals;
@@ -86,12 +88,9 @@ public class Gripper extends SubsystemBase{
         if(getIntakeCurrent() > maxGripperCurrent){
             maxGripperCurrent = getIntakeCurrent();
         }
-        SmartDashboard.putNumber("MaxGripCurr", maxGripperCurrent);
+        maxGripCurrNT.setDouble(maxGripperCurrent);
 
         lGripTempNT.setDouble(lGrip.getTemp());
         rGripTempNT.setDouble(rGrip.getTemp());
-
-        SmartDashboard.putNumber("LG_Current", lGrip.getCurrent());
-        SmartDashboard.putNumber("RG_Current", rGrip.getCurrent());
     }
 }
