@@ -139,7 +139,8 @@ public class AutonCommand {
             //sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos]));
             DriveMotionProfile dmp = new DriveMotionProfile(r, driveToScore[startPos], driveToScoreAng[startPos]);
             sg.addCommands(dmp.alongWith(new NegativeWait(1.5, dmp).andThen(new ArmMove(r, r.arm.cals.positionCubeHi))));
-            sg.addCommands(scoreOnlyCube(r));
+            return sg;//TODO: Re-enable
+            //sg.addCommands(scoreOnlyCube(r));
         }
 
         //Balance
@@ -184,7 +185,7 @@ public class AutonCommand {
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         //eject it
-        sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(-0.5), r.gripper).raceWith(new WaitCommand(0.2)));
+        sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
         //drive backwards
         sg.addCommands(new DriveForTime(r, Vector.fromXY(0.2, 0), 0.9));
         //lower arm

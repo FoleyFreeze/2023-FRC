@@ -93,8 +93,10 @@ public class AutonPos {
     public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(0, 3, 0);
 
     //Drive To Score
-    public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180).offset(12, 12, 0);
-    public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 180).offset(12, 12, 0);
+    //public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180).offset(12, 12, 0);
+    public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, -170).offset(12, 12+8, 0);
+    //public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 180).offset(12, 12, 0);
+    public static AutonPos driveScoreFar = new AutonPos(200.0, 42.19, 180).offset(12, 12-12, 0);
 
     //Drive To Balance
     public static AutonPos driveToBalComm = new AutonPos(86, 108, 90);

@@ -23,7 +23,7 @@ public class GatherCommand {
         if(inward){
             intakePwr = - intakePwr;
         }
-        return new RunCommand(() -> r.gripper.setIntakePower(-0.5), r.gripper)
+        return new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper)
                             .raceWith(new WaitCommand(0.6))
                             .andThen(new InstantCommand(() -> r.gripper.setIntakePower(0), r.gripper));
     }
