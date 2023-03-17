@@ -125,7 +125,7 @@ public class AutonCommand {
         }
         
         //Piece Gather
-        if(selectedAuton == 4 || selectedAuton == 5){
+        if(selectedAuton == 4 || selectedAuton == 5 || selectedAuton == 6){
             //sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos]));
             sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos], driveOutOneAng[startPos])
                 .raceWith(GatherCommand.gatherCommand(r)));
@@ -133,7 +133,7 @@ public class AutonCommand {
         }
 
         //Score #2
-        if(selectedAuton == 5){
+        if(selectedAuton == 5 || selectedAuton == 6){
              
             sg.addCommands(new AngleMotionProfile(r, driveToScoreAng[startPos]));
             //sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos]));
@@ -143,7 +143,7 @@ public class AutonCommand {
         }
 
         //Balance
-        if(selectedAuton >= 3){
+        if(selectedAuton >= 3 && selectedAuton != 5){
             final Vector SELECTED_DRIVE_TO_BALANCE;
             boolean flip;
             if(selectedAuton == 4){

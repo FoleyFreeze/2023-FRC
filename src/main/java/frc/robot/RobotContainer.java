@@ -106,7 +106,8 @@ public class RobotContainer {
     autonChooser.addOption("Score and Drive Out", 2);
     autonChooser.addOption("Score and Balance", 3);
     autonChooser.addOption("Score, Pickup, Balance", 4);
-    autonChooser.addOption("Two-Score and Balance", 5);
+    autonChooser.addOption("Two-Score", 5);
+    autonChooser.addOption("Two-Score and Balance", 6);
     SmartDashboard.putData("Auton", autonChooser);
 
     autonStartPosChooser = new SendableChooser<>();
