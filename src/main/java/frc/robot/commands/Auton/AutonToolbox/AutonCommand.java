@@ -101,6 +101,7 @@ public class AutonCommand {
         sg.addCommands(new InstantCommand(() -> r.sensors.resetNavXAng(startAng[startPos])));
 
         startAngle = startAng[startPos];
+        System.out.println("start angle: " + startAngle);
 
         //Do nothing command
         if(selectedAuton == 0) {
@@ -140,8 +141,7 @@ public class AutonCommand {
             //sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos]));
             DriveMotionProfile dmp = new DriveMotionProfile(r, driveToScore[startPos], driveToScoreAng[startPos]);
             sg.addCommands(dmp.alongWith(new NegativeWait(1.5, dmp).andThen(new ArmMove(r, r.arm.cals.positionCubeHi))));
-            return sg;//TODO: Re-enable
-            //sg.addCommands(scoreOnlyCube(r));
+            sg.addCommands(scoreOnlyCube(r));
         }
 
         //Balance
@@ -172,6 +172,8 @@ public class AutonCommand {
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiAngle));
         //move angle and stendo to hi hold
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiHold));
+        //wait
+        sg.addCommands(new WaitCommand(0.2));
         //move the arm to hi release position
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiRelease));
         //driver backwards and spin gripper backwards
@@ -188,7 +190,7 @@ public class AutonCommand {
         //eject it
         sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
         //drive backwards
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(0.2, 0), 0.9));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(0.25, 0), 0.7));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 

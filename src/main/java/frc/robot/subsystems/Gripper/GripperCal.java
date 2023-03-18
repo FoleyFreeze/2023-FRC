@@ -15,7 +15,7 @@ public class GripperCal{
     public double servoClosePos = 0.32;//This is the minimum we should ever go
 
     public double cubePickUpPower = 0.5;
-    public double cubeHoldPower = 0.07;
+    public double pieceHoldPower = 0.07;
     public double cubePickUpSpeed = 2000;
 
     public double cubeScoreSpeed = -4000;

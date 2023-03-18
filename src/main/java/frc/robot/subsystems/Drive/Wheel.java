@@ -3,6 +3,7 @@ package frc.robot.subsystems.Drive;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
@@ -118,7 +119,14 @@ public class Wheel {
         if(delta < 0) delta += 2*Math.PI;
         //delta is now between 0-2pi
 
+        if(delta > Math.PI){
+            delta -= 2*Math.PI;
+        }
+        //delta is now between -pi-pi
+        System.out.println("delta: " + delta);
+
         double targetRelEnc = rawRelEnc + (delta / 2.0 / Math.PI * cal.swerveRotationsPerRev);
+        SmartDashboard.putNumber("Tgt Angle Enc", targetRelEnc);
 
         swerveMotor.setPosition(targetRelEnc);
     }

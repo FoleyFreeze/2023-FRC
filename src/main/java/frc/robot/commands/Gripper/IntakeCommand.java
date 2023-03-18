@@ -35,15 +35,10 @@ public class IntakeCommand extends CommandBase{
         
     }
 
-    //intake power to 0
+    //intake power to low
     @Override
     public void end(boolean interrupted){
-        if(!r.inputs.isCube()){
-            r.gripper.setIntakePower(0);
-        } else {
-            r.gripper.setIntakePower(r.gripper.cals.cubeHoldPower);
-        }
-
+        r.gripper.setIntakePower(r.gripper.cals.pieceHoldPower);
     }
 
     double stopTime = Double.POSITIVE_INFINITY;

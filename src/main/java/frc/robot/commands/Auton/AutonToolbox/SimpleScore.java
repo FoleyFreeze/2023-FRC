@@ -57,7 +57,8 @@ public class SimpleScore extends CommandBase{
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiAngle));
         //move angle and stendo to hi hold
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiHold));
-        sg.addCommands(new WaitCommand(0.1));
+        //wait
+        sg.addCommands(new WaitCommand(0.2));
         //move the arm to hi release position
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiRelease));
         //driver backwards and spin gripper backwards

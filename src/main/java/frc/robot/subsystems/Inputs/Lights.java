@@ -51,7 +51,7 @@ public class Lights extends SubsystemBase{
     public void periodic(){
         if(disabled) return;
 
-        underglow(DriverStation.isFMSAttached() || DriverStation.isEnabled());
+        underglow((DriverStation.isFMSAttached() || DriverStation.isEnabled()) && r.inputs.getFieldMode());
         
         if(r.inputs.balanceMode.getAsBoolean()){
             if(Timer.getFPGATimestamp() > switchTime){
