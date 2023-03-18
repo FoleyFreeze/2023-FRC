@@ -28,7 +28,7 @@ public class AutonPos {
     public AutonPos offset(double xOffset, double yOffset, double thetaOffset){
         xy.add(Vector.fromXY(xOffset, 0));
         xy.add(Vector.fromXY(0, yOffset));
-        value += thetaOffset;
+        value += Math.toRadians(thetaOffset);
 
         return this;
     }
@@ -94,7 +94,7 @@ public class AutonPos {
 
     //Drive To Score
     //public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180).offset(12, 12, 0);
-    public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, -170).offset(-3, 6, 3);
+    public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, -167).offset(-3, 6, 0);
     //public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 180).offset(12, 12, 0);
     public static AutonPos driveScoreFar = new AutonPos(200.0, 42.19, 180).offset(12, 12-12, 0);
 

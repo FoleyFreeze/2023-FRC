@@ -278,8 +278,17 @@ public class DriveTrain extends SubsystemBase {
         return wheelVectors;
     }
 
+    boolean prevFieldTele = false;
     public void periodic(){
         if(cals.disabled) return;
+
+        if(prevFieldTele && DriverStation.isDisabled()){
+            for(Wheel w : wheels){
+                w.driveMotor.setBrakeMode(true);
+            }
+        }
+        prevFieldTele = DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled();
+        
 
         String driveTemps = "";
         String swerveTemps = "";
