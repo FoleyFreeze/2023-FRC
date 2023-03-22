@@ -1,5 +1,9 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
 public class Vector {
 
     public double r;
@@ -30,6 +34,10 @@ public class Vector {
 
     public static Vector fromDeg(double r, double degrees){
         return new Vector(r, Math.toRadians(degrees));
+    }
+
+    public static Vector fromTranslation3d(Translation3d translation){
+        return Vector.fromXY(Units.metersToInches(translation.getZ()), Units.metersToInches(-translation.getX()));
     }
 
     public static Vector addVectors(Vector v1, Vector v2){

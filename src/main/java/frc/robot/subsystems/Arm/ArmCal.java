@@ -13,7 +13,7 @@ public class ArmCal {
     public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(25).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
-    public double armPotOffset = 0.722;// in volts
+    public double armPotOffset = 0.968;// in volts
     public double armPotSlope = 1.121; // in radians per volt
 
     //stendo angle offset
@@ -42,7 +42,7 @@ public class ArmCal {
     public double stendoResetCurrentTime = 0; //time current must be high for
 
     //common arm positions
-    public Vector positionHome = Vector.fromDeg(30.65, 0);//(30.65, -5);
+    public Vector positionHome = Vector.fromDeg(30.65, -2);//(30.65, -5);
     
     //public Vector positionPreGather = Vector.fromDeg(0, 0);
     public Vector positionGatherShelf = Vector.fromDeg(33, 92.6);

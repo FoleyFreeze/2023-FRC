@@ -1,6 +1,10 @@
 package frc.robot.subsystems.Inputs;
 
 import edu.wpi.first.hal.PWMJNI;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,6 +32,9 @@ public class Lights extends SubsystemBase{
         this.r = r;
         this.cal = cal;
         if(disabled) return;
+
+        initOutputLed();
+        ledOutEnable(true);
 
         led = new AddressableLED(cal.LED_PORT);
         ledBuffer = new AddressableLEDBuffer(cal.BUFFER_LENGTH);
@@ -128,5 +135,29 @@ public class Lights extends SubsystemBase{
                 offset++;
                 switchTime = Timer.getFPGATimestamp() + 0.3;
             }
+    }
+
+    BooleanPublisher ledEnable;
+    IntegerPublisher ledValue;
+    int localLedValue = 0;
+    public void initOutputLed(){
+        NetworkTableInstance nt = NetworkTableInstance.getDefault();
+        NetworkTable table = nt.getTable("ControlBoard");
+        ledEnable = table.getBooleanTopic("LED_Enable").publish();
+        ledValue = table.getIntegerTopic("LED_Output").publish();
+    }
+
+    public void ledOutEnable(boolean b){
+        ledEnable.set(b);
+    }
+
+    public void ledOutputSet(int value, boolean on){
+        int v = 1 << value;
+        if(on){
+            localLedValue |= v;
+        } else {
+            localLedValue &= ~v;
+        }
+        ledValue.set(localLedValue);
     }
 }

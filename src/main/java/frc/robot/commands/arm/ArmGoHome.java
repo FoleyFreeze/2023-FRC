@@ -23,7 +23,7 @@ public class ArmGoHome extends ArmMove{
     //home position (angle motor only)
     @Override
     public void end(boolean interrupted){
-        System.out.println("ArmGoHome ended at time " + Timer.getFPGATimestamp());
+        //System.out.println("ArmGoHome ended at time " + Timer.getFPGATimestamp());
         if(!interrupted){
             r.arm.move(position);
         }

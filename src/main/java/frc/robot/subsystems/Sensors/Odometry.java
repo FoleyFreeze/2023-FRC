@@ -10,6 +10,7 @@ import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.subsystems.Drive.DriveCal.WheelCal;
 import frc.robot.util.Angle;
+import frc.robot.util.LimitedStack;
 import frc.robot.util.Vector;
 
 public class Odometry implements AutoCloseable {
@@ -22,11 +23,44 @@ public class Odometry implements AutoCloseable {
 
     RobotContainer r;
 
+    public class OldLocation{
+        double time;
+        Vector space;
+        double angle;
+    }
+
+    public OldLocation getOldRobotLocation(double time){
+        OldLocation prevLoc = oldLocations.peek();
+        OldLocation currLoc = prevLoc;
+        for(OldLocation loc: oldLocations){
+            currLoc = loc;
+            if(loc.time < time){
+                break;
+            }
+            prevLoc = currLoc;
+        }
+
+        double x = (time - prevLoc.time) / (currLoc.time - prevLoc.time);
+        
+        OldLocation newLocation = new OldLocation();
+        newLocation.time = time;
+        double angleDiff = currLoc.angle - prevLoc.angle;
+        newLocation.angle = x * angleDiff + prevLoc.angle;
+        Vector vecDiff = Vector.subVectors(currLoc.space, prevLoc.space);
+        vecDiff.r *= x;
+        vecDiff.add(prevLoc.space);
+        newLocation.space = vecDiff;
+        
+        return newLocation;
+    }
+    LimitedStack<OldLocation> oldLocations;
+
     public Odometry(OdometryCals cals, WheelCal[] wCal, RobotContainer r){
         this.cals = cals;
         this.wCal = wCal;
         this.r = r;
 
+        oldLocations = new LimitedStack<>(26);
         setBotLocation(Vector.fromXY(0, 0));
         botAngle = 0;
     }
@@ -151,6 +185,11 @@ public class Odometry implements AutoCloseable {
         odoAngle %= 2*Math.PI;
         SmartDashboard.putNumber("OdoAngle", Math.toDegrees(odoAngle));
 
+        OldLocation o = new OldLocation();
+        o.time = Timer.getFPGATimestamp();
+        o.space = new Vector(botLocation);
+        o.angle = botAngle;
+        oldLocations.push(o);
     }
 
     //Returns r, theta, angle, x error, y error, angle error

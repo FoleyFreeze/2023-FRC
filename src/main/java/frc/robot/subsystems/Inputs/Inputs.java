@@ -588,10 +588,12 @@ public class Inputs extends SubsystemBase{
         SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
             if(prevButton > 0){
-                cBoard.setOutput(prevButton, false);
+                //cBoard.setOutput(prevButton, false);
+                r.lights.ledOutputSet(prevButton, false);
             }
             prevButton = buttonAssignment;
-            cBoard.setOutput(buttonAssignment, true);
+            //cBoard.setOutput(buttonAssignment, true);
+            r.lights.ledOutputSet(buttonAssignment, true);
 
             //level logic
             if(buttonAssignment <= 9){

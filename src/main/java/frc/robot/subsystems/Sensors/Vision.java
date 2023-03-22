@@ -1,35 +1,45 @@
 package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.RawSubscriber;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.util.LimitedStack;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Vision extends SubsystemBase {
+
+    RobotContainer r;
+
+    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
+
     private BooleanEntry active;
     private DoubleEntry rioTime;
     private RawSubscriber poseMsg;
     private int listener;
     private ByteBuffer poseData;
-    public ConcurrentLinkedQueue<VisionDataEntry> visionProduct;
+    public LimitedStack<VisionDataEntry> visionProduct;
+    
 
-    public Vision() {
+    public Vision(RobotContainer r) {
         super();
+        this.r = r;
     }
 
-    public ConcurrentLinkedQueue<VisionDataEntry> init() {
+    public LimitedStack<VisionDataEntry> init() {
         rioTime = NetworkTableInstance.getDefault().getDoubleTopic("/Vision/RIO Time").getEntry(Timer.getFPGATimestamp());
         active = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Active").getEntry(true);
         poseMsg = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Pose Data Bytes").subscribe("raw", null);
-        visionProduct = new ConcurrentLinkedQueue<VisionDataEntry>();
+        visionProduct = new LimitedStack<VisionDataEntry>(5);
         listener = NetworkTableInstance.getDefault().addListener(poseMsg, 
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
             event -> {
@@ -49,7 +59,7 @@ public class Vision extends SubsystemBase {
                             poseData.getFloat(b+13), poseData.getFloat(b+17), poseData.getFloat(b+21));
                         e.listFin.add(visionData);
                     }
-                    visionProduct.add(e);
+                    visionProduct.push(e);
                 }
 
             });
@@ -74,6 +84,45 @@ public class Vision extends SubsystemBase {
     public void togglePi(){
         boolean status = active.get();
         active.set(!status);
+    }
+
+    public frc.robot.util.Vector getImageVector(){
+        //if image doesnt exists
+        if(visionProduct.isEmpty()) return null;
+
+        //if image is too old
+        VisionDataEntry entry = visionProduct.pop();
+        while(!visionProduct.isEmpty()){
+            visionProduct.pop();
+        }
+
+        if(Timer.getFPGATimestamp() - entry.timestamp > 0.5) return null;
+
+        Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(entry.timestamp);
+
+        double minDist = 99999;
+        VisionData bestData = null;
+        for(VisionData d : entry.listFin){
+            double dist = getHyp(d.pose.getTranslation());
+            if(dist < minDist){
+                minDist = dist;
+                bestData = d;
+            }
+        }
+        SmartDashboard.putNumber("Min Vis Dist", minDist);
+        SmartDashboard.putString("Best Data", bestData.pose.toString());
+
+        frc.robot.util.Vector cam = frc.robot.util.Vector.fromTranslation3d(bestData.pose.getTranslation());
+        cam.add(camLocation);
+        cam.theta += oldLoc.angle;
+
+        return cam;
+    }
+
+    public double getHyp(Translation3d translation){
+        return Math.sqrt(translation.getX() * translation.getX() + 
+                         translation.getY() * translation.getY() + 
+                         translation.getZ() * translation.getZ());
     }
     
 }

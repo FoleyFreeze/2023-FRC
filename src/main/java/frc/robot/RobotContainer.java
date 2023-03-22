@@ -89,7 +89,7 @@ public class RobotContainer {
     inputs = new Inputs(this, iCal);
     lights = new Lights(this, iCal);
     sensors = new Sensors(this, new SensorCal());
-    vision = new Vision();
+    vision = new Vision(this);
     vision.init();
     driveTrain = new DriveTrain(this, dCal);
     arm = new Arm(this, new ArmCal());
