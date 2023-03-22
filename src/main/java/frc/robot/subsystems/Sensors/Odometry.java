@@ -40,13 +40,19 @@ public class Odometry implements AutoCloseable {
             prevLoc = currLoc;
         }
 
+        //protect for <20ms latency
+        if(prevLoc == currLoc) return currLoc;
+        
         double x = (time - prevLoc.time) / (currLoc.time - prevLoc.time);
+
+        //SmartDashboard.putNumber("AT_x",x);
         
         OldLocation newLocation = new OldLocation();
         newLocation.time = time;
         double angleDiff = currLoc.angle - prevLoc.angle;
         newLocation.angle = x * angleDiff + prevLoc.angle;
         Vector vecDiff = Vector.subVectors(currLoc.space, prevLoc.space);
+        //SmartDashboard.putString("AT_VectorDiff",vecDiff.toString());
         vecDiff.r *= x;
         vecDiff.add(prevLoc.space);
         newLocation.space = vecDiff;

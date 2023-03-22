@@ -12,6 +12,7 @@ import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
+import frc.robot.commands.Drive.DriveToImage;
 import frc.robot.commands.Drive.PreMatchAlign;
 import frc.robot.commands.Drive.ResetSwerveAngs;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -203,6 +204,8 @@ public class RobotContainer {
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
     inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
+    //TODO: assign camera drive to the camera switch + autoscore
+    //inputs.autoScore.whileTrue(new DriveToImage(this));
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
     inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));

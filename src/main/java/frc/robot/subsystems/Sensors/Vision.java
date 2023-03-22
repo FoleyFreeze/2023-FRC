@@ -20,7 +20,8 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
+    //TODO: remove the added offset when the camera is recal'd
+    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75).add(frc.robot.util.Vector.fromXY(-0.75,-6));
 
     private BooleanEntry active;
     private DoubleEntry rioTime;
@@ -51,7 +52,7 @@ public class Vision extends SubsystemBase {
                     e.listFin = new Vector<VisionData>();
                     e.seqNum = poseData.getInt(0);
                     double current = Timer.getFPGATimestamp();
-                    e.timestamp = current - ((current -  poseData.getFloat(4) - poseData.getFloat(8)) / 2);
+                    e.timestamp = current - ((current -  poseData.getFloat(4) + poseData.getFloat(8)) / 2.0);
                     for(int i = 0, b = 14; i < numTags; i++, b += 25){
                         
                         VisionData visionData = new VisionData(type, poseData.get(b), 
@@ -90,12 +91,13 @@ public class Vision extends SubsystemBase {
         //if image doesnt exists
         if(visionProduct.isEmpty()) return null;
 
-        //if image is too old
+        //clear image queue
         VisionDataEntry entry = visionProduct.pop();
         while(!visionProduct.isEmpty()){
             visionProduct.pop();
         }
 
+        //if image is too old
         if(Timer.getFPGATimestamp() - entry.timestamp > 0.5) return null;
 
         Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(entry.timestamp);
@@ -109,12 +111,13 @@ public class Vision extends SubsystemBase {
                 bestData = d;
             }
         }
-        SmartDashboard.putNumber("Min Vis Dist", minDist);
-        SmartDashboard.putString("Best Data", bestData.pose.toString());
+        //SmartDashboard.putNumber("Min Vis Dist", minDist);
+        //SmartDashboard.putString("Best Data", bestData.pose.toString());
 
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromTranslation3d(bestData.pose.getTranslation());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
+        cam.add(oldLoc.space);
 
         return cam;
     }

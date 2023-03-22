@@ -69,8 +69,8 @@ public class Robot extends TimedRobot {
     r.driveTrain.resetWheelReads();
 
     Vector v = r.vision.getImageVector();
-    if(v != null){
-      SmartDashboard.putString("ImageVector", v.toString());
+    if(v != null && DriverStation.isDisabled()){
+      SmartDashboard.putString("ImageVector", v.sub(r.sensors.odo.botLocation).toString());
     }
   }
 

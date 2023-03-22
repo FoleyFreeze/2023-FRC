@@ -125,6 +125,12 @@ public class DriveTrain extends SubsystemBase {
         return z;
     }
 
+    //same as drive swerve but hold this angle
+    public void driveSwerveAngle(Vector xy, double angle){
+        targetHeading = angle;
+        driveSwerve(xy, 0);
+    }
+
     /* Takes in x and y power values and a z power, 
      * which is a rotation pwr between -1 and 1
      */
