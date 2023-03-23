@@ -22,8 +22,11 @@ public class DriveToImage extends CommandBase{
 
     @Override
     public void execute(){
+        int level = r.inputs.selectedLevel.ordinal();
+        int position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
+        
         if(target == null){
-            Vector v = r.vision.getImageVector();
+            Vector v = r.vision.getImageVector(level, position);
             if(v != null) {
                 target = v;
                 //add offset

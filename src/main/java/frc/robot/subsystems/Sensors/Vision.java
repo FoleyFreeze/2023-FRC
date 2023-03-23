@@ -2,14 +2,18 @@ package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.RawSubscriber;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Auton.AutonPos;
 import frc.robot.util.LimitedStack;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import java.nio.ByteBuffer;
@@ -87,7 +91,7 @@ public class Vision extends SubsystemBase {
         active.set(!status);
     }
 
-    public frc.robot.util.Vector getImageVector(){
+    public frc.robot.util.Vector getImageVector(int level, int position){
         //if image doesnt exists
         if(visionProduct.isEmpty()) return null;
 
@@ -114,10 +118,33 @@ public class Vision extends SubsystemBase {
         //SmartDashboard.putNumber("Min Vis Dist", minDist);
         //SmartDashboard.putString("Best Data", bestData.pose.toString());
 
+        //Get tag location in field coordinates
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromTranslation3d(bestData.pose.getTranslation());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
+
+        int id = bestData.tagId;
+        if(DriverStation.getAlliance() == Alliance.Red){
+            id = 9 - id;
+        }
+
+        frc.robot.util.Vector tagPos = frc.robot.util.Vector.fromTranslation3d(AutonPos.tagLayout.getTagPose(bestData.tagId).get().getTranslation());
+        //tagPos.r = Units.metersToInches(tagPos.r);
+        System.out.println("tagPos: " + tagPos.toStringXY());
+        if(DriverStation.getAlliance() == Alliance.Blue) position = 10 - position;
+        if(level == 0 || position == 0) return null;
+        AutonPos offset = new AutonPos(AutonPos.SCORING_OFFSETS[level - 1][position - 1]);
+        System.out.println("offset: " + offset.xy.toStringXY());
+        if(DriverStation.getAlliance() == Alliance.Red){
+            offset.mirrorY(true);
+            tagPos.theta = -tagPos.theta;
+        }
+        frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
+        System.out.println("driveOffset: " + driveOffset.toStringXY());
+
+        cam.add(driveOffset);
+        System.out.println("final cam: " + cam.toStringXY());
 
         return cam;
     }
