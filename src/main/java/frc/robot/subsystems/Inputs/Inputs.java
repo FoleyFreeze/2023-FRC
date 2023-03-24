@@ -101,6 +101,14 @@ public class Inputs extends SubsystemBase{
 
     // ------------- Drive inputs ------------- //
 
+    public boolean cameraMode(){
+        if(controller != null){
+            return controller.getRawButton(cal.CAMERA_MODE[controllerType.ordinal()]);
+        } else {
+            return false;
+        }
+    }
+
     public boolean getFieldOrient(){
         if(controller != null){
             return controller.getRawButton(cal.FIELD_ORIENT[controllerType.ordinal()]);
@@ -530,7 +538,7 @@ public class Inputs extends SubsystemBase{
     public Position selectedPosition = Position.NONE;
     public GamePiece selectedGamePiece = GamePiece.EITHER;
 
-    int buttonAssignment = -1;
+    public int buttonAssignment = -1;
     int prevButton = -1;
 
     public void scorePosition(){

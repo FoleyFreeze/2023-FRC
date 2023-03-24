@@ -26,7 +26,7 @@ public class Score extends CommandBase{
             Vector currentArmPos = armPositions[level];//creates the position the arm should be at
 
             sg.addCommands(new ArmMove(r, currentArmPos)//moves the arm to the right position during the drive
-                .alongWith(new MultiDimensionalMotionProfile(r, AutonPos.SCORING_POSITIONS[position])));//drives to the scoring position
+                .alongWith(new MultiDimensionalMotionProfile(r, AutonPos.SCORING_OFFSETS[position])));//drives to the scoring position
 
             //ejects the cube for 0.5 seconds
             sg.addCommands(new InstantCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed)).raceWith(new WaitCommand(0.5)));
@@ -35,7 +35,7 @@ public class Score extends CommandBase{
             Vector currentHoldArmPosition = holdArmPositions[level];//creates the initial position the arm should be at
 
             sg.addCommands(new ArmMove(r, currentHoldArmPosition)//moves the arm to the right position during the drive
-                .alongWith(new MultiDimensionalMotionProfile(r, AutonPos.SCORING_POSITIONS[position])));//drives to the scoring position
+                .alongWith(new MultiDimensionalMotionProfile(r, AutonPos.SCORING_OFFSETS[position])));//drives to the scoring position
 
             Vector[] scoreArmPositions = {r.arm.cals.positionConeHiRelease, r.arm.cals.positionConeMedRelease, r.arm.cals.positionConeLowRelease};
             Vector currentScoreArmPosition = scoreArmPositions[level];//creates the scoring position the arm should be at

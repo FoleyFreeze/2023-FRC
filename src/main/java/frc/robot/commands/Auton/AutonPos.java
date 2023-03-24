@@ -21,7 +21,7 @@ public class AutonPos {
     }
 
     public AutonPos (AutonPos pos){
-        this.xy = pos.xy;
+        this.xy = new Vector(pos.xy);
         this.value = pos.value;
     }
 
@@ -48,30 +48,6 @@ public class AutonPos {
             e.printStackTrace();
         }
     }
-
-    public static final AutonPos[] START_POSITIONS = {
-        new AutonPos(0, 0, 0),//Rightmost scoring spot
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0),
-        new AutonPos(0, 0, 0) //Leftmost scoring spot
-    };
-
-    public static final AutonPos APRIL_RED_LEFT = new AutonPos(0, 0, 0);
-    public static final AutonPos APRIL_RED_COMMUNITY = new AutonPos(0, 0, 0);
-    public static final AutonPos APRIL_RED_RIGHT = new AutonPos(0, 0, 0);
-
-    public static final AutonPos APRIL_RED_SUBSTATION = new AutonPos(0, 0, 0);
-
-    public static final AutonPos APRIL_BLUE_LEFT = new AutonPos(0, 0, 0);
-    public static final AutonPos APRIL_BLUE_COMMUNITY = new AutonPos(0, 0, 0);
-    public static final AutonPos APRIL_BLUE_RIGHT = new AutonPos(0, 0, 0);
-
-    public static final AutonPos APRIL_BLUE_SUBSTATION = new AutonPos(0, 0, 0);
 
 
     //Start Positions
@@ -107,35 +83,43 @@ public class AutonPos {
     public static double initArmAngle = -3.9;
 
 
-    public static final AutonPos[] SCORING_POSITIONS = {
-        new AutonPos(0, 0, 0),//closest to wall
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//
-        new AutonPos(0, 0, 0),//closest to substation
-    };
-        
+    static double postXPlusOffset = 54.25 + 10;
 
-    public static final AutonPos[] FIRST_DRIVE = {
-        new AutonPos(0, 0, 0),//left of charge station
-        new AutonPos(0, 0, 0),//in front of charge station
-        new AutonPos(0, 0, 0),//right of charge station
-    };
+    static double initNodeY = 20.19;
+    static double nodeDist = 22.0;
+    public static final AutonPos[][] SCORING_OFFSETS = {
 
-    public static final AutonPos[] MID_FIELD_POS = {
-        new AutonPos(0, 0, 0),//substation
-        new AutonPos(0, 0, 0),//sub middle
-        new AutonPos(0, 0, 0),//far middle
-        new AutonPos(0, 0, 0),//far
-    };
+        //Low
+        {new AutonPos(postXPlusOffset, initNodeY, 180),//Wall
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 3.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 6.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 8.0, 180)},//Sub
 
-    public static final AutonPos[] JUST_DRIVE_OUT = {
-        new AutonPos(0, 0, 0),//left of charge station
-        new AutonPos(0, 0, 0),//over charge station
-        new AutonPos(0, 0, 0),//right of charge station
+        //Medium
+        {new AutonPos(postXPlusOffset, initNodeY, 180),//Wall
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 3.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 6.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 8.0, 180)},//Sub
+
+        //High
+        {new AutonPos(postXPlusOffset, initNodeY + nodeDist / 2.0, 180),//Wall
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
+         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0 + nodeDist / 2.0, 180)},//Sub
     };
 }

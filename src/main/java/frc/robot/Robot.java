@@ -68,10 +68,10 @@ public class Robot extends TimedRobot {
 
     r.driveTrain.resetWheelReads();
 
-    Vector v = r.vision.getImageVector();
-    if(v != null && DriverStation.isDisabled()){
-      SmartDashboard.putString("ImageVector", v.sub(r.sensors.odo.botLocation).toString());
-    }
+    //Vector v = r.vision.getImageVector(r.inputs.selectedLevel.ordinal(), (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal());
+    //if(v != null && DriverStation.isDisabled()){
+    //  SmartDashboard.putString("ImageVector", v.sub(r.sensors.odo.botLocation).toString());
+    //}
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
