@@ -190,7 +190,7 @@ public class AutonCommand {
         //eject it
         sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
         //drive backwards
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(0.25, 0), 0.7));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(0.25, 0), 0.4));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 

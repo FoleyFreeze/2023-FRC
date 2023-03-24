@@ -36,10 +36,6 @@ public class Vector {
         return new Vector(r, Math.toRadians(degrees));
     }
 
-    public static Vector fromTranslation3d(Translation3d translation){
-        return Vector.fromXY(Units.metersToInches(translation.getZ()), -Units.metersToInches(translation.getX()));
-    }
-
     public static Vector addVectors(Vector v1, Vector v2){
         Vector v = new Vector(v2);
         return v.add(v1);

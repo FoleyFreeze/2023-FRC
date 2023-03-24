@@ -615,11 +615,11 @@ public class Inputs extends SubsystemBase{
             //zone logic
             int horizontalIdx = buttonAssignment % 9;
             if(horizontalIdx <= 3 && horizontalIdx != 0){
-                selectedZone = Zone.RIGHT;
+                selectedZone = Zone.LEFT;
             } else if(horizontalIdx > 3 && horizontalIdx < 7) {
                 selectedZone = Zone.COMMUNITY;
             } else {
-                selectedZone = Zone.LEFT;
+                selectedZone = Zone.RIGHT;
             }
             
             int positionIdx = buttonAssignment % 3;

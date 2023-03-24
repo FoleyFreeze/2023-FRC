@@ -82,8 +82,11 @@ public class AutonPos {
     public static double initArmStendo = 32.5;
     public static double initArmAngle = -3.9;
 
+    public static double tagToMidX = 20;
 
-    static double postXPlusOffset = 54.25 + 10;
+    static double postXPlusOffset = 54.25 + 18;
+    static double postXPlusOffsetHiCone = 54.25 + 6;
+    static double postXPlusOffsetMidLowCube = postXPlusOffset + 9;
 
     static double initNodeY = 20.19;
     static double nodeDist = 22.0;
@@ -91,35 +94,35 @@ public class AutonPos {
 
         //Low
         {new AutonPos(postXPlusOffset, initNodeY, 180),//Wall
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 3.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist * 4.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 6.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist * 7.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 8.0, 180)},//Sub
 
         //Medium
         {new AutonPos(postXPlusOffset, initNodeY, 180),//Wall
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 3.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist * 4.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 6.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
+         new AutonPos(postXPlusOffsetMidLowCube, initNodeY + nodeDist * 7.0, 180),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 8.0, 180)},//Sub
 
         //High
-        {new AutonPos(postXPlusOffset, initNodeY + nodeDist / 2.0, 180),//Wall
+        {new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist / 2.0, -165),//Wall
          new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, -165),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 165),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 180),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, -165),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 165),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
-         new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0 + nodeDist / 2.0, 180)},//Sub
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 7.0 + nodeDist / 2.0, 165)},//Sub
     };
 }

@@ -25,7 +25,7 @@ public class Vision extends SubsystemBase {
     RobotContainer r;
 
     //TODO: remove the added offset when the camera is recal'd
-    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75).add(frc.robot.util.Vector.fromXY(-0.75,-6));
+    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75).add(frc.robot.util.Vector.fromXY(-0.75,-10));
 
     private BooleanEntry active;
     private DoubleEntry rioTime;
@@ -119,7 +119,8 @@ public class Vision extends SubsystemBase {
         //SmartDashboard.putString("Best Data", bestData.pose.toString());
 
         //Get tag location in field coordinates
-        frc.robot.util.Vector cam = frc.robot.util.Vector.fromTranslation3d(bestData.pose.getTranslation());
+        frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
+        System.out.println("Raw Cam: " + cam.toString());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
@@ -129,24 +130,40 @@ public class Vision extends SubsystemBase {
             id = 9 - id;
         }
 
-        frc.robot.util.Vector tagPos = frc.robot.util.Vector.fromTranslation3d(AutonPos.tagLayout.getTagPose(bestData.tagId).get().getTranslation());
+        frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(bestData.tagId).get().getTranslation());
         //tagPos.r = Units.metersToInches(tagPos.r);
-        System.out.println("tagPos: " + tagPos.toStringXY());
+        System.out.println("tag" + bestData.tagId + "Pos: " + tagPos.toStringXY());
         if(DriverStation.getAlliance() == Alliance.Blue) position = 10 - position;
         if(level == 0 || position == 0) return null;
         AutonPos offset = new AutonPos(AutonPos.SCORING_OFFSETS[level - 1][position - 1]);
-        System.out.println("offset: " + offset.xy.toStringXY());
+        //System.out.println("offset: " + offset.xy.toStringXY());
         if(DriverStation.getAlliance() == Alliance.Red){
             offset.mirrorY(true);
             tagPos.theta = -tagPos.theta;
         }
         frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
-        System.out.println("driveOffset: " + driveOffset.toStringXY());
+        //System.out.println("driveOffset: " + driveOffset.toStringXY());
 
+        System.out.println("FieldRel Cam: " + cam.toStringXY());
         cam.add(driveOffset);
-        System.out.println("final cam: " + cam.toStringXY());
+        System.out.println("Final Position: " + cam.toStringXY());
 
+        
         return cam;
+    }
+
+    public double getImageAngle(int level, int position){
+        //TODO: Does this need to flip for blue/red alliance?
+        if(level == 0 || position == 0) return 0;
+        return AutonPos.SCORING_OFFSETS[level - 1][position - 1].value;
+    }
+
+    public static frc.robot.util.Vector fromTranslation3dImage(Translation3d translation){
+        return frc.robot.util.Vector.fromXY(Units.metersToInches(translation.getZ()), -Units.metersToInches(translation.getX()));
+    }
+
+    public static frc.robot.util.Vector fromTranslation3dTag(Translation3d translation){
+        return frc.robot.util.Vector.fromXY(Units.metersToInches(translation.getX()), Units.metersToInches(translation.getY()));
     }
 
     public double getHyp(Translation3d translation){
