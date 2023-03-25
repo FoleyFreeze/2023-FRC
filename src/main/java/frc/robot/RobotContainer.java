@@ -192,11 +192,11 @@ public class RobotContainer {
     inputs.resetSwerveZeros.whileTrue(new ResetSwerveAngs(this).ignoringDisable(true));//down on both blue jog doo-hickeys for 5 seconds
     inputs.resetAngle.whileTrue(new InstantCommand(sensors::resetBotAng).ignoringDisable(true));//up on the left blue jog doo-hickey
     inputs.resetPosition.whileTrue(new InstantCommand(sensors::resetBotPos).ignoringDisable(true));//up on the left blue jog doo-hickey
-    inputs.resetArm.onTrue(new LearnArmOffset(this).ignoringDisable(false));
+    inputs.resetArm.onTrue(/*new LearnArmOffset(this).ignoringDisable(false)*/ new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.whileTrue(CamCommands.AutoDriveToGather(this));
+    inputs.autoGather.whileTrue(new ConditionalCommand(new ConditionalCommand(CamCommands.AutoDriveToGather(this), GatherCommand.gatherCommand(this), () -> inputs.isShelf()), GatherCommand.gatherCommand(this), () -> inputs.cameraMode()));
 
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
@@ -206,8 +206,8 @@ public class RobotContainer {
     //1. move the arm, set slow mode true
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
-    inputs.autoScore.whileTrue(CamCommands.AutoDriveToScore(this));
-    //inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
+    Command manualScoreCommand = new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode()));
+    inputs.autoScore.whileTrue(new ConditionalCommand(CamCommands.AutoDriveToScore(this), manualScoreCommand, () -> inputs.cameraMode()));
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
     inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));

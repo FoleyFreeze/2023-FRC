@@ -63,7 +63,7 @@ public class DriveTrain extends SubsystemBase {
         //auto align, only if the navx exists
         double z = anglePower;
         if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
-            if (anglePower != 0){
+            if(anglePower != 0){
                 lastRotateTime = Timer.getFPGATimestamp();
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
@@ -71,11 +71,11 @@ public class DriveTrain extends SubsystemBase {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
-                if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
+                if(!r.inputs.cameraMode() && r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                     targetHeading = r.sensors.odo.botAngle;
-                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
+                } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
                     if(r.inputs.fieldAlignRight.getAsBoolean()){
@@ -84,7 +84,7 @@ public class DriveTrain extends SubsystemBase {
                         setpoint = Math.toRadians(-195);
                     }
                     targetHeading = r.sensors.odo.botAngle;
-                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
+                } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
                     usePID = true;
                     setpoint = Math.toRadians(180);
                     targetHeading = r.sensors.odo.botAngle;

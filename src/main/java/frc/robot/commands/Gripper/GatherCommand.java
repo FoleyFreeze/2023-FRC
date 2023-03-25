@@ -31,7 +31,7 @@ public class GatherCommand {
     public static Command gatherCommand(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
         sg.addRequirements(r.gripper);
-        
+
         //get inputted position
         sg.addCommands(new ArmMove(r, r.inputs::getGatherPosition));
 

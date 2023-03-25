@@ -595,13 +595,6 @@ public class Inputs extends SubsystemBase{
         if(idx != -1) buttonAssignment = idx + 1;
         SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
-            if(prevButton > 0){
-                //cBoard.setOutput(prevButton, false);
-                r.lights.ledOutputSet(prevButton-1, false);
-            }
-            prevButton = buttonAssignment;
-            //cBoard.setOutput(buttonAssignment, true);
-            r.lights.ledOutputSet(buttonAssignment-1, true);
 
             //level logic
             if(buttonAssignment <= 9){
@@ -634,7 +627,7 @@ public class Inputs extends SubsystemBase{
             }
 
             //check for discrepancy between the switch and what we actually have
-            if(isCube() != (selectedGamePiece == GamePiece.CUBE) && selectedGamePiece != GamePiece.EITHER){
+            if(isCube() != (selectedGamePiece == GamePiece.CUBE) && selectedGamePiece != GamePiece.EITHER && selectedLevel.ordinal() != 1){
                 //Selects the nearest available score position on the same level in the same zone
 
                 int fixedPositionIdx;
@@ -643,16 +636,30 @@ public class Inputs extends SubsystemBase{
                     selectedGamePiece = GamePiece.CONE;
 
                     fixedPositionIdx = positionIdx + 1;
+
+                    buttonAssignment += 1;
                 } else {
                     selectedGamePiece = GamePiece.CUBE;
 
                     fixedPositionIdx = 2;
+
+                    if(positionIdx == 1){
+                        buttonAssignment += 1;
+                    } else {
+                        buttonAssignment -= 1;
+                    }
                 }
 
                 selectedPosition = Position.values()[fixedPositionIdx];
             } else {
                 selectedPosition = Position.values()[positionIdx];
             }
+
+            if(prevButton > 0){
+                r.lights.ledOutputSet(prevButton-1, false);
+            }
+            prevButton = buttonAssignment;
+            r.lights.ledOutputSet(buttonAssignment-1, true);
             
         }
     }

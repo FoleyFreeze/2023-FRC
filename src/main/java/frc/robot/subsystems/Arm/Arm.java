@@ -112,7 +112,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void learnArmOffset(){
-        double currentAngle = -11;
+        double currentAngle = -9.9;
         angleMotor.setEncoderPosition(currentAngle);
 
         stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));

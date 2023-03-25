@@ -23,8 +23,8 @@ public class WaitForStage extends CommandBase{
     @Override
     public boolean isFinished(){
         if(scoreMode){
-            return dti.driveStage > 2 || 
-                (dti.driveStage == 2 && Math.abs(dti.err.getY()) < dist);
+            return dti.driveStage > 1 || 
+                (dti.driveStage == 1 && Math.abs(dti.err.getY()) < dist);
         } else {
             return Math.abs(dti.angle - r.sensors.getNavXAng()) < Math.PI/10;
         }

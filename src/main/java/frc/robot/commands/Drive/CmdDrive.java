@@ -1,6 +1,5 @@
 package frc.robot.commands.Drive;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.Vector;
@@ -8,7 +7,6 @@ import frc.robot.util.Vector;
 public class CmdDrive extends CommandBase{
     
     RobotContainer r;
-    double lastRotateTime;
 
     public CmdDrive(RobotContainer r){
         this.r = r;
@@ -17,7 +15,6 @@ public class CmdDrive extends CommandBase{
 
     @Override
     public void initialize(){
-        lastRotateTime = Timer.getFPGATimestamp();
     }
 
     double iAccum = 0;
@@ -54,7 +51,7 @@ public class CmdDrive extends CommandBase{
 
     @Override
     public void end(boolean interrupted){
-
+        
     }
 
     @Override

@@ -25,8 +25,6 @@ public class DriveForTime extends CommandBase {
         this.direction = direction;
         this.angle = Angle.toRad(angle);
         this.seconds = seconds;
-
-        addRequirements(r.driveTrain);
     }
 
     @Override

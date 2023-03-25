@@ -84,7 +84,7 @@ public class AutonPos {
 
     public static double tagToMidX = 20;
 
-    static double postXPlusOffset = 54.25 + 18;
+    static double postXPlusOffset = 54.25 + 20;
     static double postXPlusOffsetHiCone = 54.25 + 6;
     static double postXPlusOffsetMidLowCube = postXPlusOffset + 9;
 
@@ -118,14 +118,14 @@ public class AutonPos {
         {new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist / 2.0, 165),//Wall
          new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
          new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, 165),
-         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, -165),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0 - 6.0, -165),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 4.0, 180),
          new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, 165),
-         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 5.0 + nodeDist / 2.0, -165),
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 5.0 + nodeDist / 2.0 - 6.0, -165),
          new AutonPos(postXPlusOffset, initNodeY + nodeDist * 7.0, 180),
-         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 7.0 + nodeDist / 2.0, -165)},//Sub
+         new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 7.0 + nodeDist / 2.0 - 6.0, -165)},//Sub
     };
 
-    public static final AutonPos GATHER_OFFSET = new AutonPos(636.960-24, 265.740, 0);
+    public static final AutonPos GATHER_OFFSET = new AutonPos(636.960-30, 265.740, 0);
     public static final double GATHER_X_DIFF = 24;
 }

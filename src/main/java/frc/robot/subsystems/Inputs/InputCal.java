@@ -62,7 +62,7 @@ public class InputCal {
                                         1, //24 AXIS
                                         2, //25 AXIS
                                         9, //26 BUTTON
-                                        10, //27 BUTTON
+                                        10,//27 BUTTON
                                        };
 
     //lights stuff
