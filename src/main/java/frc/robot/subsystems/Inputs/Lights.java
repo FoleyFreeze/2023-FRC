@@ -57,18 +57,32 @@ public class Lights extends SubsystemBase{
     };
 
     Color[] spongebob = {
-        new Color (255, 200, 0),
-        new Color (150, 120, 0),
-        new Color (50, 25, 0)
+        new Color (255, 100, 0),
+        new Color (255, 100, 0),
+        new Color (225, 80, 0),
+        new Color (200, 75, 0),
+        new Color (200, 75, 0),
+        new Color (150, 40, 0),
+        new Color (75, 30, 0),
+        new Color (50, 20, 0),
+        new Color (25, 7, 0),
+        new Color (10, 3, 0),
+        new Color (0, 0, 0)
+    };
+
+    Color[] banana = {
+        new Color (255, 100, 0),
+        new Color (200, 75, 0),
+        new Color (150, 40, 0)
     };
 
     Color[] crabRave = {
         new Color (255, 0 ,0),
-        new Color (155, 0, 0),
-        new Color (255, 0, 0),
         new Color (100, 0, 0),
         new Color (255, 0, 0),
-        new Color (150, 0, 0)
+        new Color (75, 0, 0),
+        new Color (255, 0, 0),
+        new Color (50, 0, 0)
     };
 
     Color[] snowBall = {
@@ -78,11 +92,11 @@ public class Lights extends SubsystemBase{
     };
 
     Color[] wednesday = {
-        new Color (200, 0, 50),
+        new Color (200, 0, 100),
         new Color (175, 0, 75),
-        new Color (150, 0, 50),
-        new Color (100, 0, 0),
-        new Color (50, 0, 0)
+        new Color (150, 0, 60),
+        new Color (100, 0, 40),
+        new Color (75, 0, 10)
     };
 
     public Lights(RobotContainer r, InputCal cal){
@@ -173,6 +187,8 @@ public class Lights extends SubsystemBase{
                 for(int i = 0; i < ledBuffer.getLength(); i++){
                     ledBuffer.setLED(i, colorSet);
                 } */
+            } else {
+                skittles2(banana);
             }
         }
 
