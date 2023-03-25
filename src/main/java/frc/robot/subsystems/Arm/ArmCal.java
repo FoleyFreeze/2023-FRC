@@ -13,7 +13,7 @@ public class ArmCal {
     public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(25).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
-    public double armPotOffset = 1.179;// in volts
+    public double armPotOffset = 0.4;// in volts
     public double armPotSlope = 1.121; // in radians per volt
 
     //stendo angle offset

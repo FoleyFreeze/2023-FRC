@@ -7,18 +7,26 @@ import frc.robot.util.Vector;
 
 public class WaitForStage extends CommandBase{
 
+    RobotContainer r;
+
     double dist;
     DriveToImage dti;
+    boolean scoreMode;
     
-    public WaitForStage(double dist, DriveToImage dti){
+    public WaitForStage(RobotContainer r, double dist, DriveToImage dti, boolean scoreMode){
+        this.r = r;
         this.dist = dist;
         this.dti = dti;
+        this.scoreMode = scoreMode;
     }
 
     @Override
     public boolean isFinished(){
-        System.out.println("FinishCheck " + Math.abs(dti.err.getY()));
-        return dti.driveStage > 2 || 
-              (dti.driveStage == 2 && Math.abs(dti.err.getY()) < dist);
+        if(scoreMode){
+            return dti.driveStage > 2 || 
+                (dti.driveStage == 2 && Math.abs(dti.err.getY()) < dist);
+        } else {
+            return Math.abs(dti.angle - r.sensors.getNavXAng()) < Math.PI/10;
+        }
     }
 }

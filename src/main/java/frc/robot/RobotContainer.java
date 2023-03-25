@@ -9,7 +9,7 @@ import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Arm.LearnArmOffset;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
-import frc.robot.commands.Combos.CamScore;
+import frc.robot.commands.Combos.CamCommands;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
@@ -195,7 +195,9 @@ public class RobotContainer {
     inputs.resetArm.onTrue(new LearnArmOffset(this).ignoringDisable(false));
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
-    inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
+    //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
+    inputs.autoGather.whileTrue(CamCommands.AutoDriveToGather(this));
+
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
     //inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
@@ -204,7 +206,7 @@ public class RobotContainer {
     //1. move the arm, set slow mode true
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
-    inputs.autoScore.whileTrue(CamScore.AutoDriveToScore(this));
+    inputs.autoScore.whileTrue(CamCommands.AutoDriveToScore(this));
     //inputs.autoScore.onTrue(new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode())));
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));

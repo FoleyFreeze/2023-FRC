@@ -91,7 +91,7 @@ public class Vision extends SubsystemBase {
         active.set(!status);
     }
 
-    public frc.robot.util.Vector getImageVector(int level, int position){
+    public frc.robot.util.Vector getImageVector(int level, int position, boolean scoring){
         //if image doesnt exists
         if(visionProduct.isEmpty()) return null;
 
@@ -120,7 +120,6 @@ public class Vision extends SubsystemBase {
 
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
-        System.out.println("Raw Cam: " + cam.toString());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
@@ -131,24 +130,23 @@ public class Vision extends SubsystemBase {
         }
 
         frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(bestData.tagId).get().getTranslation());
-        //tagPos.r = Units.metersToInches(tagPos.r);
         System.out.println("tag" + bestData.tagId + "Pos: " + tagPos.toStringXY());
         if(DriverStation.getAlliance() == Alliance.Blue) position = 10 - position;
-        if(level == 0 || position == 0) return null;
-        AutonPos offset = new AutonPos(AutonPos.SCORING_OFFSETS[level - 1][position - 1]);
-        //System.out.println("offset: " + offset.xy.toStringXY());
+        if((level == 0 || position == 0) && scoring) return null;
+        AutonPos offset;
+        if(scoring){
+            offset = new AutonPos(AutonPos.SCORING_OFFSETS[level - 1][position - 1]);
+        } else {
+            offset = new AutonPos(AutonPos.GATHER_OFFSET);
+        }
         if(DriverStation.getAlliance() == Alliance.Red){
             offset.mirrorY(true);
             tagPos.theta = -tagPos.theta;
         }
         frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
-        //System.out.println("driveOffset: " + driveOffset.toStringXY());
 
-        System.out.println("FieldRel Cam: " + cam.toStringXY());
         cam.add(driveOffset);
-        System.out.println("Final Position: " + cam.toStringXY());
-
-        
+        System.out.println("Cam: " + cam);
         return cam;
     }
 

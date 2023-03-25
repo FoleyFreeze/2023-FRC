@@ -597,11 +597,11 @@ public class Inputs extends SubsystemBase{
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
             if(prevButton > 0){
                 //cBoard.setOutput(prevButton, false);
-                r.lights.ledOutputSet(prevButton, false);
+                r.lights.ledOutputSet(prevButton-1, false);
             }
             prevButton = buttonAssignment;
             //cBoard.setOutput(buttonAssignment, true);
-            r.lights.ledOutputSet(buttonAssignment, true);
+            r.lights.ledOutputSet(buttonAssignment-1, true);
 
             //level logic
             if(buttonAssignment <= 9){
