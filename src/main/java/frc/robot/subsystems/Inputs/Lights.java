@@ -175,7 +175,8 @@ public class Lights extends SubsystemBase{
                 colorSet = new Color(255, 50, 0);
             }*/
             if(DriverStation.isDisabled()){
-                skittles2(rainbow);
+                //skittles2(thanos);
+                testMode();
                 //skittles();
             } else if(r.inputs.isCube() && r.inputs.isShelf()){
                 skittles2(thanos);
@@ -190,14 +191,43 @@ public class Lights extends SubsystemBase{
             } else {
                 skittles2(banana);
             }
-        }
 
-         if(led != null){
-            led.setData(ledBuffer);
+            if(led != null){
+                led.setData(ledBuffer);
+            }
         }
     }
-        
-    
+
+    public void testMode(){
+        switch(r.inputs.buttonAssignment){
+            case 1:
+                skittles2(rainbow);
+                break;
+            case 2:
+                skittles2(crabRave);
+                break;
+            case 3:
+                skittles2(snowBall);
+                break;
+            case 4:
+                skittles2(spongebob);
+                break;
+            case 5:
+                skittles2(banana);
+                break;
+            case 6:
+                skittles2(thanos);
+                break;
+            case 7:
+                skittles2(chowder);
+                break;
+            case 8:
+                skittles2(wednesday);
+                break;
+            default:
+                skittles2(rainbow);
+        }
+    }
 
     public void skittles(){
         if(Timer.getFPGATimestamp() > switchTime){
