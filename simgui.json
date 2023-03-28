@@ -2,6 +2,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Align Wheels 4 Auto": "Command",
       "/SmartDashboard/ArmDown": "Command",
       "/SmartDashboard/ArmGather": "Command",
       "/SmartDashboard/ArmHome": "Command",
@@ -9,11 +10,16 @@
       "/SmartDashboard/ArmUp": "Command",
       "/SmartDashboard/Auton": "String Chooser",
       "/SmartDashboard/Balance Or Out": "String Chooser",
+      "/SmartDashboard/Close Gipper": "Command",
       "/SmartDashboard/Cone Pickup": "Command",
       "/SmartDashboard/Cube Pickup": "Command",
       "/SmartDashboard/Mid-Field Piece": "String Chooser",
+      "/SmartDashboard/Open Gipper": "Command",
+      "/SmartDashboard/PI_Toggle": "Command",
       "/SmartDashboard/Path": "String Chooser",
       "/SmartDashboard/Second Piece": "String Chooser",
+      "/SmartDashboard/Simple Start Position": "String Chooser",
+      "/SmartDashboard/Simplicity Chooser": "String Chooser",
       "/SmartDashboard/Special Chooser": "String Chooser",
       "/SmartDashboard/Start Position": "String Chooser",
       "/SmartDashboard/Stop Gripper": "Command"

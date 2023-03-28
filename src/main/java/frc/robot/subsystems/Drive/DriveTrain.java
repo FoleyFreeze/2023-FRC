@@ -10,6 +10,7 @@ import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
 import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.subsystems.Inputs.Inputs.ManScoreMode;
+import frc.robot.util.Angle;
 import frc.robot.util.FileManager;
 import frc.robot.util.Util;
 import frc.robot.util.Vector;
@@ -56,9 +57,13 @@ public class DriveTrain extends SubsystemBase {
     }
 
     //automatically maintains heading if rotation is not commanded
+    public enum HeadingSource{
+        Angle,Shelf,Score,Auto,Drive,Broke
+    }
+    HeadingSource hs = HeadingSource.Angle;
     double lastRotateTime = 0;
     double iAccum = 0;
-    public double targetHeading = 0;
+    public double targetHeading;
     public double swerveAutoAngle(double drivePower, double anglePower){
         //auto align, only if the navx exists
         double z = anglePower;
@@ -67,14 +72,16 @@ public class DriveTrain extends SubsystemBase {
                 lastRotateTime = Timer.getFPGATimestamp();
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
+                hs = HeadingSource.Angle;
             } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
-                if(!r.inputs.cameraMode() && r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf()){
+                if(!r.inputs.cameraMode() && r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                     targetHeading = r.sensors.odo.botAngle;
+                    hs = HeadingSource.Shelf;
                 } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
@@ -84,10 +91,12 @@ public class DriveTrain extends SubsystemBase {
                         setpoint = Math.toRadians(-195);
                     }
                     targetHeading = r.sensors.odo.botAngle;
+                    hs = HeadingSource.Score;
                 } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
                     usePID = true;
                     setpoint = Math.toRadians(180);
                     targetHeading = r.sensors.odo.botAngle;
+                    hs = HeadingSource.Score;
                 }
 
                 //error is between -360 -> 360
@@ -102,23 +111,26 @@ public class DriveTrain extends SubsystemBase {
                     iAccum = 0;
                 } else if(Math.abs(error) > Math.toRadians(8)){
                     //keep i low to prevent oscillation
-                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
+                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi + r.sensors.odo.deltaBotAngle * r.driveTrain.cals.autoAlignKd;
                     z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
                     iAccum = 0;
                 } else {
                     iAccum += error * r.sensors.dt;
-                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi;
+                    z = error * r.driveTrain.cals.autoAlignKp + iAccum * r.driveTrain.cals.autoAlignKi + r.sensors.odo.deltaBotAngle * r.driveTrain.cals.autoAlignKd;
                     z = Util.bound(z, -r.driveTrain.cals.autoAlignMaxPower, r.driveTrain.cals.autoAlignMaxPower);
                 }
+                //System.out.format("Src: %s, Ang: %.0f, e: %.1f, i: %.1f, d: %.0f\n",hs.name(),Math.toDegrees(r.sensors.odo.botAngle),Math.toDegrees(error),Math.toDegrees(iAccum),Math.toDegrees(r.sensors.odo.deltaBotAngle));
             } else {
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
+                hs = HeadingSource.Angle;
             }
 
         } else {
             //no navx
             iAccum = 0;
             targetHeading = r.sensors.odo.botAngle;
+            hs = HeadingSource.Broke;
             lastRotateTime = Timer.getFPGATimestamp();
         }
 
@@ -128,6 +140,7 @@ public class DriveTrain extends SubsystemBase {
     //same as drive swerve but hold this angle
     public void driveSwerveAngle(Vector xy, double angle){
         targetHeading = angle;
+        hs = HeadingSource.Drive;
         driveSwerve(xy, 0);
     }
 
@@ -219,6 +232,7 @@ public class DriveTrain extends SubsystemBase {
 
     public void swerveMP(Vector power, double targetAngle){
         targetHeading = targetAngle;
+        hs = HeadingSource.Auto;
         power.theta -= r.sensors.odo.botAngle;
         driveSwerve(power, 0);
     }

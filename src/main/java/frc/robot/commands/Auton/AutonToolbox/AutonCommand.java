@@ -6,15 +6,18 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
+import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
+import frc.robot.commands.Auton.AutonCal.MPCals;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -70,6 +73,18 @@ public class AutonCommand {
                                     AutonPos.driveScoreFar.value,
                                     AutonPos.driveScoreFar.value};
 
+        MPCals[] mpCalsThere = {AutonCal.driveBase,
+                             AutonCal.driveBase,
+                             AutonCal.bumpThereCals,
+                             AutonCal.bumpThereCals};
+
+        MPCals[] mpCalsBack = {AutonCal.driveBase,
+                            AutonCal.driveBase,
+                            AutonCal.bumpBackCals,
+                            AutonCal.bumpBackCals};
+
+        
+
         Vector driveToBalanceCommunity = new Vector(AutonPos.driveToBalComm.xy);
         Vector driveToBalanceOutside = new Vector(AutonPos.driveToBalOutside.xy);
         double driveToBalanceAngle = AutonPos.driveToBalComm.value;
@@ -114,22 +129,22 @@ public class AutonCommand {
         }
 
         //First Drive Out
-        if(selectedAuton == 1 || selectedAuton == 2 || selectedAuton == 4 || selectedAuton == 5){
+        if(selectedAuton == 1 || selectedAuton == 2){
             sg.addCommands(new AngleMotionProfile(r, driveOutOneAng[startPos]));
             if(startPos == 1 || startPos == 2){
-                sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos], driveOutOneAng[startPos]));
+                sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos], driveOutOneAng[startPos], mpCalsThere[startPos]));
             }
         }
 
         //Drive Out Only
         if(selectedAuton == 1 || selectedAuton == 2){
-            sg.addCommands(new DriveMotionProfile(r, driveOutTwo[startPos], driveOutOneAng[startPos]));
+            sg.addCommands(new DriveMotionProfile(r, driveOutTwo[startPos], driveOutOneAng[startPos], mpCalsThere[startPos]));
         }
         
         //Piece Gather
         if(selectedAuton == 4 || selectedAuton == 5 || selectedAuton == 6){
-            //sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos]));
-            sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos], driveOutOneAng[startPos])
+            sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos]));
+            sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos], driveToPieceAng[startPos], mpCalsThere[startPos])
                 .raceWith(GatherCommand.gatherCommand(r)));
             sg.addCommands(new ArmGoHome(r));
         }
@@ -138,10 +153,12 @@ public class AutonCommand {
         if(selectedAuton == 5 || selectedAuton == 6){
              
             sg.addCommands(new AngleMotionProfile(r, driveToScoreAng[startPos]));
-            //sg.addCommands(new DriveMotionProfile(r, driveOutOne[startPos]));
-            DriveMotionProfile dmp = new DriveMotionProfile(r, driveToScore[startPos], driveToScoreAng[startPos]);
+            DriveMotionProfile dmp = new DriveMotionProfile(r, driveToScore[startPos], driveToScoreAng[startPos], mpCalsBack[startPos]);
             sg.addCommands(dmp.alongWith(new NegativeWait(1.5, dmp).andThen(new ArmMove(r, r.arm.cals.positionCubeHi))));
             sg.addCommands(scoreOnlyCube(r));
+            if(selectedAuton == 5){
+                sg.addCommands(new AngleMotionProfile(r, 0));
+            }
         }
 
         //Balance
@@ -180,7 +197,7 @@ public class AutonCommand {
         sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
-    
+
         return sg;
     }
 
@@ -189,6 +206,7 @@ public class AutonCommand {
 
         //eject it
         sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
+        sg.addCommands(new PrintCommand("CubeLaunched"));
         //drive backwards
         sg.addCommands(new DriveForTime(r, Vector.fromXY(0.25, 0), 0.4));
         //lower arm

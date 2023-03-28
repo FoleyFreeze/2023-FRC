@@ -29,9 +29,6 @@ public class Arm extends SubsystemBase {
     //Vector setPointTwo;
     boolean isAngleOnly = false;
 
-    double timeOfStendoReset;
-    double stendoCurrentTime;
-
     public Vector jogOffset = new Vector(0,0);
 
     GenericEntry maxArmTempNT = Shuffleboard.getTab("Safety").add("MaxArmTemp", 0).getEntry();
@@ -112,7 +109,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void learnArmOffset(){
-        double currentAngle = -9.9;
+        double currentAngle = -11.6;
         angleMotor.setEncoderPosition(currentAngle);
 
         stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
@@ -145,12 +142,14 @@ public class Arm extends SubsystemBase {
         jogUpDownNT.setDouble(Angle.toDeg(jogOffset.theta));
         jogInOutNT.setDouble(jogOffset.r);
 
-        double currentAngle = angleMotor.getPosition() - Math.toDegrees(jogOffset.theta);
-        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle) - jogOffset.r;
+        double currentAngle = angleMotor.getPosition() /*- Math.toDegrees(jogOffset.theta)*/;
+        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle) /*- jogOffset.r*/;
         Vector currPos = Vector.fromDeg(currentLength, currentAngle);
         SmartDashboard.putString("ArmPos", currPos.toStringPolar());
 
-        if(DriverStation.isDisabled()) setPoint = null;
+        //TODO: find a way to do that that can actually work.
+        // This strategy breaks jog completely
+        //if(DriverStation.isDisabled()) setPoint = null;
 
         if(setPoint != null){
             //offset and wanted setpoint combined
@@ -182,10 +181,11 @@ public class Arm extends SubsystemBase {
             angleMotor.setPosition(angleSetpoint);
             if(isAngleOnly){
                 //stendoMotor.setPower(0);
-                stendoCurrentTime = 0;
+                //stendoCurrentTime = 0;
             } else {
                 stendoMotor.setPosition(lengthSetpoint);
-                determineStendoReset(lengthSetpoint);
+                //System.out.println(stendoMotor.getPosition() + "  " + lengthSetpoint);
+                determineStendoReset(currentAngle);
             }
         }
     }
@@ -210,22 +210,23 @@ public class Arm extends SubsystemBase {
     }
 
 
-    private void determineStendoReset(double lengthSetpoint){
+    //if stendo is hitting the current limit for > 1s, reset the 0
+    double stendoResetTime = 0;
+    double stendoResetPosition = 0;
+    private void determineStendoReset(double currentAngle){
         double now = Timer.getFPGATimestamp();
-        if(lengthSetpoint == cals.lengthMin 
-                && now - timeOfStendoReset > cals.minStendoResetTime){
-            
-            if(stendoMotor.getCurrent() > cals.stendoResetCurrent){
-                stendoCurrentTime += r.sensors.dt;
-
-                if(stendoCurrentTime > cals.stendoResetCurrentTime){
-                    stendoMotor.setEncoderPosition(cals.lengthMin);
-                    timeOfStendoReset = Timer.getFPGATimestamp();
-                }
-            } else {
-                stendoCurrentTime = 0;
+        double pos = stendoMotor.getPosition();
+        double posErr = Math.abs(pos - stendoResetPosition);
+        if(stendoMotor.getCurrent() > cals.stendoCurrLim-5 && posErr < 0.1){
+            if(stendoResetTime < now-0.2) {
+                stendoResetTime = now + 0.5;
+            } else if(stendoResetTime < now){
+                stendoMotor.setEncoderPosition(cals.lengthMin + getStendoPulleyOffset(currentAngle));
+                stendoMotor.setPosition(cals.lengthMin + getStendoPulleyOffset(currentAngle));
+                jogOffset.r = 0;
             }
-            
+        } else {
+            stendoResetPosition = pos;
         }
     }
 }

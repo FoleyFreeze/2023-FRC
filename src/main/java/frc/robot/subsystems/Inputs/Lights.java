@@ -24,7 +24,7 @@ public class Lights extends SubsystemBase{
     AddressableLED led;
 
     AddressableLEDBuffer ledBuffer;
-    PowerDistribution pdh;
+    public PowerDistribution pdh;
     boolean switchableChannel = true;
 
     Color[] rainbow = {

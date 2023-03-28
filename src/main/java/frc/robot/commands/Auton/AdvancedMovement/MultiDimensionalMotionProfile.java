@@ -113,15 +113,15 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
         totalDist = totalDistAng + totalDistStrafe;
 
-        double distThreshold = (AutonCal.maxVel * AutonCal.maxVel) / AutonCal.maxAccel;
+        double distThreshold = (AutonCal.driveBase.maxVel * AutonCal.driveBase.maxVel) / AutonCal.driveBase.maxAccel;
        
         if (totalDist >= distThreshold){
             //3 step (Accel - constV - Decel)
             accelDist = distThreshold / 2;
             decelDist = distThreshold / 2;
             maxVelDist = totalDist - distThreshold;
-            accelTime =  Math.sqrt(distThreshold / AutonCal.maxAccel);
-            maxVelTime = accelTime + maxVelDist / AutonCal.maxVel;
+            accelTime =  Math.sqrt(distThreshold / AutonCal.driveBase.maxAccel);
+            maxVelTime = accelTime + maxVelDist / AutonCal.driveBase.maxVel;
             decelTime = maxVelTime + accelTime;
         } else{
             //2 step (Accel - Decel)
@@ -129,7 +129,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
             maxVelDist = 0;
             accelDist = totalDist / 2;
             decelDist = totalDist / 2;
-            accelTime =  Math.sqrt(totalDist / AutonCal.maxAccel);
+            accelTime =  Math.sqrt(totalDist / AutonCal.driveBase.maxAccel);
             decelTime = 2 * accelTime;
         }
         startTime = Timer.getFPGATimestamp();
@@ -179,18 +179,18 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         double targetAccel;
         if (runTime < accelTime){
             //stage 1
-            targetAccel = AutonCal.maxAccel;
+            targetAccel = AutonCal.driveBase.maxAccel;
             targetPosR = 0.5 * targetAccel * runTime * runTime;
             targetVelR = targetAccel * runTime;
         } else if (runTime < maxVelTime) { 
             //stage 2
             targetAccel = 0;
-            targetVelR = AutonCal.maxVel;
+            targetVelR = AutonCal.driveBase.maxVel;
             targetPosR = ((runTime - accelTime) * targetVelR) + accelDist;
         } else if (runTime < decelTime) { 
             //stage 3
             double t = runTime - decelTime;
-            targetAccel = -AutonCal.maxAccel;
+            targetAccel = -AutonCal.driveBase.maxAccel;
             targetPosR = 0.5 * targetAccel * t * t + totalDist;
             targetVelR = t * targetAccel;
         } else { 
@@ -214,7 +214,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
         //PID
         targetPosStrafe.add(currentPos).negate();//error value
-        targetPosStrafe.r *= AutonCal.kP_MP;
+        targetPosStrafe.r *= AutonCal.driveBase.kP_MP;
         targetVelStrafe.add(targetPosStrafe);
 
 
@@ -227,15 +227,15 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         
         //PID
         double angleError = angleRPos - currentAng;
-        angleError *= AutonCal.kP_MP;
+        angleError *= AutonCal.driveBase.kP_MP;
         angleRVel += angleError;
 
 
         //output
         Vector drivePwr = new Vector(targetVelStrafe);
-        drivePwr.r = (AutonCal.kA * strafeRAcc) + (AutonCal.kV * targetVelStrafe.r) + AutonCal.kS;
+        drivePwr.r = (AutonCal.driveBase.kA * strafeRAcc) + (AutonCal.driveBase.kV * targetVelStrafe.r) + AutonCal.driveBase.kS;
 
-        double anglePwr = (AutonCal.kA * angleRAcc) + (AutonCal.kV * angleRVel) + AutonCal.kS;
+        double anglePwr = (AutonCal.driveBase.kA * angleRAcc) + (AutonCal.driveBase.kV * angleRVel) + AutonCal.driveBase.kS;
         
         r.driveTrain.driveSwerve(drivePwr, anglePwr);
     }

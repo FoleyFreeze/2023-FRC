@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Auton.AutonBuilder;
+import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
@@ -170,17 +171,17 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {
 
-    /*
+    /* 
     r.sensors.resetNavXAng(Math.PI);
     r.sensors.odo.setBotLocation(Vector.fromXY(261.378, 36.229));
-    DriveMotionProfile mp = new DriveMotionProfile(r, Vector.fromXY(86.000, 34.360));
+    DriveMotionProfile mp = new DriveMotionProfile(r, Vector.fromXY(86.000, 34.360), 0, AutonCal.bumpCals);
     //AngleMotionProfile mp = new AngleMotionProfile(r, Math.PI);
     mp.initialize();
     for(double t=0;t<3;t+=0.02){
       double[] avp = mp.getAVP(t);
       System.out.format("%.2f,%.2f,%.2f,%.2f\n",t,avp[2],avp[1],avp[0]);
-    }
-    */
+    }*/
+    
 
     /*Vector startPoint = Vector.fromXY(0, 0);
     AutonPos[] waypoints = {new AutonPos(54, 0, 0), new AutonPos(54, 108, 0)};

@@ -66,17 +66,21 @@ public class AutonPos {
 
     //Drive To Piece
     public static AutonPos drivePieceSub = new AutonPos(266, 180.2, 0).offset(-14, 4.5, 0);
-    public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(-14, 3, 0);
+    public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(-14, 3-3, 5);
 
     //Drive To Score
     //public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180).offset(12, 12, 0);
     public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, -167).offset(-3, 6, 0);
-    //public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 180).offset(12, 12, 0);
-    public static AutonPos driveScoreFar = new AutonPos(200.0, 42.19, 180).offset(12, 12-12, 0);
+    public static AutonPos driveScoreFar = new AutonPos(70.24, 42.19, 167).offset(-3, -6, 0);
+    //public static AutonPos driveScoreFar = new AutonPos(200.0, 42.19, 180).offset(12, 12-12, 0);
 
     //Drive To Balance
     public static AutonPos driveToBalComm = new AutonPos(86, 108, 90);
     public static AutonPos driveToBalOutside = new AutonPos(230, 108, 90);
+
+    //Bump Positions
+    public static AutonPos preBumpPos = new AutonPos(driveFar.xy.getX(), 59.36 - 25, 0);
+    public static AutonPos postBumpPos = new AutonPos(driveFar.xy.getX() + 60.0, 59.36 - 25, 180);
 
     //Arm Offset
     public static double initArmStendo = 32.5;

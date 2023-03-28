@@ -19,7 +19,6 @@ public class Sensors extends SubsystemBase{
     public AHRS navX;
     private double navXOffset = 0;
 
-    public double prevAng;
     public double prevWheelPos;
 
     public double dt;

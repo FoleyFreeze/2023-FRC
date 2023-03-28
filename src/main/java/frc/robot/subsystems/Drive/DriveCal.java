@@ -95,8 +95,9 @@ public class DriveCal {
     public double scoringStrafePwr = 0.35;
     public double scoringRotPwr = 0.2;
 
-    public double autoAlignWaitTime = 0.6;
+    public double autoAlignWaitTime = 0.4;
     public double autoAlignKp = 0.3;
-    public double autoAlignKi = 1.0;
+    public double autoAlignKi = 1.3;
+    public double autoAlignKd = 0.01;
     public double autoAlignMaxPower = 0.2;
 }

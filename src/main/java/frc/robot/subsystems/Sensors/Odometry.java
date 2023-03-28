@@ -20,6 +20,7 @@ public class Odometry implements AutoCloseable {
 
     public Vector botLocation;
     public double botAngle;
+    public double deltaBotAngle;
 
     RobotContainer r;
 
@@ -110,6 +111,8 @@ public class Odometry implements AutoCloseable {
         getWheelDiffsOdo(botAng, prevBotAng, realVecs);
         //getStdDevOdo(botAng, realVecs);
         
+        deltaBotAngle = Angle.normRad(botAngle - prevBotAng) / r.sensors.dt;
+
         prevWheelStates = wheelStates;
         prevBotAng = botAng;
     }

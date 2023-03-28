@@ -41,7 +41,7 @@ public class AngleMotionProfile extends CommandBase{
         
         double totalAngle = Angle.shortestPath(startLoc, endLoc); 
         totalDistance = totalAngle * r.dCal.wheelCals[0].wheelLocation.r;
-        double distThreshold = (AutonCal.AmaxVel * AutonCal.AmaxVel) / AutonCal.AmaxAccel;
+        double distThreshold = (AutonCal.angleBase.maxVel * AutonCal.angleBase.maxVel) / AutonCal.angleBase.maxAccel;
 
         if(totalDistance < 0){
             inverted = true;
@@ -53,9 +53,9 @@ public class AngleMotionProfile extends CommandBase{
             accelDist = distThreshold / 2;
             decelDist = distThreshold / 2;
             maxVelDist = totalDistance - distThreshold;
-            accelTime =  Math.sqrt(distThreshold / AutonCal.AmaxAccel);
+            accelTime =  Math.sqrt(distThreshold / AutonCal.angleBase.maxAccel);
             //System.out.println("" + accelTime);
-            maxVelTime = accelTime + maxVelDist / AutonCal.AmaxVel;
+            maxVelTime = accelTime + maxVelDist / AutonCal.angleBase.maxVel;
             decelTime = maxVelTime + accelTime;
         } else{
             //2 step (Accel - Decel)
@@ -63,7 +63,7 @@ public class AngleMotionProfile extends CommandBase{
             maxVelDist = 0;
             accelDist = totalDistance / 2;
             decelDist = totalDistance / 2;
-            accelTime =  Math.sqrt(totalDistance / AutonCal.AmaxAccel);
+            accelTime =  Math.sqrt(totalDistance / AutonCal.angleBase.maxAccel);
             decelTime = 2 * accelTime;
         }
         startTime = Timer.getFPGATimestamp();
@@ -92,11 +92,11 @@ public class AngleMotionProfile extends CommandBase{
         double targetAngle = targetPos / r.dCal.wheelCals[0].wheelLocation.r;
         double dist = (targetAngle - delta) * r.dCal.wheelCals[0].wheelLocation.r;
         double errorMag = dist;
-        dist *= AutonCal.AkP_MP;
+        dist *= AutonCal.angleBase.kP_MP;
         double totalVel = targetVel + dist;
 
         //output
-        double power = (AutonCal.AkA * targetAccel) + (AutonCal.AkV * totalVel) + AutonCal.AkS;
+        double power = (AutonCal.angleBase.kA * targetAccel) + (AutonCal.angleBase.kV * totalVel) + AutonCal.angleBase.kS;
         r.driveTrain.swerveMPA(power);
         
         if(DEBUG) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power,errorMag,targetPos,targetVel,targetAccel,accelTime,maxVelTime,decelTime);
@@ -120,18 +120,18 @@ public class AngleMotionProfile extends CommandBase{
         double targetPos;
         if (t < accelTime){ 
             //stage 1
-            targetAccel = AutonCal.AmaxAccel;
+            targetAccel = AutonCal.angleBase.maxAccel;
             targetPos = 0.5 * targetAccel * t * t;
             targetVel = targetAccel * t;
         } else if (t < maxVelTime) { 
             //stage 2
             targetAccel = 0;
-            targetVel = AutonCal.AmaxVel;
+            targetVel = AutonCal.angleBase.maxVel;
             targetPos = ((t - accelTime) * targetVel) + accelDist;
         } else if (t < decelTime) { 
             //stage 3
             double t3 = t - decelTime;
-            targetAccel = -AutonCal.AmaxAccel;
+            targetAccel = -AutonCal.angleBase.maxAccel;
             targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance;
             targetVel = t3 * targetAccel;
         } else { 
