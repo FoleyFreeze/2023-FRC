@@ -21,6 +21,7 @@ public class DriveForTime extends CommandBase {
     }
 
     public DriveForTime(RobotContainer r, Vector direction, double angle, double seconds){
+        addRequirements(r.driveTrain);
         this.r = r;
         this.direction = direction;
         this.angle = Angle.toRad(angle);

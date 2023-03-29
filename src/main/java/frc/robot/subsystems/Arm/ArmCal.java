@@ -34,7 +34,7 @@ public class ArmCal {
     public double jogOutDist = 1;//deg
 
     //stendo max length restriction based on arm angle error
-    public double[] stendoLengthMax = {40, lengthMin};
+    public double[] stendoLengthMax = {40, lengthMin+1};
     public double[] armAngleErrorAxis = {10, 40};
 
     //stendo enc reset

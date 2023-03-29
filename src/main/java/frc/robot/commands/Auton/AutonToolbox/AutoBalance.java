@@ -87,6 +87,26 @@ public class AutoBalance {
         return sg;
     }
 
+    //Goes over and resets x-pos
+    public static Command getDriveOverStation(RobotContainer r, boolean toSubstation){
+        SequentialCommandGroup sg = new SequentialCommandGroup();
+
+        double direction;
+        if(toSubstation){
+            direction = 180;
+        } else {
+            direction = 0;
+        }
+
+        sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, direction), 4.0).until(() -> r.sensors.getAbsPitchRoll() > 15.0));
+        sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, direction), 3.0).until(() -> r.sensors.getAbsPitchRoll() < 5.0));
+        sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, direction), 2.0).until(() -> r.sensors.getAbsPitchRoll() > 8.0));
+        sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, direction), 1.0).until(() -> r.sensors.getAbsPitchRoll() < 3.0));
+
+        sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotLocation(Vector.fromXY(193.25 + 13.0, r.sensors.odo.botLocation.getY()))));
+
+        return sg;
+    }
 
 
     //Based on distance

@@ -73,7 +73,7 @@ public class Odometry implements AutoCloseable {
     }
 
     public void setBotLocation(Vector location){
-        botLocation = location;
+        botLocation = new Vector(location);
     }
 
     public void setBotAngle(double angle){

@@ -52,12 +52,13 @@ public class AutonPos {
 
     //Start Positions
     public static AutonPos substation = new AutonPos(54.25 + 4, 20.19 + 11.0 + 154.0 + 2, 165);
-    public static AutonPos subMid = new AutonPos(54.25 + 4, 20.19 + 11.0 + 110.0 + 2, 165);
-    public static AutonPos farMid = new AutonPos(54.25 + 4, 20.19 + 11.0 + 44.0 + 2, 165);
-    public static AutonPos far = new AutonPos(54.25 + 4, 20.19 + 11.0 + 2, -165);
+    public static AutonPos subMid = new AutonPos(54.25 + 4, 20.19 + 11.0 + 88.0 + 2, 165);
+    public static AutonPos farMid = new AutonPos(54.25 + 4, 20.19 + 11.0 + 66.0 - 2, -165);
+    public static AutonPos far = new AutonPos(54.25 + 4, 20.19 + 11.0 - 2, -165);
 
     //First Drives
     public static AutonPos driveSub = new AutonPos(86, 156.61 + 25, 0).offset(12, 0, 0);
+    public static AutonPos driveMid = new AutonPos(86, 108, 0);
     public static AutonPos driveFar = new AutonPos(86, 59.36 - 25, 0).offset(12, 0, 0);
 
     //Drive Outs
@@ -66,6 +67,8 @@ public class AutonPos {
 
     //Drive To Piece
     public static AutonPos drivePieceSub = new AutonPos(266, 180.2, 0).offset(-14, 4.5, 0);
+    public static AutonPos drivePieceMidSub = new AutonPos(266, 132.2, 0).offset(-14, 0, 0);
+    public static AutonPos drivePieceMidFar = new AutonPos(266, 84.2, 0).offset(-14, 0, 0);
     public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(-14, 3-3, 5);
 
     //Drive To Score
@@ -75,8 +78,8 @@ public class AutonPos {
     //public static AutonPos driveScoreFar = new AutonPos(200.0, 42.19, 180).offset(12, 12-12, 0);
 
     //Drive To Balance
-    public static AutonPos driveToBalComm = new AutonPos(86, 108, 90);
-    public static AutonPos driveToBalOutside = new AutonPos(230, 108, 90);
+    public static AutonPos driveToBalComm = new AutonPos(86, 108, 180);
+    public static AutonPos driveToBalOutside = new AutonPos(230, 108, 180);
 
     //Bump Positions
     public static AutonPos preBumpPos = new AutonPos(driveFar.xy.getX(), 59.36 - 25, 0);
