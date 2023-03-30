@@ -15,7 +15,7 @@ public class AutonCal {
     static {
         driveBase.maxAccel = 120;
         driveBase.maxVel = 120;
-        driveBase.kP_MP = 3.0;
+        driveBase.kP_MP = 5.0;
         driveBase.kA = 0.001;
         driveBase.kV = 0.006;
         driveBase.kS = 0.03;
@@ -25,8 +25,8 @@ public class AutonCal {
     static {
         angleBase.maxAccel = 80;
         angleBase.maxVel = 60;
-        angleBase.kP_MP = 3.0;
-        angleBase.kA = 0.001;
+        angleBase.kP_MP = 7.0;
+        angleBase.kA = 0.0007;
         angleBase.kV = 0.006;
         angleBase.kS = 0.03;
     }

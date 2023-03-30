@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.RobotContainer.AutonPaths;
+import frc.robot.RobotContainer.AutonStarts;
 import frc.robot.commands.Auton.AutonBuilder;
 import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
@@ -86,8 +88,8 @@ public class Robot extends TimedRobot {
 
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 
-    int autonChooser = r.autonChooser.getSelected();
-    int startPos = r.autonStartPosChooser.getSelected();
+    AutonPaths autonChooser = r.autonChooser.getSelected();
+    AutonStarts startPos = r.autonStartPosChooser.getSelected();
 
     int simpleStartPos = r.simpleStartPosChooser.getSelected();
     boolean simpleBalance = r.simpleBalanceChooser.getSelected();

@@ -22,9 +22,12 @@ public class WaitForStage extends CommandBase{
 
     @Override
     public boolean isFinished(){
+        
         if(scoreMode){
-            return dti.driveStage > 1 || 
-                (dti.driveStage == 1 && Math.abs(dti.err.getY()) < dist);
+            boolean ret = (dti.driveStage > 1 && dti.err.r < dist) 
+            || (dti.driveStage == 1 && Math.abs(Vector.subVectors(dti.target, r.sensors.odo.botLocation).getY()) < dist);
+            if(ret) System.out.println("DTI exit at stage: " + dti.driveStage + " dist: " + dti.err.getY());
+            return ret;
         } else {
             return Math.abs(dti.angle - r.sensors.getNavXAng()) < Math.PI/10;
         }

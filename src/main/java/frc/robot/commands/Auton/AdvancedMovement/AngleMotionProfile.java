@@ -90,7 +90,7 @@ public class AngleMotionProfile extends CommandBase{
         double currentPos = r.sensors.odo.botAngle;
         double delta = Angle.shortestPath(startLoc, currentPos);
         double targetAngle = targetPos / r.dCal.wheelCals[0].wheelLocation.r;
-        double dist = (targetAngle - delta) * r.dCal.wheelCals[0].wheelLocation.r;
+        double dist = Angle.shortestPath(delta,targetAngle) * r.dCal.wheelCals[0].wheelLocation.r;
         double errorMag = dist;
         dist *= AutonCal.angleBase.kP_MP;
         double totalVel = targetVel + dist;

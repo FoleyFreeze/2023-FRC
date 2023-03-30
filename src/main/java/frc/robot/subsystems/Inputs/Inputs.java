@@ -513,6 +513,20 @@ public class Inputs extends SubsystemBase{
         }
     });
 
+    public boolean determineLeftAlignment(){
+        if(selectedZone.ordinal() == 1){
+            return true;
+        } else if(selectedZone.ordinal() == 2){
+            if(selectedPosition.ordinal() == 1){
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     /* This is the temporary indexing to the physical positions
      * 
      *                 (Driver Station)

@@ -67,8 +67,12 @@ public class RobotContainer {
 
   public SendableChooser<Integer> specialAutonChooser;
 
-  public SendableChooser<Integer> autonChooser;
-  public SendableChooser<Integer> autonStartPosChooser;
+  public enum AutonPaths {NOTHING, DRIVE_OUT, SCORE_DRIVE_OUT,
+                          SCORE_BALANCE, SCORE_PICKUP_BALANCE,
+                          TWO_SCORE, TWO_SCORE_BALANCE};
+  public SendableChooser<AutonPaths> autonChooser;
+  public enum AutonStarts {SUB, SUB_MID, FAR_MID, FAR};
+  public SendableChooser<AutonStarts> autonStartPosChooser;
 
   public SendableChooser<Integer> simpleStartPosChooser;
   public SendableChooser<Boolean> simpleBalanceChooser;
@@ -106,20 +110,20 @@ public class RobotContainer {
     SmartDashboard.putData("Simplicity Chooser", specialAutonChooser);
 
     autonChooser = new SendableChooser<>();
-    autonChooser.setDefaultOption("Do Nothing", 0);
-    autonChooser.addOption("Drive Out", 1);
-    autonChooser.addOption("Score and Drive Out", 2);
-    autonChooser.addOption("Score and Balance", 3);
-    autonChooser.addOption("Score, Pickup, Balance", 4);
-    autonChooser.addOption("Two-Score", 5);
-    autonChooser.addOption("Two-Score and Balance", 6);
+    autonChooser.setDefaultOption("Do Nothing", AutonPaths.NOTHING);
+    autonChooser.addOption("Drive Out", AutonPaths.DRIVE_OUT);
+    autonChooser.addOption("Score and Drive Out", AutonPaths.SCORE_DRIVE_OUT);
+    autonChooser.addOption("Score and Balance", AutonPaths.SCORE_BALANCE);
+    autonChooser.addOption("Score, Pickup, Balance", AutonPaths.SCORE_PICKUP_BALANCE);
+    autonChooser.addOption("Two-Score", AutonPaths.TWO_SCORE);
+    autonChooser.addOption("Two-Score and Balance", AutonPaths.TWO_SCORE_BALANCE);
     SmartDashboard.putData("Auton", autonChooser);
 
     autonStartPosChooser = new SendableChooser<>();
-    autonStartPosChooser.setDefaultOption("Substation", 0);
-    autonStartPosChooser.addOption("Mid-Substation", 1);
-    autonStartPosChooser.addOption("Mid-Far", 2);
-    autonStartPosChooser.addOption("Far", 3);
+    autonStartPosChooser.setDefaultOption("Substation", AutonStarts.SUB);
+    autonStartPosChooser.addOption("Mid-Substation", AutonStarts.SUB_MID);
+    autonStartPosChooser.addOption("Mid-Far", AutonStarts.FAR_MID);
+    autonStartPosChooser.addOption("Far", AutonStarts.FAR);
     SmartDashboard.putData("Start Position", autonStartPosChooser);
 
     simpleStartPosChooser = new SendableChooser<>();
@@ -196,7 +200,7 @@ public class RobotContainer {
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.whileTrue(new ConditionalCommand(new ConditionalCommand(CamCommands.AutoDriveToGather(this), GatherCommand.gatherCommand(this), () -> inputs.isShelf()), GatherCommand.gatherCommand(this), () -> inputs.cameraMode()));
+    inputs.autoGather.whileTrue(new ConditionalCommand(new ConditionalCommand(CamCommands.AutoDriveToGather(this), GatherCommand.gatherCommand(this).alongWith(new CmdDrive(this)), () -> inputs.isShelf()), GatherCommand.gatherCommand(this), () -> inputs.cameraMode()));
 
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));

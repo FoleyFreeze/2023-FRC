@@ -53,7 +53,7 @@ public class DriveTrain extends SubsystemBase {
     public boolean parkMode = false;
     public void setParkMode(boolean parkMode){
         this.parkMode = parkMode;
-        System.out.println("Park mode set");
+        System.out.println("Park mode set " + parkMode);
     }
 
     //automatically maintains heading if rotation is not commanded

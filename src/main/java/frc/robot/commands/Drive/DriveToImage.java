@@ -17,6 +17,8 @@ public class DriveToImage extends CommandBase{
     public int driveStage;
     public Vector err;
 
+    boolean debug = false;
+
     double maxFilterDist = 1.0;//inches
     double maxSingleFrameOffset = 3;//inches
     double filterDivisor = 4.0;
@@ -32,17 +34,19 @@ public class DriveToImage extends CommandBase{
         pwrMultiplier = 0.1;
         pwrMax = 0.3;
 
-        driveStage = 1;
+        driveStage = 0;
         err = new Vector(0,0);
 
         level = r.inputs.selectedLevel.ordinal();
-        position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
     }
 
-    Vector target;
+    public Vector target;
 
     double pwrMultiplier;
     double pwrMax;
+    final double PWR_MAX_CUBE = 0.3;
+    final double PWR_MAX_CONE = 0.2;
+    final double PWR_MAX_GATHER = 0.15;
 
     public double angle;
 
@@ -51,17 +55,18 @@ public class DriveToImage extends CommandBase{
 
     @Override
     public void execute(){
+        position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
         
         if(target == null){
             Vector v = r.vision.getImageVector(level, position, scoreMode);
             if(v != null) {
                 target = new Vector(v);
-                System.out.print("Raw: " + v.toString());
+                if(debug) System.out.print("Raw: " + v.toString());
             }
         } else {
             Vector newImage = r.vision.getImageVector(level, position, scoreMode);
             if(newImage != null){
-                System.out.print("Raw: " + newImage.toString());
+                if(debug) System.out.print("Raw: " + newImage.toString());
                 Vector delta = Vector.subVectors(newImage, target);
                 if(delta.r > maxFilterDist){
                     delta.r /= filterDivisor;
@@ -73,40 +78,43 @@ public class DriveToImage extends CommandBase{
             }
         }
 
+        Vector power;
         if(target == null){
             if(scoreMode){
                 angle = Math.PI;
             } else {
                 angle = 0;
             }
-            r.driveTrain.driveSwerveAngle(Vector.fromXY(0, 0), angle);
+            power = getJoystickPower();
+
         } else {
             System.out.println(" Target: " + target.toString());
+            if(driveStage == 0) driveStage = 1;
 
             //different logic based on if you're gathering or scoring
             if(scoreMode){
                 //no else cases, so when we move to next stage we
                 //immediately take the new drive action of that stage
                 double coneMidOffset = 0;
-                if(!r.inputs.isCube()) coneMidOffset = 20;
+                if(!r.inputs.isCube()) coneMidOffset = 10;
                 if(driveStage == 1){
                     pwrMultiplier = 0.4;
-                    pwrMax = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
                     //Move it to a mid-substation x position first
                     Vector xOffset = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, r.sensors.odo.botLocation.getY());
                     err = Vector.subVectors(xOffset, r.sensors.odo.botLocation);
                     angle = Math.PI;
-                    if(err.r < 1.0){
+                    if(Math.abs(err.getX()) < 4.0){
                         driveStage = 2;
                     }
                 } 
                 if(driveStage == 2){
                     pwrMultiplier = 0.35;
-                    pwrMax = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position next
                     Vector yAlign = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, target.getY());
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
-                    angle = Math.PI;
+                    angle = r.vision.getImageAngle(level, position);
                     
                     if(err.r < 1.0){
                         driveStage = 3;
@@ -114,11 +122,16 @@ public class DriveToImage extends CommandBase{
                 }
                 if(driveStage == 3) {
                     pwrMultiplier = 0.2;
-                    pwrMax = 0.3;
+                    
                     //Final drive in
                     err = Vector.subVectors(target,r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    if(err.r < 3.0){
+                    if(err.r < 40 && !r.inputs.isCube()){
+                        pwrMax = PWR_MAX_CONE;
+                    } else {
+                        pwrMax = PWR_MAX_CUBE;
+                    }
+                    if(err.r < 1.5){
                         driveStage = 4;
                     }
                 }
@@ -137,7 +150,7 @@ public class DriveToImage extends CommandBase{
                 
                 if(driveStage == 1){
                     pwrMultiplier = 0.3;
-                    pwrMax = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position and rotate
                     Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
@@ -149,7 +162,7 @@ public class DriveToImage extends CommandBase{
                 }
                 if(driveStage == 2){
                     pwrMultiplier = 0.15;
-                    pwrMax = 0.15;
+                    pwrMax = PWR_MAX_GATHER;
                     //drive in
                     Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
                     err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
@@ -161,11 +174,11 @@ public class DriveToImage extends CommandBase{
                 }
             }
 
-            System.out.println("Stage" + driveStage + " Error: " + err.toString());
+            if(debug) System.out.println("Stage" + driveStage + " Error: " + err.toString());
             SmartDashboard.putString("ImageVector", err.toString());
 
             //account for field oriented
-            Vector power = new Vector(err);
+            power = new Vector(err);
             power.theta -= r.sensors.odo.botAngle;
 
             double iPwr = 0;
@@ -178,25 +191,31 @@ public class DriveToImage extends CommandBase{
 
             if(Math.abs(r.inputs.getJoystickX()) > 0.1
             || Math.abs(r.inputs.getJoystickY()) > 0.1){
-                power = Vector.fromXY(-r.inputs.getJoystickY(), -r.inputs.getJoystickX());
-                if(r.inputs.getFieldOrient()){
-                    power.theta -= r.sensors.odo.botAngle;
-                }
-
-                //Square inputs for smoother driving
-                power.r = power.r * power.r;
-
-                //Field mode v. pit mode
-                if(r.inputs.scoringSlowMode){
-                    power.r *= r.driveTrain.cals.scoringStrafePwr;
-                } else if(r.inputs.getFieldMode()){
-                    power.r *= r.driveTrain.cals.fieldModePwr;
-                } else {
-                    power.r *= r.driveTrain.cals.pitModePwr;
-                }
+                power = getJoystickPower();
             }
-            r.driveTrain.driveSwerveAngle(power, angle);
         }
+        r.driveTrain.driveSwerveAngle(power, angle);
+    }
+
+    private Vector getJoystickPower(){
+        Vector power = Vector.fromXY(-r.inputs.getJoystickY(), -r.inputs.getJoystickX());
+        if(r.inputs.getFieldOrient()){
+            power.theta -= r.sensors.odo.botAngle;
+        }
+
+        //Square inputs for smoother driving
+        power.r = power.r * power.r;
+
+        //Field mode v. pit mode
+        if(r.inputs.scoringSlowMode){
+            power.r *= r.driveTrain.cals.scoringStrafePwr;
+        } else if(r.inputs.getFieldMode()){
+            power.r *= r.driveTrain.cals.fieldModePwr;
+        } else {
+            power.r *= r.driveTrain.cals.pitModePwr;
+        }
+
+        return power;
     }
 
     @Override

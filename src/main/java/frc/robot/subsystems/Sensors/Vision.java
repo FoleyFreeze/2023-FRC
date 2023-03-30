@@ -24,8 +24,10 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
+    boolean debug = false;
+
     //TODO: remove the added offset when the camera is recal'd
-    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75).add(frc.robot.util.Vector.fromXY(-0.75,-10));
+    frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
 
     private BooleanEntry active;
     private DoubleEntry rioTime;
@@ -124,14 +126,15 @@ public class Vision extends SubsystemBase {
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
 
+        if(debug) System.out.println("Raw ID: " + bestData.tagId);
         int id = bestData.tagId;
         if(DriverStation.getAlliance() == Alliance.Red){
             id = 9 - id;
         }
 
-        frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(bestData.tagId).get().getTranslation());
-        System.out.println("tag" + bestData.tagId + "Pos: " + tagPos.toStringXY());
-        if(DriverStation.getAlliance() == Alliance.Blue) position = 10 - position;
+        frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(id).get().getTranslation());
+        if(debug) System.out.println("tag" + id + "Pos: " + tagPos.toStringXY());
+        /*if(DriverStation.getAlliance() == Alliance.Blue)*/ position = 10 - position;
         if((level == 0 || position == 0) && scoring) return null;
         AutonPos offset;
         if(scoring){
@@ -139,10 +142,12 @@ public class Vision extends SubsystemBase {
         } else {
             offset = new AutonPos(AutonPos.GATHER_OFFSET);
         }
+        /*
         if(DriverStation.getAlliance() == Alliance.Red){
             offset.mirrorY(true);
             tagPos.theta = -tagPos.theta;
         }
+        */
         frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
 
         cam.add(driveOffset);
@@ -151,7 +156,6 @@ public class Vision extends SubsystemBase {
     }
 
     public double getImageAngle(int level, int position){
-        //TODO: Does this need to flip for blue/red alliance?
         if(level == 0 || position == 0) return 0;
         return AutonPos.SCORING_OFFSETS[level - 1][position - 1].value;
     }

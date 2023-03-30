@@ -12,14 +12,14 @@ public class GripperCal{
     public int servoChannel = 1;
 
     public double servoOpenPos = 0.65;//This is the maximum we should ever go
-    public double servoClosePos = 0.29;//This is the minimum we should ever go
+    public double servoClosePos = 0.28;//This is the minimum we should ever go
 
     public double cubePickUpPower = 0.5;
     public double pieceHoldPower = 0.07;
     public double cubePickUpSpeed = 2000;
 
     public double cubeScoreSpeed = -4000;
-    public double cubeScorePower = -0.3;
+    public double cubeScorePower = -0.2;
 
     public double conePickUpPower = 0.9;
     public double conePickUpSpeed = 3000;

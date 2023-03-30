@@ -213,20 +213,24 @@ public class Arm extends SubsystemBase {
     //if stendo is hitting the current limit for > 1s, reset the 0
     double stendoResetTime = 0;
     double stendoResetPosition = 0;
+    int resetCount = 0;
     private void determineStendoReset(double currentAngle){
         double now = Timer.getFPGATimestamp();
         double pos = stendoMotor.getPosition();
         double posErr = Math.abs(pos - stendoResetPosition);
-        if(stendoMotor.getCurrent() > cals.stendoCurrLim-5 && posErr < 0.1){
+        if(stendoMotor.getCurrent() > cals.stendoCurrLim-2 && posErr < 0.05){
             if(stendoResetTime < now-0.2) {
-                stendoResetTime = now + 0.5;
+                stendoResetTime = now + 0.75;
             } else if(stendoResetTime < now){
                 stendoMotor.setEncoderPosition(cals.lengthMin + getStendoPulleyOffset(currentAngle));
                 stendoMotor.setPosition(cals.lengthMin + getStendoPulleyOffset(currentAngle));
                 jogOffset.r = 0;
+                resetCount++;
+                System.out.println("Reset Stendo Zero for the " + resetCount + "th time");
             }
         } else {
             stendoResetPosition = pos;
+            stendoResetTime = 0;
         }
     }
 }
