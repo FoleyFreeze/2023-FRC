@@ -142,8 +142,8 @@ public class Arm extends SubsystemBase {
         jogUpDownNT.setDouble(Angle.toDeg(jogOffset.theta));
         jogInOutNT.setDouble(jogOffset.r);
 
-        double currentAngle = angleMotor.getPosition() /*- Math.toDegrees(jogOffset.theta)*/;
-        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle) /*- jogOffset.r*/;
+        double currentAngle = angleMotor.getPosition() - Math.toDegrees(jogOffset.theta);
+        double currentLength = stendoMotor.getPosition() - getStendoPulleyOffset(currentAngle) - jogOffset.r;
         Vector currPos = Vector.fromDeg(currentLength, currentAngle);
         SmartDashboard.putString("ArmPos", currPos.toStringPolar());
 
@@ -205,8 +205,13 @@ public class Arm extends SubsystemBase {
 
     //mathify for error
     public Vector getError(){;
-        Vector currentVector = Vector.fromDeg(stendoMotor.getPosition() - jogOffset.r,angleMotor.getPosition() - Math.toDegrees(jogOffset.theta));
-        return Vector.subVectors(setPoint, currentVector);
+        //Vector currentVector = Vector.fromDeg(stendoMotor.getPosition() - jogOffset.r,angleMotor.getPosition() - Math.toDegrees(jogOffset.theta));
+        double deltaStendo = setPoint.r - (stendoMotor.getPosition() - jogOffset.r);
+        double deltaAngle = Angle.normRad(setPoint.theta - (Math.toRadians(angleMotor.getPosition()) - jogOffset.theta));
+        Vector v = new Vector(0,0);
+        v.r = deltaStendo;
+        v.theta = deltaAngle;
+        return v;
     }
 
 

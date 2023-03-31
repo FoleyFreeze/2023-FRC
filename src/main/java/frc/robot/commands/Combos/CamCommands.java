@@ -15,6 +15,7 @@ import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.DriveToImage;
 import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.commands.Gripper.IntakeCommand;
+import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.subsystems.Inputs.Inputs.ManScoreMode;
 import frc.robot.util.Vector;
 
@@ -51,7 +52,7 @@ public class CamCommands extends SequentialCommandGroup{
     public static Command scoreOnlyCone(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        sg.addCommands(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment()));
+        sg.addCommands(new ConditionalCommand(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment()), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.TOP));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));
         //move the arm to release position
         sg.addCommands(new ArmMove(r, r.inputs.armScorePos));

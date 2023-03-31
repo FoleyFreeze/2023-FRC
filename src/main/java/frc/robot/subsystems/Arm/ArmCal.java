@@ -34,7 +34,7 @@ public class ArmCal {
     public double jogOutDist = 1;//deg
 
     //stendo max length restriction based on arm angle error
-    public double[] stendoLengthMax = {40, lengthMin+1};
+    public double[] stendoLengthMax = {40, lengthMin+2};
     public double[] armAngleErrorAxis = {10, 40};
 
     //stendo enc reset
@@ -55,7 +55,7 @@ public class ArmCal {
     public Vector positionConeHiStendo = Vector.fromDeg(31, -5.4);
     public Vector positionConeHiHold = Vector.fromDeg(39, 110.7);
     public Vector positionConeHiRelease = Vector.fromDeg(39, 97.3);
-    public Vector positionConeMedHold = Vector.fromDeg(33.5, 89.3);
+    public Vector positionConeMedHold = Vector.fromDeg(33.5, 93.0);
     public Vector positionConeMedRelease = Vector.fromDeg(33.5, 72.6);
     public Vector positionConeLowRelease = Vector.fromDeg(30.6, 19.8);
   

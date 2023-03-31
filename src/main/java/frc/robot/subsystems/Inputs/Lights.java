@@ -161,11 +161,13 @@ public class Lights extends SubsystemBase{
             
 
         } else if(r.inputs.parkMode.getAsBoolean()){
-            skittles2(crabRave);
-            /*Color colorSet = new Color(255, 0, 0);
-            for(int i = 0; i < ledBuffer.getLength(); i++){
-                ledBuffer.setLED(i, colorSet);
-            }*/
+            if(Timer.getFPGATimestamp() > switchTime){
+                skittles2(crabRave);
+                /*Color colorSet = new Color(255, 0, 0);
+                for(int i = 0; i < ledBuffer.getLength(); i++){
+                    ledBuffer.setLED(i, colorSet);
+                }*/
+            }
         } else{
             //switchTime = Timer.getFPGATimestamp();
             //Color colorSet;

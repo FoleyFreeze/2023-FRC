@@ -60,7 +60,7 @@ public class AutoBalance {
 
         //driving sideways(roll) for 3 seconds or until we make it most of the way up the [lifty] thing
         sg.addCommands(new DriveForTime(r, Vector.fromXY(.35*s, 0), 2.0).until(() -> r.sensors.getAbsPitchRoll() > 25));
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(.25*s, 0), 0.5));//drive a bit before checking angle again
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(.25*s, 0), 0.2));//drive a bit before checking angle again
         //now wait until the charge station starts falling down
         sg.addCommands(new DriveForTime(r, Vector.fromXY((.17+0.03)*s, 0), 10.0).until(() -> r.sensors.getAbsPitchRoll() < 11.5));
         //stop until we are at the wanted pitch/roll

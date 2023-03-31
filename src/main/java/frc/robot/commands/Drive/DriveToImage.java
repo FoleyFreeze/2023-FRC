@@ -46,7 +46,7 @@ public class DriveToImage extends CommandBase{
     double pwrMax;
     final double PWR_MAX_CUBE = 0.3;
     final double PWR_MAX_CONE = 0.2;
-    final double PWR_MAX_GATHER = 0.15;
+    final double PWR_MAX_GATHER = 0.2;
 
     public double angle;
 
@@ -78,6 +78,8 @@ public class DriveToImage extends CommandBase{
             }
         }
 
+
+
         Vector power;
         if(target == null){
             if(scoreMode){
@@ -88,7 +90,7 @@ public class DriveToImage extends CommandBase{
             power = getJoystickPower();
 
         } else {
-            System.out.println(" Target: " + target.toString());
+            if(debug) System.out.println(" Target: " + target.toString());
             if(driveStage == 0) driveStage = 1;
 
             //different logic based on if you're gathering or scoring
@@ -194,7 +196,13 @@ public class DriveToImage extends CommandBase{
                 power = getJoystickPower();
             }
         }
-        r.driveTrain.driveSwerveAngle(power, angle);
+
+        double zCmd = getJoystickAngle();
+        if(Math.abs(zCmd) > 0.05){
+            r.driveTrain.driveSwerve(power, zCmd);
+        } else {
+            r.driveTrain.driveSwerveAngle(power, angle);
+        }
     }
 
     private Vector getJoystickPower(){
@@ -216,6 +224,24 @@ public class DriveToImage extends CommandBase{
         }
 
         return power;
+    }
+
+    private double getJoystickAngle(){
+        double z = r.inputs.getJoystickZR();
+
+        //Square inputs for smoother driving
+        z = z * z * Math.signum(z);
+
+        //Field mode v. pit mode
+        if(r.inputs.scoringSlowMode){
+            z *= r.driveTrain.cals.scoringRotPwr;
+        } else if(r.inputs.getFieldMode()){
+            z *= r.driveTrain.cals.fieldModePwr;
+        } else {
+            z *= r.driveTrain.cals.pitModePwr;
+        }
+
+        return z;
     }
 
     @Override

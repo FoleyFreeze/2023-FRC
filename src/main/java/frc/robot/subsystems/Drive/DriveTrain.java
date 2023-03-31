@@ -77,12 +77,14 @@ public class DriveTrain extends SubsystemBase {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
-                if(!r.inputs.cameraMode() && r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){
+                if(r.inputs.cameraMode() && !DriverStation.isAutonomous() && r.inputs.getFieldMode()){
+                    usePID |= r.inputs.autoGather.getAsBoolean() || r.inputs.autoScore.getAsBoolean();
+                } else if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Shelf;
-                } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
+                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
                     if(r.inputs.fieldAlignRight.getAsBoolean()){
@@ -92,7 +94,7 @@ public class DriveTrain extends SubsystemBase {
                     }
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Score;
-                } else if(!r.inputs.cameraMode() && r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
+                } else if(r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
                     usePID = true;
                     setpoint = Math.toRadians(180);
                     targetHeading = r.sensors.odo.botAngle;

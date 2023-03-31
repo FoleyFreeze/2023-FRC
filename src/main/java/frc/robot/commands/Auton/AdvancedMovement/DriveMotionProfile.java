@@ -16,7 +16,7 @@ public class DriveMotionProfile extends CommandBase{
     private Vector startLoc;
     private Vector endLoc;
     private boolean threeStep; //threeStep is true when doing a three step profile, false when doing a two step
-    final boolean DEBUG = true;
+    final boolean DEBUG = false;
     double targetAngle;
 
     MPCals cals;
