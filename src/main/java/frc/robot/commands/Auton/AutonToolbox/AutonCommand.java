@@ -56,6 +56,10 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
+        Vector[] driveToPieceRedOffset = {Vector.fromXY(0,4.0),
+                                          Vector.fromXY(0,0),
+                                          Vector.fromXY(0,0),
+                                          Vector.fromXY(0,0)};
 
         Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
                                  AutonPos.driveScoreSub.xy,
@@ -84,6 +88,9 @@ public class AutonCommand {
 
         if(alliance.equals(Alliance.Red)){
             for(int i = 0; i < 4; i++){
+                driveToPiece[i] = Vector.addVectors(driveToPieceRedOffset[i],driveToPiece[i]);
+
+
                 startPositions[i] = new Vector(startPositions[i]).mirrorY();
                 startAng[i] = -startAng[i];
 

@@ -100,6 +100,7 @@ public class DriveTrain extends SubsystemBase {
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Score;
                 }
+                if(!r.inputs.getFieldMode()) usePID = false;
                 SmartDashboard.putBoolean("UseAnglePID", usePID);
 
                 //error is between -360 -> 360

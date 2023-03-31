@@ -47,7 +47,7 @@ public class DriveToImage extends CommandBase{
     double pwrMax;
     final double PWR_MAX_CUBE = 0.3;
     final double PWR_MAX_CONE = 0.2;
-    final double PWR_MAX_GATHER = 0.25;
+    final double PWR_MAX_GATHER = 0.3;
 
     public double angle;
 
