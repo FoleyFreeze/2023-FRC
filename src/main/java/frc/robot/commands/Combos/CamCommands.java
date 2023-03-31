@@ -55,11 +55,15 @@ public class CamCommands extends SequentialCommandGroup{
         sg.addCommands(new ConditionalCommand(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment()), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.TOP));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));
         //move the arm to release position
-        sg.addCommands(new ArmMove(r, r.inputs.armScorePos));
+        sg.addCommands(new ConditionalCommand(new RunCommand(() -> 
+                            r.gripper.setIntakePower(r.gripper.cals.cubeScorePower),r.gripper)
+                                .raceWith(new WaitCommand(0.2)), 
+                            new ArmMove(r, r.inputs.armScorePos), 
+                        () -> r.inputs.selectedLevel == Level.BOTTOM));
         //driver backwards
         sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)));
         //lower arm
-        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
+        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0.07))));
     
         return sg;
     }
@@ -74,7 +78,7 @@ public class CamCommands extends SequentialCommandGroup{
         //drive backwards
         sg.addCommands(new DriveForTime(r, Vector.fromXY(0.25, 0), 0.4));
         //lower arm
-        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
+        sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0.07))));
 
         return sg;
     }

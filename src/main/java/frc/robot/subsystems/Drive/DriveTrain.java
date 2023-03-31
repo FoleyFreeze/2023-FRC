@@ -100,6 +100,7 @@ public class DriveTrain extends SubsystemBase {
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Score;
                 }
+                SmartDashboard.putBoolean("UseAnglePID", usePID);
 
                 //error is between -360 -> 360
                 double error = (setpoint - r.sensors.odo.botAngle) % (2*Math.PI);

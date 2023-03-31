@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class DriveToImage extends CommandBase{
@@ -133,7 +134,8 @@ public class DriveToImage extends CommandBase{
                     } else {
                         pwrMax = PWR_MAX_CUBE;
                     }
-                    if(err.r < 1.5){
+                    double angError = Angle.normRad(r.sensors.odo.botAngle - angle);
+                    if(Math.abs(err.getX()) < 2.0 && Math.abs(err.getY()) < 1.0 && Math.abs(angError) < Math.toRadians(2.0)){
                         driveStage = 4;
                     }
                 }

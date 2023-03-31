@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    boolean debug = false;
+    boolean debug = true;
 
     //TODO: remove the added offset when the camera is recal'd
     frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
@@ -134,7 +134,7 @@ public class Vision extends SubsystemBase {
 
         frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(id).get().getTranslation());
         if(debug) System.out.println("tag" + id + "Pos: " + tagPos.toStringXY());
-        /*if(DriverStation.getAlliance() == Alliance.Blue)*/ position = 10 - position;
+        if(DriverStation.getAlliance() == Alliance.Blue) position = 10 - position;
         if((level == 0 || position == 0) && scoring) return null;
         AutonPos offset;
         if(scoring){
@@ -142,12 +142,13 @@ public class Vision extends SubsystemBase {
         } else {
             offset = new AutonPos(AutonPos.GATHER_OFFSET);
         }
-        /*
+        
         if(DriverStation.getAlliance() == Alliance.Red){
             offset.mirrorY(true);
+            //tagPos.mirrorY();
             tagPos.theta = -tagPos.theta;
         }
-        */
+        
         frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
 
         cam.add(driveOffset);

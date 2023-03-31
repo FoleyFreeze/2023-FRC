@@ -41,6 +41,7 @@ public class ArmMove extends CommandBase{
     //stop if less than error
     @Override
     public boolean isFinished(){
-        return (Math.abs(r.arm.getError().r) < 3.0);
+        Vector v = r.arm.getError();
+        return (Math.abs(v.r) < 2.0) && Math.abs(v.theta) < Math.toRadians(3) ;
     }
 }
