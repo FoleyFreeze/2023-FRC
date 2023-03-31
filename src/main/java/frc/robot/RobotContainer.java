@@ -199,8 +199,10 @@ public class RobotContainer {
     inputs.resetArm.onTrue(/*new LearnArmOffset(this).ignoringDisable(false)*/ new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
-    //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.whileTrue(new ConditionalCommand(new ConditionalCommand(CamCommands.AutoDriveToGather(this), GatherCommand.gatherCommand(this).alongWith(new CmdDrive(this)), () -> inputs.isShelf()), GatherCommand.gatherCommand(this), () -> inputs.cameraMode()));
+    inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
+    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
+    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGather(this));
+    //inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
 
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
@@ -211,7 +213,8 @@ public class RobotContainer {
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs
     Command manualScoreCommand = new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode()));
-    inputs.autoScore.whileTrue(new ConditionalCommand(CamCommands.AutoDriveToScore(this), manualScoreCommand, () -> inputs.cameraMode()));
+    inputs.autoScore.and(inputs.cameraModeTrigger).whileTrue(CamCommands.AutoDriveToScore(this));
+    inputs.autoScore.and(inputs.cameraModeTrigger.negate()).whileTrue(manualScoreCommand);
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
     inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));

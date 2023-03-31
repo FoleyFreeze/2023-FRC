@@ -47,7 +47,7 @@ public class DriveToImage extends CommandBase{
     double pwrMax;
     final double PWR_MAX_CUBE = 0.3;
     final double PWR_MAX_CONE = 0.2;
-    final double PWR_MAX_GATHER = 0.3;
+    final double PWR_MAX_GATHER = 0.45;
 
     public double angle;
 
@@ -160,19 +160,19 @@ public class DriveToImage extends CommandBase{
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = 0;
                     
-                    if(err.r < 1){
+                    if(err.r < 5){
                         driveStage = 2;
                     }
                 }
                 if(driveStage == 2){
-                    pwrMultiplier = 0.15;
+                    pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_GATHER;
                     //drive in
                     Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
                     err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
                     angle = 0;
 
-                    if(err.r < 1){
+                    if(err.r < 2){
                         driveStage = 4;
                     }
                 }
@@ -185,12 +185,12 @@ public class DriveToImage extends CommandBase{
             power = new Vector(err);
             power.theta -= r.sensors.odo.botAngle;
 
-            double iPwr = 0;
+            /*double iPwr = 0;
             if(power.r < 4){
                 iPwr += (power.r * r.sensors.dt);
-            }
+            }*/
 
-            power.r = ((power.r / 12.0) * pwrMultiplier) + iPwr;/*power per foot of error*/
+            power.r = ((power.r / 12.0) * pwrMultiplier) /*+ iPwr*/;/*power per foot of error*/
             if(power.r > pwrMax) power.r = pwrMax;
 
             if(Math.abs(r.inputs.getJoystickX()) > 0.1

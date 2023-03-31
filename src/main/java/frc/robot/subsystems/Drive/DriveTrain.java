@@ -77,13 +77,14 @@ public class DriveTrain extends SubsystemBase {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
-                if(r.inputs.cameraMode() && !DriverStation.isAutonomous() && r.inputs.getFieldMode()){
+                if(r.inputs.cameraMode() && !(r.inputs.autoGather.getAsBoolean() && r.inputs.disableAutoGather) && !DriverStation.isAutonomous() && r.inputs.getFieldMode()){
                     usePID |= r.inputs.autoGather.getAsBoolean() || r.inputs.autoScore.getAsBoolean();
                 } else if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){
                     //target shelf angle
                     setpoint = Math.toRadians(0);
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Shelf;
+                    usePID = true;
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
@@ -305,6 +306,8 @@ public class DriveTrain extends SubsystemBase {
     boolean prevFieldTele = false;
     public void periodic(){
         if(cals.disabled) return;
+
+        SmartDashboard.putNumber("RRDrivePosition", wheels[3].driveMotor.getPosition());
 
         if(prevFieldTele && DriverStation.isDisabled()){
             for(Wheel w : wheels){

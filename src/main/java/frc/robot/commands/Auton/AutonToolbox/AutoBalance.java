@@ -62,7 +62,7 @@ public class AutoBalance {
         sg.addCommands(new DriveForTime(r, Vector.fromXY(.35*s, 0), 2.0).until(() -> r.sensors.getAbsPitchRoll() > 25));
         sg.addCommands(new DriveForTime(r, Vector.fromXY(.25*s, 0), 0.2));//drive a bit before checking angle again
         //now wait until the charge station starts falling down
-        sg.addCommands(new DriveForTime(r, Vector.fromXY((.17+0.03)*s, 0), 10.0).until(() -> r.sensors.getAbsPitchRoll() < 11.5));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(.17*s, 0), 10.0).until(() -> r.sensors.getAbsPitchRoll() < 11.5));
         //stop until we are at the wanted pitch/roll
         sg.addCommands(new InstantCommand(() -> r.driveTrain.setParkMode(true), r.driveTrain));
         sg.addCommands(new InstantCommand(() -> r.driveTrain.driveSwerve(new Vector(0,0),0)));//to make the park command take

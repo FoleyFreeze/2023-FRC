@@ -56,10 +56,10 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
-        Vector[] driveToPieceRedOffset = {Vector.fromXY(0,4.0),
-                                          Vector.fromXY(0,0),
-                                          Vector.fromXY(0,0),
-                                          Vector.fromXY(0,0)};
+        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 10),
+                                          Vector.fromXY(0, 0),
+                                          Vector.fromXY(0, 0),
+                                          Vector.fromXY(0, 0)};
 
         Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
                                  AutonPos.driveScoreSub.xy,
@@ -88,8 +88,9 @@ public class AutonCommand {
 
         if(alliance.equals(Alliance.Red)){
             for(int i = 0; i < 4; i++){
+                //System.out.println("dtp was " + driveToPiece[i]);
                 driveToPiece[i] = Vector.addVectors(driveToPieceRedOffset[i],driveToPiece[i]);
-
+                //System.out.println("dtp is now " + driveToPiece[i]);
 
                 startPositions[i] = new Vector(startPositions[i]).mirrorY();
                 startAng[i] = -startAng[i];
@@ -103,6 +104,9 @@ public class AutonCommand {
 
                 driveToScore[i] = new Vector(driveToScore[i]).mirrorY();
                 driveToScoreAng[i] = -driveToScoreAng[i];
+
+                //System.out.println("flipped dtp is now " + driveToPiece[i]);
+                //System.out.println("flipped path is " + Vector.subVectors(driveToPiece[i], startPositions[i]));
             }
             driveToBalanceCommunity = new Vector(driveToBalanceCommunity).mirrorY();
             driveToBalanceOutside = new Vector(driveToBalanceOutside).mirrorY();

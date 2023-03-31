@@ -22,6 +22,8 @@ public class Inputs extends SubsystemBase{
     public Joystick cBoard;
     public Joystick cBoardTwo;
 
+    public boolean disableAutoGather = true;
+
     Joystick cBoardHead;//The only point of this object is to differentiate between the three cbs
 
     public enum joystickTypes{
@@ -100,6 +102,8 @@ public class Inputs extends SubsystemBase{
 
 
     // ------------- Drive inputs ------------- //
+
+    public Trigger cameraModeTrigger = new Trigger(this::cameraMode);
 
     public boolean cameraMode(){
         if(controller != null){
@@ -443,6 +447,8 @@ public class Inputs extends SubsystemBase{
             return true;
         }
     }
+
+    public Trigger isShelfTrigger = new Trigger(this::isShelf);
 
     public boolean isShelf(){
         if(DriverStation.isAutonomous()) return false;
