@@ -57,7 +57,7 @@ public class CamCommands extends SequentialCommandGroup{
         //move the arm to release position
         sg.addCommands(new ConditionalCommand(new RunCommand(() -> 
                             r.gripper.setIntakePower(r.gripper.cals.cubeScorePower),r.gripper)
-                                .raceWith(new WaitCommand(0.2)), 
+                                .raceWith(new WaitCommand(0.4)), 
                             new ArmMove(r, r.inputs.armScorePos), 
                         () -> r.inputs.selectedLevel == Level.BOTTOM));
         //driver backwards

@@ -93,7 +93,7 @@ public class AutonPos {
 
     static double postXPlusOffset = 54.25 + 22;
     static double postXPlusOffsetHiCone = 54.25 + 12;
-    static double postXPlusOffsetLoCone = 54.25 + 20;
+    static double postXPlusOffsetLoCone = 54.25 + 20.5;
     static double postXPlusOffsetMidLowCube = postXPlusOffset;
 
     static double initNodeY = 20.19;
