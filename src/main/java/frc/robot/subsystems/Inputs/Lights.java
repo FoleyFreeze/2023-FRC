@@ -129,105 +129,80 @@ public class Lights extends SubsystemBase{
     public void periodic(){
         if(disabled) return;
 
+        //dont underglow when disabled in the pits
         underglow((DriverStation.isFMSAttached() || DriverStation.isEnabled()) && r.inputs.getFieldMode());
         
-        if(r.inputs.balanceMode.getAsBoolean()){
-            if(Timer.getFPGATimestamp() > switchTime){
-                skittles2(snowBall);
-                /*  for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
-                    int offsetWrapper = (i + offset) % ledBuffer.getLength();
-                    int offsetPlusOne = (i + offset + 1) % ledBuffer.getLength();
-                    int offsetPlusTwo = (i + offset + 2) % ledBuffer.getLength();
-                    ledBuffer.setLED(offsetWrapper, new Color(0, 255, 255));
-                    ledBuffer.setLED(offsetPlusOne, new Color(0, 0, 255));
-                    ledBuffer.setLED(offsetPlusTwo, new Color(255, 255, 255));*/
-            }
-                //offset++;
-                //switchTime = Timer.getFPGATimestamp() + 0.3;
-        } else if(r.inputs.alignMode.getAsBoolean()){
-            if(Timer.getFPGATimestamp() > switchTime){
-                skittles2(snowBall);
-                /*for(int i = 0; i + 2 < ledBuffer.getLength(); i += 3){
-                    int offsetWrapper = (i + offset) % ledBuffer.getLength();
-                    int offsetPlusOne = (i + offset + 1) % ledBuffer.getLength();
-                    int offsetPlusTwo = (i + offset + 2) % ledBuffer.getLength();
-                    ledBuffer.setLED(offsetWrapper, new Color(0, 255, 255));
-                    ledBuffer.setLED(offsetPlusOne, new Color(0, 0, 255));
-                    ledBuffer.setLED(offsetPlusTwo, new Color(255, 255, 255));*/
-            }
-            //offset++;
-            //switchTime = Timer.getFPGATimestamp() + 0.3;
-        
+        if(DriverStation.isDisabled()){
+            //disabled
+            testMode();
+        } else if(DriverStation.isAutonomous()){
+            //auton?
             
-
         } else if(r.inputs.parkMode.getAsBoolean()){
-            if(Timer.getFPGATimestamp() > switchTime){
-                skittles2(crabRave);
-                /*Color colorSet = new Color(255, 0, 0);
-                for(int i = 0; i < ledBuffer.getLength(); i++){
-                    ledBuffer.setLED(i, colorSet);
-                }*/
-            }
-        } else{
-            //switchTime = Timer.getFPGATimestamp();
-            //Color colorSet;
-            /*if(r.inputs.alignMode.getAsBoolean()){
-                colorSet = new Color(170, 0, 255);
-            }else{
-                colorSet = new Color(255, 50, 0);
-            }*/
-            if(DriverStation.isDisabled()){
-                //skittles2(thanos);
-                testMode();
-                //skittles();
-            } else if(r.inputs.isCube() && r.inputs.isShelf()){
-                skittles2(thanos);
-            } else if(r.inputs. isCube()){
-                skittles2(chowder);
-            } else if (r.inputs.isCube() == false && r.inputs.isShelf())  {
-                skittles2(spongebob);
-                /*colorSet = new Color(255, 100, 0);
-                for(int i = 0; i < ledBuffer.getLength(); i++){
-                    ledBuffer.setLED(i, colorSet);
-                } */
-            } else {
-                skittles2(banana);
-            }
+            //parked
+            skittles2(crabRave, false);
+        } else if(r.inputs.balanceMode.getAsBoolean()){
+            //balance
+            skittles2(snowBall, true);
+        } else if(r.inputs.alignMode.getAsBoolean()){
+            //manual align
+            skittles2(snowBall, false);
+        } else if(r.inputs.isCube() && r.inputs.isShelf()){
+            //shelf cube
+            skittles2(thanos, true);
+        } else if(r.inputs. isCube()){
+            //floor cube
+            skittles2(chowder, false);
+        } else if (r.inputs.isCube() == false && r.inputs.isShelf())  {
+            //shelf cone
+            skittles2(spongebob, true);
+        } else {
+            //floor cone
+            skittles2(banana, false);
+        }
 
-            if(led != null){
-                led.setData(ledBuffer);
-            }
+        if(led != null){
+            led.setData(ledBuffer);
         }
     }
+    
 
     public void testMode(){
         switch(r.inputs.buttonAssignment){
             case 1:
-                skittles2(rainbow);
-                break;
             case 2:
-                skittles2(crabRave);
+                skittles2(rainbow, r.inputs.buttonAssignment % 2 > 0);
                 break;
             case 3:
-                skittles2(snowBall);
-                break;
             case 4:
-                skittles2(spongebob);
+                skittles2(crabRave, r.inputs.buttonAssignment % 2 > 0);
                 break;
             case 5:
-                skittles2(banana);
-                break;
             case 6:
-                skittles2(thanos);
+                skittles2(snowBall, r.inputs.buttonAssignment % 2 > 0);
                 break;
             case 7:
-                skittles2(chowder);
-                break;
             case 8:
-                skittles2(wednesday);
+                skittles2(spongebob, r.inputs.buttonAssignment % 2 > 0);
+                break;
+            case 9:
+            case 10:
+                skittles2(banana, r.inputs.buttonAssignment % 2 > 0);
+                break;
+            case 11:
+            case 12:
+                skittles2(thanos, r.inputs.buttonAssignment % 2 > 0);
+                break;
+            case 13:
+            case 14:
+                skittles2(chowder, r.inputs.buttonAssignment % 2 > 0);
+                break;
+            case 15:
+            case 16:
+                skittles2(wednesday, r.inputs.buttonAssignment % 2 > 0);
                 break;
             default:
-                skittles2(rainbow);
+                skittles2(rainbow, false);
         }
     }
 
@@ -277,7 +252,7 @@ public class Lights extends SubsystemBase{
         }
     }
 
-    public void skittles2(Color[] colors){
+    public void skittles2(Color[] colors, boolean up){
         if(Timer.getFPGATimestamp() > switchTime){
             int len = ledBuffer.getLength() / 2;
             for(int i = 0; i < len; i++){
@@ -287,10 +262,15 @@ public class Lights extends SubsystemBase{
                 if(colorIdx < 0) colorIdx += colors.length;
                 mirrorLed(idx, colors[colorIdx]);
             }
-            offset--;
-            switchTime = Timer.getFPGATimestamp() + 0.03;
+            if (up){
+                offset++;
+            } else {
+                offset--;
+            }
         }
+        switchTime = Timer.getFPGATimestamp() + 0.03;
     }
+    
 
     public void mirrorLed(int index, Color c){
         ledBuffer.setLED(index, c);
@@ -320,4 +300,5 @@ public class Lights extends SubsystemBase{
         }
         ledValue.set(localLedValue);
     }
+
 }

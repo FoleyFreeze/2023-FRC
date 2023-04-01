@@ -647,7 +647,9 @@ public class Inputs extends SubsystemBase{
             }
 
             //check for discrepancy between the switch and what we actually have
-            if(isCube() != (selectedGamePiece == GamePiece.CUBE) && selectedGamePiece != GamePiece.EITHER && selectedLevel.ordinal() != 1){
+            //only force the correction when enabled or on the field
+            boolean forceLegalPosition = DriverStation.isEnabled() || DriverStation.isFMSAttached();
+            if(forceLegalPosition && isCube() != (selectedGamePiece == GamePiece.CUBE) && selectedGamePiece != GamePiece.EITHER && selectedLevel.ordinal() != 1){
                 //Selects the nearest available score position on the same level in the same zone
 
                 int fixedPositionIdx;
