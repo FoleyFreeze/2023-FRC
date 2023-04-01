@@ -81,17 +81,11 @@ public class Arm extends SubsystemBase {
 
     public void jogIn(){
         double jogDist = r.arm.cals.jogOutDist;
-        if(r.inputs.shift.getAsBoolean()){
-            jogDist *= 5;
-        }
         jogOffset.r -= jogDist;
     }
 
     public void jogOut(){
         double jogDist = r.arm.cals.jogOutDist;
-        if(r.inputs.shift.getAsBoolean()){
-            jogDist *= 5;
-        }
         jogOffset.r += jogDist;
     }
 

@@ -56,10 +56,14 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
-        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 10),
+        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 12),
                                           Vector.fromXY(0, 0),
                                           Vector.fromXY(0, 0),
-                                          Vector.fromXY(0, 0)};
+                                          Vector.fromXY(0, -12)};
+        Vector[] driveToPieceBlueOffset = {Vector.fromXY(0, 2),
+                                            Vector.fromXY(0, 0),
+                                            Vector.fromXY(0, 0),
+                                            Vector.fromXY(0, 0)};
 
         Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
                                  AutonPos.driveScoreSub.xy,
@@ -112,6 +116,10 @@ public class AutonCommand {
             driveToBalanceOutside = new Vector(driveToBalanceOutside).mirrorY();
 
             driveToBalanceAngle[0] = -driveToBalanceAngle[0];
+        } else {
+            for(int i = 0; i < 4; i++){
+                driveToPiece[i] = Vector.addVectors(driveToPieceBlueOffset[i],driveToPiece[i]);
+            }
         }
 
         sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));
@@ -199,7 +207,8 @@ public class AutonCommand {
                 sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, 0), 0.8));
             }
 
-            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+        //TODO: Remove false in order to reenable the shoot off the chargestation
+            if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
                 //also set the arm to launch position
                 sg.addCommands(AutoBalance.getAutoBalanceCommand(r, true)
                     .alongWith(new WaitCommand(15).until(() -> r.sensors.getAbsPitchRoll() > 20)
@@ -210,7 +219,7 @@ public class AutonCommand {
         }
 
         //Shoot Cube
-        if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+        if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
             sg.addCommands(launchThatCubeBaby(r));
         }
         

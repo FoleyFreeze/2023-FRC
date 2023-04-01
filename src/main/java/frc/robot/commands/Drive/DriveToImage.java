@@ -96,6 +96,7 @@ public class DriveToImage extends CommandBase{
 
             //different logic based on if you're gathering or scoring
             if(scoreMode){
+
                 //no else cases, so when we move to next stage we
                 //immediately take the new drive action of that stage
                 double coneMidOffset = 0;
@@ -124,7 +125,7 @@ public class DriveToImage extends CommandBase{
                     }
                 }
                 if(driveStage == 3) {
-                    pwrMultiplier = 0.2;
+                    pwrMultiplier = 0.3;
                     
                     //Final drive in
                     err = Vector.subVectors(target,r.sensors.odo.botLocation);
@@ -248,7 +249,7 @@ public class DriveToImage extends CommandBase{
 
     @Override
     public boolean isFinished(){
-        return driveStage > 3;
+        return driveStage > 3 || r.inputs.getLeftTrigger();
     }
 
     @Override

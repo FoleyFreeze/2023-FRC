@@ -25,6 +25,7 @@ import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
 import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
+import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
@@ -106,6 +107,7 @@ public class Robot extends TimedRobot {
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
+        //r.autonCommand = new DriveForTime(r, Vector.fromXY(-.17, 0), 0.1);
         r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
         //r.autonCommand = AutoBalance.getDriveOverStation(r, false).andThen(AutoBalance.getAutoBalanceCommand(r, true));
         //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));

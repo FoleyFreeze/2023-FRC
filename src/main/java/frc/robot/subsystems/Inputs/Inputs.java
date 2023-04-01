@@ -297,12 +297,20 @@ public class Inputs extends SubsystemBase{
     public Trigger autoGather = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
             if(controller != null){
-                return controller.getRawAxis(cal.GATHER_TRIGGER[controllerType.ordinal()]) > 0.5;
+                return getLeftTrigger() && !autoScore.getAsBoolean();
             } else {
                 return false;
             }
         }
     });
+
+    public boolean getLeftTrigger(){
+        if(controller != null){
+            return controller.getRawAxis(cal.GATHER_TRIGGER[controllerType.ordinal()]) > 0.5;
+        } else {
+            return false;
+        }
+    }
 
     public enum ManScoreMode {UP, SCORE};
     public ManScoreMode scoreMode = ManScoreMode.UP;

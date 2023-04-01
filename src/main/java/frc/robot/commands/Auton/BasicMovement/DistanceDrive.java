@@ -46,7 +46,7 @@ public class DistanceDrive extends CommandBase {
     public void execute(){
         Vector currPos = new Vector(r.sensors.odo.botLocation);
         Vector direction = Vector.subVectors(endPosition, currPos);
-        direction.r = 0.3;
+        direction.r = 0.15;
 
         double error = (angle - r.sensors.odo.botAngle) % (2 * Math.PI);
                 
@@ -66,7 +66,7 @@ public class DistanceDrive extends CommandBase {
     public boolean isFinished(){
         Vector currPos = new Vector(r.sensors.odo.botLocation);
         Vector distanceToTrgt = Vector.subVectors(endPosition, currPos);
-        boolean done = Math.abs(distanceToTrgt.r - prevDist) > 3.0;
+        boolean done = distanceToTrgt.r > prevDist;
         prevDist = distanceToTrgt.r;
         return done;
     }

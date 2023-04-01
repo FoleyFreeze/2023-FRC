@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Inputs.Inputs.Level;
 
 public class Lights extends SubsystemBase{
 
@@ -38,16 +40,15 @@ public class Lights extends SubsystemBase{
     };
 
     Color[] thanos = {
-        new Color(255, 75, 255),
-        new Color(255, 50, 255),
-        new Color(255, 0, 255),
-        new Color(100, 0, 150),
-        new Color(75, 0, 125),
-        new Color(50, 0, 100),
-        new Color(25, 0, 45),
-        new Color(15, 0, 33),
         new Color(5, 0, 10),
-       // new Color(0, 0, 0)
+        new Color(15, 0, 33),
+        new Color(25, 0, 45),
+        new Color(50, 0, 100),
+        new Color(75, 0, 125),
+        new Color(100, 0, 150),
+        new Color(255, 0, 255),
+        new Color(255, 50, 255),
+        new Color(255, 75, 255),
     };
 
     Color[] chowder ={
@@ -57,17 +58,17 @@ public class Lights extends SubsystemBase{
     };
 
     Color[] spongebob = {
-        new Color (255, 100, 0),
-        new Color (255, 100, 0),
-        new Color (225, 80, 0),
-        new Color (200, 75, 0),
-        new Color (200, 75, 0),
-        new Color (150, 40, 0),
-        new Color (75, 30, 0),
-        new Color (50, 20, 0),
-        new Color (25, 7, 0),
+        new Color (0, 0, 0),
         new Color (10, 3, 0),
-        new Color (0, 0, 0)
+        new Color (25, 7, 0),
+        new Color (50, 20, 0),
+        new Color (75, 30, 0),
+        new Color (150, 40, 0),
+        new Color (200, 75, 0),
+        new Color (200, 75, 0),
+        new Color (225, 80, 0),
+        new Color (255, 100, 0),
+        new Color (255, 100, 0),
     };
 
     Color[] banana = {
@@ -97,6 +98,32 @@ public class Lights extends SubsystemBase{
         new Color (150, 0, 60),
         new Color (100, 0, 40),
         new Color (75, 0, 10)
+    };
+
+    Color[] blueStripes = {
+        new Color (0, 0, 200),
+        new Color (0, 0, 175),
+        new Color (0, 0, 150),
+        new Color (0, 0, 100),
+        new Color (0, 0, 50),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0)
+    };
+
+    Color[] redStripes = {
+        new Color (200, 0, 0),
+        new Color (175, 0, 0),
+        new Color (150, 0, 0),
+        new Color (100, 0, 0),
+        new Color (50, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
+        new Color (0, 0, 0),
     };
 
     public Lights(RobotContainer r, InputCal cal){
@@ -134,10 +161,18 @@ public class Lights extends SubsystemBase{
         
         if(DriverStation.isDisabled()){
             //disabled
-            testMode();
+            if(r.inputs.selectedLevel == Level.NONE){
+                if(DriverStation.getAlliance() == Alliance.Blue){
+                    skittles2(blueStripes, false);
+                } else {
+                    skittles2(redStripes, false);
+                }
+            } else{
+                testMode();
+            }
         } else if(DriverStation.isAutonomous()){
-            //auton?
-            
+            //auton
+            skittles2(snowBall, true);
         } else if(r.inputs.parkMode.getAsBoolean()){
             //parked
             skittles2(crabRave, false);
@@ -267,8 +302,8 @@ public class Lights extends SubsystemBase{
             } else {
                 offset--;
             }
+            switchTime = Timer.getFPGATimestamp() + 0.03;
         }
-        switchTime = Timer.getFPGATimestamp() + 0.03;
     }
     
 

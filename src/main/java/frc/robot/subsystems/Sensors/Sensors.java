@@ -49,6 +49,20 @@ public class Sensors extends SubsystemBase{
         System.out.println("angle has been reset to " + Math.toDegrees(ang));
     }
 
+    public void jogBotAngPositive(){
+        double val = Math.toRadians(cal.jogAngIncrmt);
+        navXOffset += val;
+        odo.botAngle += val;
+        odo.prevBotAng += val;
+    }
+
+    public void jogBotAngNegative(){
+        double val = Math.toRadians(cal.jogAngIncrmt);
+        navXOffset -= val;
+        odo.botAngle -= val;
+        odo.prevBotAng -= val;
+    }
+
     public void resetBotAng(){
         resetNavXAng(0);
     }
@@ -118,5 +132,7 @@ public class Sensors extends SubsystemBase{
         SmartDashboard.putNumber("MaxPitch/Roll", maxPitchRoll);
         SmartDashboard.putNumber("Pitch", getPitch());
         SmartDashboard.putNumber("Roll", getRoll());
+
+        SmartDashboard.putNumber("AngleJog", Math.toDegrees(navXOffset));
     }
 }

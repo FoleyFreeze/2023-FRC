@@ -227,8 +227,12 @@ public class RobotContainer {
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
-    inputs.jogRight.onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
-    inputs.jogLeft.onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
+
+    inputs.jogRight.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
+    inputs.jogLeft.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
+
+    inputs.jogRight.and(inputs.shift).onTrue(new InstantCommand(sensors::jogBotAngNegative));
+    inputs.jogLeft.and(inputs.shift).onTrue(new InstantCommand(sensors::jogBotAngPositive));
 
     inputs.gather.onTrue(new ConditionalCommand(GatherCommand.shootIntake(this, false), GatherCommand.shootIntake(this, true), inputs.shift));
 

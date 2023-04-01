@@ -89,7 +89,7 @@ public class DriveCal {
 
     public WheelCal[] wheelCals = {FRWheel, FLWheel, RLWheel, RRWheel};
 
-    public double fieldModePwr = 0.85;
+    public double fieldModePwr = 0.95;
     public double pitModePwr = 0.3;
     public double inchModePwr = 0.4;
     public double scoringStrafePwr = 0.35;
