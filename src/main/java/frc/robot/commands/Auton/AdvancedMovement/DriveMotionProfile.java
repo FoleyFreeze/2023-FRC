@@ -111,7 +111,7 @@ public class DriveMotionProfile extends CommandBase{
         System.out.format("DMP Ending at t:%.1f.\n",Timer.getFPGATimestamp());
     }
 
-    //position/velocity/position
+    //position/velocity/acceleration
     double[] avp = new double[3]; 
     public double[] getAVP(double t){
         double targetAccel;

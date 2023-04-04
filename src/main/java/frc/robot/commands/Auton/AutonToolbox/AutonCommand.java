@@ -207,8 +207,7 @@ public class AutonCommand {
                 sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, 0), 0.8));
             }
 
-        //TODO: Remove false in order to reenable the shoot off the chargestation
-            if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
                 //also set the arm to launch position
                 sg.addCommands(AutoBalance.getAutoBalanceCommand(r, true)
                     .alongWith(new WaitCommand(15).until(() -> r.sensors.getAbsPitchRoll() > 20)
@@ -219,7 +218,7 @@ public class AutonCommand {
         }
 
         //Shoot Cube
-        if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+        if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
             sg.addCommands(launchThatCubeBaby(r));
         }
         

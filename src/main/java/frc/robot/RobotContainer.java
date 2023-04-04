@@ -13,7 +13,7 @@ import frc.robot.commands.Combos.CamCommands;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
-import frc.robot.commands.Drive.DriveToImage;
+import frc.robot.commands.Drive.DriveToImageMP;
 import frc.robot.commands.Drive.PreMatchAlign;
 import frc.robot.commands.Drive.ResetSwerveAngs;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -69,7 +69,8 @@ public class RobotContainer {
 
   public enum AutonPaths {NOTHING, DRIVE_OUT, SCORE_DRIVE_OUT,
                           SCORE_BALANCE, SCORE_PICKUP_BALANCE,
-                          TWO_SCORE, TWO_SCORE_BALANCE};
+                          SCORE_PICKUP_BALANCE_TOSS, TWO_SCORE, 
+                          TWO_SCORE_BALANCE};
   public SendableChooser<AutonPaths> autonChooser;
   public enum AutonStarts {SUB, SUB_MID, FAR_MID, FAR};
   public SendableChooser<AutonStarts> autonStartPosChooser;
@@ -115,6 +116,7 @@ public class RobotContainer {
     autonChooser.addOption("Score and Drive Out", AutonPaths.SCORE_DRIVE_OUT);
     autonChooser.addOption("Score and Balance", AutonPaths.SCORE_BALANCE);
     autonChooser.addOption("Score, Pickup, Balance", AutonPaths.SCORE_PICKUP_BALANCE);
+    autonChooser.addOption("Score, Pickup, Balance, Toss", AutonPaths.SCORE_PICKUP_BALANCE_TOSS);
     autonChooser.addOption("Two-Score", AutonPaths.TWO_SCORE);
     autonChooser.addOption("Two-Score and Balance", AutonPaths.TWO_SCORE_BALANCE);
     SmartDashboard.putData("Auton", autonChooser);
@@ -214,7 +216,7 @@ public class RobotContainer {
     //3. Change up/score state in inputs
     Command manualScoreCommand = new ArmMove(this, inputs.armScorePos).andThen(new ConditionalCommand(GatherCommand.shootIntake(this, false), new WaitCommand(0), () -> (inputs.isCube() || inputs.selectedLevel == Level.BOTTOM) && inputs.scoreMode == ManScoreMode.SCORE)).andThen(new InstantCommand(() -> inputs.toggleMode()));
     inputs.autoScore.and(inputs.cameraModeTrigger).whileTrue(CamCommands.AutoDriveToScore(this));
-    inputs.autoScore.and(inputs.cameraModeTrigger.negate()).whileTrue(manualScoreCommand);
+    inputs.autoScore.and(inputs.cameraModeTrigger.negate()).onTrue(manualScoreCommand);
 
     inputs.balanceMode.onTrue(new InstantCommand(() -> inputs.setInchMode(true)));
     inputs.balanceMode.onFalse(new InstantCommand(() -> inputs.setInchMode(false)));
@@ -222,8 +224,8 @@ public class RobotContainer {
     inputs.parkMode.onTrue(new InstantCommand(() -> driveTrain.setParkMode(true)));
     inputs.parkMode.onFalse(new InstantCommand(() -> driveTrain.setParkMode(false)));
 
-    inputs.alignMode.and(inputs.fieldAlignRight).whileTrue(AutoAlign.autoFieldRightAlign(this));
-    inputs.alignMode.and(inputs.fieldAlignRight.negate()).whileTrue(AutoAlign.autoFieldLeftAlign(this));
+    inputs.alignMode.and(inputs.fieldAlignRight).onTrue(AutoAlign.autoFieldRightAlign(this));
+    inputs.alignMode.and(inputs.fieldAlignRight.negate()).onTrue(AutoAlign.autoFieldLeftAlign(this));
 
     inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
     inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));

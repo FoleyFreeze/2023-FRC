@@ -1,32 +1,37 @@
 package frc.robot.commands.Drive;
 
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AutonCal.MPCals;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
-public class DriveToImage extends CommandBase{
+public class DriveToImageMP extends CommandBase{
     
     RobotContainer r;
 
     boolean scoreMode;
+
+    MPCals mpCals;
     
     public int driveStage;
     public Vector err;
 
-    boolean debug = true;
+    boolean debug = false;
 
     double maxFilterDist = 1.0;//inches
     double maxSingleFrameOffset = 3;//inches
     double filterDivisor = 4.0;
 
-    public DriveToImage(RobotContainer r, boolean scoreMode){
+    public DriveToImageMP(RobotContainer r, boolean scoreMode, MPCals mpCals){
         this.r = r;
         this.scoreMode = scoreMode;
+        this.mpCals = mpCals;
     }
 
     @Override
@@ -39,6 +44,9 @@ public class DriveToImage extends CommandBase{
         err = new Vector(0,0);
 
         level = r.inputs.selectedLevel.ordinal();
+
+        motionProfiling = false;
+        mpInterrupted = false;
     }
 
     public Vector target;
@@ -53,6 +61,15 @@ public class DriveToImage extends CommandBase{
 
     public int level;
     public int position;
+
+    boolean motionProfiling;
+    boolean mpInterrupted;
+    Vector mpPwr;
+    double mpCompletionTime;
+
+    Vector mpStartLoc;
+    double mpStartVel;
+    double mpStartTime;
 
     @Override
     public void execute(){
@@ -110,18 +127,32 @@ public class DriveToImage extends CommandBase{
                     angle = Math.PI;
                     if(Math.abs(err.getX()) < 4.0){
                         driveStage = 2;
+                        mpStartLoc = new Vector(r.sensors.odo.botLocation);
+                        mpStartVel = 0;
+                        mpStartTime = Timer.getFPGATimestamp();
                     }
                 } 
                 if(driveStage == 2){
+                    
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position next
                     Vector yAlign = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, target.getY());
+                    
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    
-                    if(err.r < 1.0){
-                        driveStage = 3;
+                    if(yAlign.getY() > 10.0 && !mpInterrupted){
+                        //Motion Profile
+                        motionProfiling = true;
+                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
+                        if(Timer.getFPGATimestamp() > mpCompletionTime){
+                            driveStage = 3;
+                            motionProfiling = false;
+                        }
+                    } else {
+                        if(err.r < 1.0){
+                            driveStage = 3;
+                        }
                     }
                 }
                 if(driveStage == 3) {
@@ -197,12 +228,20 @@ public class DriveToImage extends CommandBase{
             if(Math.abs(r.inputs.getJoystickX()) > 0.1
             || Math.abs(r.inputs.getJoystickY()) > 0.1){
                 power = getJoystickPower();
+                if(motionProfiling){
+                    mpInterrupted = true;
+                }
             }
         }
 
         double zCmd = getJoystickAngle();
         if(Math.abs(zCmd) > 0.1){
             r.driveTrain.driveSwerve(power, zCmd);
+            if(motionProfiling){
+                mpInterrupted = true;
+            }
+        } else if(motionProfiling && !mpInterrupted){
+            r.driveTrain.swerveMP(mpPwr, angle);
         } else {
             r.driveTrain.driveSwerveAngle(power, angle);
         }
@@ -255,6 +294,42 @@ public class DriveToImage extends CommandBase{
     @Override
     public void end(boolean interrupted){
         r.driveTrain.driveSwerve(Vector.fromXY(0, 0), 0);
+    }
+
+
+    Vector getMPPwr(Vector startPos, double startVel, double startTime, Vector endPos){
+        
+        Vector totalDistance = Vector.subVectors(endPos, startPos);
+        double distThreshold = (mpCals.maxVel * mpCals.maxVel) / mpCals.maxAccel;
+
+        double accelDist;
+        double decelDist;
+        double maxVelDist;
+        double accelTime;
+        double maxVelTime;
+        double decelTime;
+        if (totalDistance.r >= distThreshold){
+            //3 step (Accel - constV - Decel)
+            accelDist = distThreshold / 2;
+            decelDist = distThreshold / 2;
+            maxVelDist = totalDistance.r - distThreshold;
+            accelTime =  Math.sqrt(distThreshold / mpCals.maxAccel);
+            //System.out.println("" + accelTime);
+            maxVelTime = accelTime + maxVelDist / mpCals.maxVel;
+            decelTime = maxVelTime + accelTime;
+        } else{
+            //2 step (Accel - Decel)
+            maxVelTime = 0;
+            maxVelDist = 0;
+            accelDist = totalDistance.r / 2;
+            decelDist = totalDistance.r / 2;
+            accelTime =  Math.sqrt(totalDistance.r / mpCals.maxAccel);
+            decelTime = 2 * accelTime;
+        }
+        startTime = Timer.getFPGATimestamp();
+
+        mpCompletionTime = 0;
+        return null;
     }
 
 }

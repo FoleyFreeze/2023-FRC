@@ -61,7 +61,7 @@ public class DriveTrain extends SubsystemBase {
         Angle,Shelf,Score,Auto,Drive,Broke
     }
     HeadingSource hs = HeadingSource.Angle;
-    double lastRotateTime = 0;
+    public double lastRotateTime = 0;
     double iAccum = 0;
     public double targetHeading;
     public double swerveAutoAngle(double drivePower, double anglePower){
@@ -69,11 +69,11 @@ public class DriveTrain extends SubsystemBase {
         double z = anglePower;
         if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
             if(anglePower != 0){
-                lastRotateTime = Timer.getFPGATimestamp();
+                lastRotateTime = Timer.getFPGATimestamp() + cals.autoAngleWaitTime;
                 iAccum = 0;
                 targetHeading = r.sensors.odo.botAngle;
                 hs = HeadingSource.Angle;
-            } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() - lastRotateTime > r.driveTrain.cals.autoAlignWaitTime) {
+            } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() > lastRotateTime) {
                 //select setpoint
                 double setpoint = targetHeading;
                 boolean usePID = drivePower > 0;
@@ -88,11 +88,12 @@ public class DriveTrain extends SubsystemBase {
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
-                    if(r.inputs.fieldAlignRight.getAsBoolean()){
+                    setpoint = Math.toRadians(180);
+                    /*if(r.inputs.fieldAlignRight.getAsBoolean()){
                         setpoint = Math.toRadians(-164.25);
                     } else {
                         setpoint = Math.toRadians(-195);
-                    }
+                    }*/
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Score;
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
@@ -136,16 +137,21 @@ public class DriveTrain extends SubsystemBase {
             iAccum = 0;
             targetHeading = r.sensors.odo.botAngle;
             hs = HeadingSource.Broke;
-            lastRotateTime = Timer.getFPGATimestamp();
+            lastRotateTime = Timer.getFPGATimestamp() + cals.autoAngleWaitTime;
         }
 
         return z;
+    }
+
+    public void setLastRotateTime(double time){
+        lastRotateTime = time;
     }
 
     //same as drive swerve but hold this angle
     public void driveSwerveAngle(Vector xy, double angle){
         targetHeading = angle;
         hs = HeadingSource.Drive;
+        setLastRotateTime(0);
         driveSwerve(xy, 0);
     }
 
@@ -327,9 +333,12 @@ public class DriveTrain extends SubsystemBase {
         driveTempNT.setString(driveTemps);
         swerveTempNT.setString(swerveTemps);
 
+        double currentTotal = 0;
         for(Wheel w : wheels){
+            currentTotal += w.driveMotor.getCurrent();
             SmartDashboard.putNumber(w.cal.name + " Abs", w.absEncoder.getVoltage());
         }
+        //SmartDashboard.putNumber("Drive Current",currentTotal);
         
     }
 
