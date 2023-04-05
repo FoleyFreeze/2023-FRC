@@ -13,6 +13,7 @@ import frc.robot.commands.Combos.CamCommands;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.CmdDrive;
+import frc.robot.commands.Drive.DriveToGamePiece;
 import frc.robot.commands.Drive.DriveToImageMP;
 import frc.robot.commands.Drive.PreMatchAlign;
 import frc.robot.commands.Drive.ResetSwerveAngs;
@@ -201,14 +202,12 @@ public class RobotContainer {
     inputs.resetArm.onTrue(/*new LearnArmOffset(this).ignoringDisable(false)*/ new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
-    inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(CamCommands.AutoDriveToGatherFloor(this));
-    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
-    //inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
+    //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
+    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(new DriveToGamePiece(this).alongWith(GatherCommand.gatherCommand(this)));
+    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
+    inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
 
-    //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
-    //inputs.autoGather.onFalse(new InstantCommand(() -> inputs.slowModeFalse()));
     inputs.autoGather.onFalse(new ArmGoHome(this));
 
     //1. move the arm, set slow mode true

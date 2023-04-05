@@ -31,11 +31,21 @@ public class Vision extends SubsystemBase {
 
     private BooleanEntry active;
     private BooleanEntry tagsActive;
+    private BooleanEntry cubesActive;
+    private BooleanEntry conesActive; 
     private DoubleEntry rioTime;
-    private RawSubscriber poseMsg;
-    private int listener;
-    private ByteBuffer poseData;
-    public LimitedStack<VisionDataEntry> visionProduct;
+
+    public LimitedStack<VisionDataEntry> tagVisionStack;
+    private RawSubscriber poseMsgTag;
+    private ByteBuffer poseDataTag;
+    
+    public LimitedStack<VisionDataEntry> cubeVisionStack;
+    private RawSubscriber poseMsgCube;
+    private ByteBuffer poseDataCube;
+
+    public LimitedStack<VisionDataEntry> coneVisionStack;
+    private RawSubscriber poseMsgCone;
+    private ByteBuffer poseDataCone;
     
 
     public Vision(RobotContainer r) {
@@ -43,39 +53,91 @@ public class Vision extends SubsystemBase {
         this.r = r;
     }
 
-    public LimitedStack<VisionDataEntry> init() {
+    public void init() {
         rioTime = NetworkTableInstance.getDefault().getDoubleTopic("/Vision/RIO Time").getEntry(Timer.getFPGATimestamp());
         active = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Active").getEntry(true);
-        //TODO: uncomment these and rename pose to "Tag Pose" when new pi code is ready
-        tagsActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Tag Enable").getEntry(true);
-        tagsActive.set(true);
-        //rename "Pose Data Bytes" to "Tag Pose Data Bytes" for new code
-        poseMsg = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Tag Pose Data Bytes").subscribe("raw", null);
-        visionProduct = new LimitedStack<VisionDataEntry>(5);
-        listener = NetworkTableInstance.getDefault().addListener(poseMsg, 
+        tagsActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Tag Enable").getEntry(false);
+        cubesActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Cube Enable").getEntry(false);
+        conesActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Cone Enable").getEntry(false);
+        setTagMode(); //default to tags
+        
+        poseMsgTag = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Tag Pose Data Bytes").subscribe("raw", null);
+        tagVisionStack = new LimitedStack<VisionDataEntry>(5);
+        NetworkTableInstance.getDefault().addListener(poseMsgTag, 
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
             event -> {
-                poseData = ByteBuffer.wrap(event.valueData.value.getRaw());
-                byte type = poseData.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
-                byte numTags = poseData.get(13);
+                poseDataTag = ByteBuffer.wrap(event.valueData.value.getRaw());
+                byte type = poseDataTag.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
+                byte numTags = poseDataTag.get(13);
                 if(type == 1 && numTags <= 4){
                     VisionDataEntry e = new VisionDataEntry();
                     e.listFin = new Vector<VisionData>();
-                    e.seqNum = poseData.getInt(0);
+                    e.seqNum = poseDataTag.getInt(0);
                     double current = Timer.getFPGATimestamp();
-                    e.timestamp = current - ((current -  poseData.getFloat(4) + poseData.getFloat(8)) / 2.0);
+                    e.timestamp = current - ((current -  poseDataTag.getFloat(4) + poseDataTag.getFloat(8)) / 2.0);
                     for(int i = 0, b = 14; i < numTags; i++, b += 25){
                         
-                        VisionData visionData = new VisionData(type, poseData.get(b), 
-                            poseData.getFloat(b+1), poseData.getFloat(b+5), poseData.getFloat(b+9), 
-                            poseData.getFloat(b+13), poseData.getFloat(b+17), poseData.getFloat(b+21));
+                        VisionData visionData = new VisionData(type, poseDataTag.get(b), 
+                            poseDataTag.getFloat(b+1), poseDataTag.getFloat(b+5), poseDataTag.getFloat(b+9), 
+                            poseDataTag.getFloat(b+13), poseDataTag.getFloat(b+17), poseDataTag.getFloat(b+21));
                         e.listFin.add(visionData);
                     }
-                    visionProduct.push(e);
+                    tagVisionStack.push(e);
                 }
 
             });
-        return visionProduct;
+
+        poseMsgCube = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Cube Pose Data Bytes").subscribe("raw", null);
+        cubeVisionStack = new LimitedStack<VisionDataEntry>(5);
+        NetworkTableInstance.getDefault().addListener(poseMsgCube, 
+            EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+            event -> {
+                poseDataCube = ByteBuffer.wrap(event.valueData.value.getRaw());
+                byte type = poseDataCube.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
+                byte numTags = poseDataCube.get(13);
+                if(type == 1 && numTags <= 4){
+                    VisionDataEntry e = new VisionDataEntry();
+                    e.listFin = new Vector<VisionData>();
+                    e.seqNum = poseDataCube.getInt(0);
+                    double current = Timer.getFPGATimestamp();
+                    e.timestamp = current - ((current -  poseDataCube.getFloat(4) + poseDataCube.getFloat(8)) / 2.0);
+                    for(int i = 0, b = 14; i < numTags; i++, b += 25){
+                        
+                        VisionData visionData = new VisionData(type, poseDataCube.get(b), 
+                            poseDataCube.getFloat(b+1), poseDataCube.getFloat(b+5), poseDataCube.getFloat(b+9), 
+                            poseDataCube.getFloat(b+13), poseDataCube.getFloat(b+17), poseDataCube.getFloat(b+21));
+                        e.listFin.add(visionData);
+                    }
+                    coneVisionStack.push(e);
+                }
+
+            });
+
+        poseMsgCone = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Cone Pose Data Bytes").subscribe("raw", null);
+        coneVisionStack = new LimitedStack<VisionDataEntry>(5);
+        NetworkTableInstance.getDefault().addListener(poseMsgCone, 
+            EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+            event -> {
+                poseDataCone = ByteBuffer.wrap(event.valueData.value.getRaw());
+                byte type = poseDataCone.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
+                byte numTags = poseDataCone.get(13);
+                if(type == 1 && numTags <= 4){
+                    VisionDataEntry e = new VisionDataEntry();
+                    e.listFin = new Vector<VisionData>();
+                    e.seqNum = poseDataCone.getInt(0);
+                    double current = Timer.getFPGATimestamp();
+                    e.timestamp = current - ((current -  poseDataCone.getFloat(4) + poseDataCone.getFloat(8)) / 2.0);
+                    for(int i = 0, b = 14; i < numTags; i++, b += 25){
+                        
+                        VisionData visionData = new VisionData(type, poseDataCone.get(b), 
+                            poseDataCone.getFloat(b+1), poseDataCone.getFloat(b+5), poseDataCone.getFloat(b+9), 
+                            poseDataCone.getFloat(b+13), poseDataCone.getFloat(b+17), poseDataCone.getFloat(b+21));
+                        e.listFin.add(visionData);
+                    }
+                    coneVisionStack.push(e);
+                }
+
+            });
     }
     @Override
     public void periodic() {
@@ -83,6 +145,24 @@ public class Vision extends SubsystemBase {
         rioTime.set(Timer.getFPGATimestamp());
         NetworkTableInstance.getDefault().flush();
     
+    }
+
+    public void setTagMode(){
+        tagsActive.set(true);
+        cubesActive.set(false);
+        conesActive.set(false);
+    }
+
+    public void setCubeMode(){
+        tagsActive.set(false);
+        cubesActive.set(true);
+        conesActive.set(false);
+    }
+
+    public void setConeMode(){
+        tagsActive.set(false);
+        cubesActive.set(false);
+        conesActive.set(true);
     }
 
     public void activate(boolean state) {
@@ -100,12 +180,12 @@ public class Vision extends SubsystemBase {
 
     public frc.robot.util.Vector getImageVector(int level, int position, boolean scoring){
         //if image doesnt exists
-        if(visionProduct.isEmpty()) return null;
+        if(tagVisionStack.isEmpty()) return null;
 
         //clear image queue
-        VisionDataEntry entry = visionProduct.pop();
-        while(!visionProduct.isEmpty()){
-            visionProduct.pop();
+        VisionDataEntry entry = tagVisionStack.pop();
+        while(!tagVisionStack.isEmpty()){
+            tagVisionStack.pop();
         }
 
         //if image is too old
