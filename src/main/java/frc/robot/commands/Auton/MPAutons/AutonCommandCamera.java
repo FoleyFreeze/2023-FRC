@@ -1,4 +1,4 @@
-package frc.robot.commands.Auton.AutonToolbox;
+package frc.robot.commands.Auton.MPAutons;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,11 +17,13 @@ import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AutonCal.MPCals;
+import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
+import frc.robot.commands.Auton.AutonToolbox.NegativeWait;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.util.Vector;
 
-public class AutonCommand {
+public class AutonCommandCamera {
 
     public static double startAngle = 0;
     public static Command autonCommand(RobotContainer r, Alliance alliance, AutonPaths selectedAuton, AutonStarts startPos){
@@ -56,14 +58,6 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
-        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 12),
-                                          Vector.fromXY(0, 0),
-                                          Vector.fromXY(0, 0),
-                                          Vector.fromXY(0, -12)};
-        Vector[] driveToPieceBlueOffset = {Vector.fromXY(0, 2),
-                                            Vector.fromXY(0, 0),
-                                            Vector.fromXY(0, 0),
-                                            Vector.fromXY(0, 0)};
 
         Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
                                  AutonPos.driveScoreSub.xy,
@@ -92,9 +86,6 @@ public class AutonCommand {
 
         if(alliance.equals(Alliance.Red)){
             for(int i = 0; i < 4; i++){
-                //System.out.println("dtp was " + driveToPiece[i]);
-                driveToPiece[i] = Vector.addVectors(driveToPieceRedOffset[i],driveToPiece[i]);
-                //System.out.println("dtp is now " + driveToPiece[i]);
 
                 startPositions[i] = new Vector(startPositions[i]).mirrorY();
                 startAng[i] = -startAng[i];
@@ -108,18 +99,11 @@ public class AutonCommand {
 
                 driveToScore[i] = new Vector(driveToScore[i]).mirrorY();
                 driveToScoreAng[i] = -driveToScoreAng[i];
-
-                //System.out.println("flipped dtp is now " + driveToPiece[i]);
-                //System.out.println("flipped path is " + Vector.subVectors(driveToPiece[i], startPositions[i]));
             }
             driveToBalanceCommunity = new Vector(driveToBalanceCommunity).mirrorY();
             driveToBalanceOutside = new Vector(driveToBalanceOutside).mirrorY();
 
             driveToBalanceAngle[0] = -driveToBalanceAngle[0];
-        } else {
-            for(int i = 0; i < 4; i++){
-                driveToPiece[i] = Vector.addVectors(driveToPieceBlueOffset[i],driveToPiece[i]);
-            }
         }
 
         sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));
@@ -156,7 +140,7 @@ public class AutonCommand {
         }
         
         //Piece Gather
-        if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE || selectedAuton == AutonPaths.TWO_SCORE || selectedAuton == AutonPaths.TWO_SCORE_BALANCE){
+        if(selectedAuton.ordinal() >= 4){
             if(startPos.ordinal() == 1 || startPos.ordinal() == 2){
                 //get over the charge station
                 sg.addCommands(new AngleMotionProfile(r, driveOutOneAng[startPos.ordinal()]));
@@ -192,14 +176,14 @@ public class AutonCommand {
         //Balance
         if(selectedAuton.ordinal() >= 3 && selectedAuton != AutonPaths.TWO_SCORE){
             final Vector SELECTED_DRIVE_TO_BALANCE;
-            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE || selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
                 SELECTED_DRIVE_TO_BALANCE = driveToBalanceOutside;
             } else {
                 SELECTED_DRIVE_TO_BALANCE = driveToBalanceCommunity;
             }
 
             sg.addCommands(new AngleMotionProfile(r, driveToBalanceAngle[0]));
-            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE || selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
                 sg.addCommands(new DriveMotionProfile(r, SELECTED_DRIVE_TO_BALANCE, driveToBalanceAngle[0]));
                 sg.addCommands(new InstantCommand(() -> r.driveTrain.targetHeading = driveToBalanceAngle[0]));
             } else {
@@ -207,8 +191,7 @@ public class AutonCommand {
                 sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.2, 0), 0.8));
             }
 
-        //TODO: Remove false in order to reenable the shoot off the chargestation
-            if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+            if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
                 //also set the arm to launch position
                 sg.addCommands(AutoBalance.getAutoBalanceCommand(r, true)
                     .alongWith(new WaitCommand(15).until(() -> r.sensors.getAbsPitchRoll() > 20)
@@ -219,7 +202,7 @@ public class AutonCommand {
         }
 
         //Shoot Cube
-        if(false && selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE){
+        if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
             sg.addCommands(launchThatCubeBaby(r));
         }
         

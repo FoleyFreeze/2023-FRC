@@ -24,12 +24,13 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    boolean debug = true;
+    boolean debug = false;
 
     //TODO: remove the added offset when the camera is recal'd
     frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
 
     private BooleanEntry active;
+    private BooleanEntry tagsActive;
     private DoubleEntry rioTime;
     private RawSubscriber poseMsg;
     private int listener;
@@ -45,7 +46,11 @@ public class Vision extends SubsystemBase {
     public LimitedStack<VisionDataEntry> init() {
         rioTime = NetworkTableInstance.getDefault().getDoubleTopic("/Vision/RIO Time").getEntry(Timer.getFPGATimestamp());
         active = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Active").getEntry(true);
-        poseMsg = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Pose Data Bytes").subscribe("raw", null);
+        //TODO: uncomment these and rename pose to "Tag Pose" when new pi code is ready
+        tagsActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Tag Enable").getEntry(true);
+        tagsActive.set(true);
+        //rename "Pose Data Bytes" to "Tag Pose Data Bytes" for new code
+        poseMsg = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Tag Pose Data Bytes").subscribe("raw", null);
         visionProduct = new LimitedStack<VisionDataEntry>(5);
         listener = NetworkTableInstance.getDefault().addListener(poseMsg, 
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
@@ -122,9 +127,11 @@ public class Vision extends SubsystemBase {
 
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
+        if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
+        if(debug) System.out.println("Field Cam: " + cam.toStringXY());
 
         if(debug) System.out.println("Raw ID: " + bestData.tagId);
         int id = bestData.tagId;
@@ -152,7 +159,7 @@ public class Vision extends SubsystemBase {
         frc.robot.util.Vector driveOffset = offset.xy.sub(tagPos);
 
         cam.add(driveOffset);
-        System.out.println("Cam: " + cam);
+        if(debug) System.out.println("Cam: " + cam);
         return cam;
     }
 

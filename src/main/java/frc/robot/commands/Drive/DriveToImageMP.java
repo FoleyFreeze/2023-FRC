@@ -1,19 +1,23 @@
 package frc.robot.commands.Drive;
 
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AutonCal.MPCals;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
-public class DriveToImage extends CommandBase{
+public class DriveToImageMP extends CommandBase{
     
     RobotContainer r;
 
     boolean scoreMode;
+
+    MPCals mpCals;
     
     public int driveStage;
     public Vector err;
@@ -24,9 +28,10 @@ public class DriveToImage extends CommandBase{
     double maxSingleFrameOffset = 3;//inches
     double filterDivisor = 4.0;
 
-    public DriveToImage(RobotContainer r, boolean scoreMode){
+    public DriveToImageMP(RobotContainer r, boolean scoreMode, MPCals mpCals){
         this.r = r;
         this.scoreMode = scoreMode;
+        this.mpCals = mpCals;
     }
 
     @Override
@@ -39,6 +44,9 @@ public class DriveToImage extends CommandBase{
         err = new Vector(0,0);
 
         level = r.inputs.selectedLevel.ordinal();
+
+        motionProfiling = false;
+        mpInterrupted = false;
     }
 
     public Vector target;
@@ -47,13 +55,21 @@ public class DriveToImage extends CommandBase{
     double pwrMax;
     final double PWR_MAX_CUBE = 0.3;
     final double PWR_MAX_CONE = 0.2;
-    final double PWR_MAX_SHELF_GATHER = 0.45;
-    final double PWR_MAX_GROUND_GATHER = 0.3;
+    final double PWR_MAX_GATHER = 0.45;
 
     public double angle;
 
     public int level;
     public int position;
+
+    boolean motionProfiling;
+    boolean mpInterrupted;
+    Vector mpPwr;
+    double mpCompletionTime;
+
+    Vector mpStartLoc;
+    double mpStartVel;
+    double mpStartTime;
 
     @Override
     public void execute(){
@@ -111,18 +127,32 @@ public class DriveToImage extends CommandBase{
                     angle = Math.PI;
                     if(Math.abs(err.getX()) < 4.0){
                         driveStage = 2;
+                        mpStartLoc = new Vector(r.sensors.odo.botLocation);
+                        mpStartVel = 0;
+                        mpStartTime = Timer.getFPGATimestamp();
                     }
                 } 
                 if(driveStage == 2){
+                    
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position next
                     Vector yAlign = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, target.getY());
+                    
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    
-                    if(err.r < 1.0){
-                        driveStage = 3;
+                    if(yAlign.getY() > 10.0 && !mpInterrupted){
+                        //Motion Profile
+                        motionProfiling = true;
+                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
+                        if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
+                            driveStage = 3;
+                            motionProfiling = false;
+                        }
+                    } else {
+                        if(err.r < 1.0){
+                            driveStage = 3;
+                        }
                     }
                 }
                 if(driveStage == 3) {
@@ -147,43 +177,36 @@ public class DriveToImage extends CommandBase{
                 }
             } else {
 
-                if(r.inputs.isShelf()){
-                    double y = 0;
-                    if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                        y = -AutonPos.GATHER_X_DIFF;
-                    } else {
-                        y = AutonPos.GATHER_X_DIFF;
-                    }
-                    
-                    if(driveStage == 1){
-                        pwrMultiplier = 0.3;
-                        pwrMax = PWR_MAX_CUBE;
-                        //Move it to the correct y position and rotate
-                        Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
-                        err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
-                        angle = 0;
-                        
-                        if(err.r < 5){
-                            driveStage = 2;
-                        }
-                    }
-                    if(driveStage == 2){
-                        pwrMultiplier = 0.35;
-                        pwrMax = PWR_MAX_SHELF_GATHER;
-                        //drive in
-                        Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
-                        err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
-                        angle = 0;
-
-                        if(err.r < 2){
-                            driveStage = 4;
-                        }
-                    }
+                double y = 0;
+                if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
+                    y = -AutonPos.GATHER_X_DIFF;
                 } else {
+                    y = AutonPos.GATHER_X_DIFF;
+                }
+                
+                if(driveStage == 1){
+                    pwrMultiplier = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
+                    //Move it to the correct y position and rotate
+                    Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
+                    err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
+                    angle = 0;
+                    
+                    if(err.r < 5){
+                        driveStage = 2;
+                    }
+                }
+                if(driveStage == 2){
                     pwrMultiplier = 0.35;
-                    pwrMax = PWR_MAX_SHELF_GATHER;
+                    pwrMax = PWR_MAX_GATHER;
+                    //drive in
+                    Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
+                    err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
+                    angle = 0;
 
-                    err = Vector.subVectors(target, r.sensors.odo.botLocation);
+                    if(err.r < 2){
+                        driveStage = 4;
+                    }
                 }
             }
 
@@ -205,13 +228,21 @@ public class DriveToImage extends CommandBase{
             if(Math.abs(r.inputs.getJoystickX()) > 0.1
             || Math.abs(r.inputs.getJoystickY()) > 0.1){
                 power = getJoystickPower();
+                if(motionProfiling){
+                    mpInterrupted = true;
+                }
             }
         }
 
         double zCmd = getJoystickAngle();
-        if(Math.abs(zCmd) > 0.1){
+        if(Math.abs(zCmd) > 0.1){//manual override
             r.driveTrain.driveSwerve(power, zCmd);
-        } else {
+            if(motionProfiling){
+                mpInterrupted = true;
+            }
+        } else if(motionProfiling && !mpInterrupted){//motion profiled steps
+            r.driveTrain.swerveMP(mpPwr, angle);
+        } else {//driving to a position
             r.driveTrain.driveSwerveAngle(power, angle);
         }
     }
@@ -265,4 +296,84 @@ public class DriveToImage extends CommandBase{
         r.driveTrain.driveSwerve(Vector.fromXY(0, 0), 0);
     }
 
+
+    Vector getMPPwr(Vector startPos, double startVel, double startTime, Vector endPos){
+        
+        Vector totalDistance = Vector.subVectors(endPos, startPos);
+        double distThreshold = (mpCals.maxVel * mpCals.maxVel) / mpCals.maxAccel;
+
+        double accelDist;
+        double decelDist;
+        double maxVelDist;
+        double accelTime;
+        double maxVelTime;
+        double decelTime;
+        if (totalDistance.r >= distThreshold){
+            //3 step (Accel - constV - Decel)
+            accelDist = distThreshold / 2;
+            decelDist = distThreshold / 2;
+            maxVelDist = totalDistance.r - distThreshold;
+            accelTime =  Math.sqrt(distThreshold / mpCals.maxAccel);
+            //System.out.println("" + accelTime);
+            maxVelTime = accelTime + maxVelDist / mpCals.maxVel;
+            decelTime = maxVelTime + accelTime;
+        } else{
+            //2 step (Accel - Decel)
+            maxVelTime = 0;
+            maxVelDist = 0;
+            accelDist = totalDistance.r / 2;
+            decelDist = totalDistance.r / 2;
+            accelTime =  Math.sqrt(totalDistance.r / mpCals.maxAccel);
+            decelTime = 2 * accelTime;
+        }
+
+        mpCompletionTime = decelTime;
+
+        
+
+        double t = Timer.getFPGATimestamp() - mpStartTime;
+        Vector targetPos = new Vector(0,totalDistance.theta);
+        Vector targetVel = new Vector(0,totalDistance.theta);
+        double targetAccel = 0;
+        if (t < accelTime){ 
+            //stage 1
+            targetAccel = mpCals.maxAccel;
+            targetPos.r = 0.5 * targetAccel * t * t;
+            targetVel.r = targetAccel * t;
+        } else if (t < maxVelTime) { 
+            //stage 2
+            targetAccel = 0;
+            targetVel.r = mpCals.maxVel;
+            targetPos.r = ((t - accelTime) * targetVel.r) + accelDist;
+        } else if (t < decelTime) { 
+            //stage 3
+            double t3 = t - decelTime;
+            targetAccel = -mpCals.maxAccel;
+            targetPos.r = 0.5 * targetAccel * t3 * t3 + totalDistance.r;
+            targetVel.r = t3 * targetAccel;
+        } else { 
+            //end
+            targetPos.r = totalDistance.r;
+            targetVel.r = 0;
+            targetAccel = 0;
+        }
+
+        //PID
+        Vector distVec = new Vector(mpStartLoc).sub(r.sensors.odo.botLocation).add(targetPos);
+        double errorMag = distVec.r;
+        distVec.r *= mpCals.kP_MP;
+        Vector totalVel = new Vector(targetVel).add(distVec);
+
+        //output
+        totalVel.r *= mpCals.kV;
+        Vector power = new Vector(mpCals.kA * targetAccel, targetVel.theta).add(totalVel);
+        power.r += mpCals.kS;
+
+        //voltage compensation
+        power.r *= 12.0 / r.lights.pdh.getVoltage();
+
+        if(debug) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", t,power.r,errorMag,targetPos.r,totalVel.r/mpCals.kV,targetAccel,accelTime,maxVelTime,decelTime);
+
+        return power;
+    }
 }

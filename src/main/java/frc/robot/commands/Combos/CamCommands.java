@@ -9,10 +9,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
+import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonToolbox.WaitForStage;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.DriveToImage;
+import frc.robot.commands.Drive.DriveToImageMP;
 import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.commands.Gripper.IntakeCommand;
 import frc.robot.subsystems.Inputs.Inputs.Level;
@@ -25,7 +27,7 @@ public class CamCommands extends SequentialCommandGroup{
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.UP)));
-        DriveToImage dti = new DriveToImage(r, true);
+        DriveToImageMP dti = new DriveToImageMP(r, true, AutonCal.driveBase);
         sg.addCommands(dti.alongWith(new WaitForStage(r, 30, dti, true)
                                     .andThen(new ArmMove(r, r.inputs.armScorePos))));
         
@@ -36,10 +38,10 @@ public class CamCommands extends SequentialCommandGroup{
         return sg.handleInterrupt(() -> r.gripper.setIntakePower(0.07));
     }
 
-    public static Command AutoDriveToGather(RobotContainer r){
+    public static Command AutoDriveToGatherShelf(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        DriveToImage dti = new DriveToImage(r, false);
+        DriveToImageMP dti = new DriveToImageMP(r, false, AutonCal.driveBase);
         sg.addCommands(dti.raceWith(new WaitForStage(r, 0/*This # is obsolete here*/, dti, false)
                                     .andThen(GatherCommand.gatherCommand(r))));
 
@@ -52,7 +54,7 @@ public class CamCommands extends SequentialCommandGroup{
     public static Command scoreOnlyCone(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        sg.addCommands(new ConditionalCommand(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment()), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.TOP));
+        sg.addCommands(new ConditionalCommand(new DriveForTime(r, Vector.fromXY(-0.3, 0), 0.3).andThen(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment())), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.TOP));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));
         //move the arm to release position
         sg.addCommands(new ConditionalCommand(new RunCommand(() -> 
@@ -64,7 +66,7 @@ public class CamCommands extends SequentialCommandGroup{
         sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0.07))));
-    
+        
         return sg;
     }
 
