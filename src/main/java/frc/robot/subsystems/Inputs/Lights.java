@@ -236,8 +236,15 @@ public class Lights extends SubsystemBase{
             case 16:
                 skittles2(wednesday, r.inputs.buttonAssignment % 2 > 0);
                 break;
+            case 17:
+                build(blueStripes);
+                break;
+            case 18:
+                build(redStripes);
+                break;
             default:
-                skittles2(rainbow, false);
+                build(blueStripes);
+                //skittles2(rainbow, false);
         }
     }
 
@@ -287,6 +294,41 @@ public class Lights extends SubsystemBase{
         }
     }
 
+    int buildOffset = 0;
+    public void build(Color[] colors){
+        if(Timer.getFPGATimestamp() > switchTime){
+            int len = ledBuffer.getLength() / 2;
+            for(int i=0; i<len; i++){
+                int colorIdx = ((i+offset) % (colors.length*2)) / 2;
+                if(colorIdx < 0) colorIdx += colors.length;
+                
+                if(buildOffset > 0){
+                    if(i < buildOffset) colorIdx = 0;
+                } else {
+                    if(i > buildOffset + len) colorIdx = 0;
+                }
+                
+                mirrorLed(i,colors[colorIdx]);
+
+                if(buildOffset > 0){
+                    if(i == len-1){
+                        if(colorIdx == 0) buildOffset++;
+                        if(buildOffset == len) {
+                            buildOffset = -len;
+                        }
+                    }
+                } else {
+                    if(i == 0){
+                        if(colorIdx == 0) buildOffset++;
+                    }
+                }
+                
+            }
+            offset++;
+            switchTime = Timer.getFPGATimestamp() + 0.03;
+        }
+    }
+
     public void skittles2(Color[] colors, boolean up){
         if(Timer.getFPGATimestamp() > switchTime){
             int len = ledBuffer.getLength() / 2;
@@ -305,7 +347,6 @@ public class Lights extends SubsystemBase{
             switchTime = Timer.getFPGATimestamp() + 0.03;
         }
     }
-    
 
     public void mirrorLed(int index, Color c){
         ledBuffer.setLED(index, c);
