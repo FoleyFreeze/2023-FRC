@@ -73,6 +73,7 @@ public class DriveToImageMP extends CommandBase{
 
     @Override
     public void execute(){
+
         position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
         
         if(target == null){
@@ -141,16 +142,17 @@ public class DriveToImageMP extends CommandBase{
                     
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    if(yAlign.getY() > 10.0 && !mpInterrupted){
+                    if(err.getY() > 10.0 && !mpInterrupted){
                         //Motion Profile
                         motionProfiling = true;
-                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
+                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, yAlign);
                         if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
                             driveStage = 3;
                             motionProfiling = false;
                         }
                     } else {
-                        if(err.r < 1.0){
+                        if((err.r < 1.0) || (err.r < 6.0 && level == 1 && r.inputs.isCube()) 
+                                         || (err.r < 4.0 && level == 1 && !r.inputs.isCube())){
                             driveStage = 3;
                         }
                     }

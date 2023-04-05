@@ -21,6 +21,16 @@ public class AutonCal {
         driveBase.kS = 0.03;
     }
 
+    public static MPCals scoreBase = new MPCals();
+    static {
+        scoreBase.maxAccel = 90;
+        scoreBase.maxVel = 100;
+        scoreBase.kP_MP = 5.0;
+        scoreBase.kA = 0.001;
+        scoreBase.kV = 0.006;
+        scoreBase.kS = 0.03;
+    }
+
     public static MPCals angleBase = new MPCals();
     static {
         angleBase.maxAccel = 80;

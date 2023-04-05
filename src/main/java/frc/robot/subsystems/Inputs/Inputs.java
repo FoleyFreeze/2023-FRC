@@ -290,7 +290,11 @@ public class Inputs extends SubsystemBase{
             return r.arm.cals.positionGatherShelf;
         }else{
             if(isCube()){
-                return r.arm.cals.positionCubeGatherFloor;
+                if(DriverStation.isTeleop()){
+                    return r.arm.cals.positionCubeGatherFloor;
+                } else {
+                    return r.arm.cals.positionCubeGatherFloorLongBoi;
+                }
             } else {
                 return r.arm.cals.positionConeGatherFloor;
             }

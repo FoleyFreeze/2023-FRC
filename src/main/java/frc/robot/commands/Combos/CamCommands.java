@@ -27,7 +27,7 @@ public class CamCommands extends SequentialCommandGroup{
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.UP)));
-        DriveToImageMP dti = new DriveToImageMP(r, true, AutonCal.driveBase);
+        DriveToImageMP dti = new DriveToImageMP(r, true, AutonCal.scoreBase);
         sg.addCommands(dti.alongWith(new WaitForStage(r, 30, dti, true)
                                     .andThen(new ArmMove(r, r.inputs.armScorePos))));
         
@@ -41,7 +41,7 @@ public class CamCommands extends SequentialCommandGroup{
     public static Command AutoDriveToGatherShelf(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        DriveToImageMP dti = new DriveToImageMP(r, false, AutonCal.driveBase);
+        DriveToImageMP dti = new DriveToImageMP(r, false, AutonCal.scoreBase);
         sg.addCommands(dti.raceWith(new WaitForStage(r, 0/*This # is obsolete here*/, dti, false)
                                     .andThen(GatherCommand.gatherCommand(r))));
 
@@ -73,7 +73,7 @@ public class CamCommands extends SequentialCommandGroup{
     public static Command scoreOnlyCube(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        sg.addCommands(new WaitCommand(0.27));
+        //sg.addCommands(new WaitCommand(0.27));
         //eject it
         sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));
