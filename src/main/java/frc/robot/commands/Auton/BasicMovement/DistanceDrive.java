@@ -2,7 +2,6 @@ package frc.robot.commands.Auton.BasicMovement;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
-import frc.robot.commands.Auton.AutonPos;
 import frc.robot.util.Angle;
 import frc.robot.util.Util;
 import frc.robot.util.Vector;
@@ -11,27 +10,22 @@ public class DistanceDrive extends CommandBase {
     
     RobotContainer r;
 
+    boolean useFieldCoordinates;
+
     Vector distance;
     double angle;
     
     Vector endPosition;
 
-    public DistanceDrive(RobotContainer r, Vector distance){
-        this(r, distance, -9000.0);
+    public DistanceDrive(RobotContainer r, Vector distance, boolean useFieldCoordinates){
+        this(r, distance, -9000.0, useFieldCoordinates);
     }
 
-    public DistanceDrive(RobotContainer r, Vector distance, double angle){
+    public DistanceDrive(RobotContainer r, Vector distance, double angle, boolean useFieldCoordinates){
         this.r = r;
         this.distance = distance;
         this.angle = Math.toRadians(angle);
-
-        addRequirements(r.driveTrain);
-    }
-
-    public DistanceDrive(RobotContainer r, AutonPos pos){
-        this.r = r;
-        this.distance = pos.xy;
-        this.angle = Math.toRadians(pos.value);
+        this.useFieldCoordinates = useFieldCoordinates;
 
         addRequirements(r.driveTrain);
     }

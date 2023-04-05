@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    boolean debug = true;
+    boolean debug = false;
 
     //TODO: remove the added offset when the camera is recal'd
     frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
@@ -196,7 +196,7 @@ public class Vision extends SubsystemBase {
         VisionData vd = vde.listFin.get(0);
 
         double dist = vd.pose.getZ();
-        double ang = (vd.pose.getRotation().getY());
+        double ang = vd.pose.getRotation().getY();
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
 
@@ -223,11 +223,11 @@ public class Vision extends SubsystemBase {
         VisionData vd = vde.listFin.get(0);
 
         double dist = vd.pose.getZ();
-        double ang = -Math.toRadians(vd.pose.getRotation().getY());
-        frc.robot.util.Vector cam = new frc.robot.util.Vector(dist,ang);
+        double ang = vd.pose.getRotation().getY();
+        frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
 
-        cam.add(camLocation);
+        cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
         if(debug) System.out.println("Field Cam: " + cam.toStringXY());

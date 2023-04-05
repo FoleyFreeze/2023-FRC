@@ -17,8 +17,8 @@ public class Gripper extends SubsystemBase{
     RobotContainer r;
     public GripperCal cals; 
 
-    Motor rGrip;
-    Motor lGrip;
+    public Motor rGrip;
+    public Motor lGrip;
 
     Servo choiceGrip;
     double servoDisableTime;

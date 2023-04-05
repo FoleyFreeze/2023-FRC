@@ -203,7 +203,7 @@ public class RobotContainer {
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(new DriveToGamePiece(this).alongWith(GatherCommand.gatherCommand(this)));
+    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(CamCommands.AutoPickup(this));
     inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
     inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
 

@@ -117,13 +117,13 @@ public class AutoBalance {
         sg.addRequirements(r.driveTrain);
 
         //driving sideways(roll) for 60 inches or until we make it most of the way up the thing
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(60, 0)).until(() -> r.sensors.getAbsPitchRoll() > 33));
+        sg.addCommands(new DistanceDrive(r, Vector.fromXY(60, 0), false).until(() -> r.sensors.getAbsPitchRoll() > 33));
         //now wait until the charge station starts falling down
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(18, 0)).until(() -> r.sensors.getAbsPitchRoll() < 30));
+        sg.addCommands(new DistanceDrive(r, Vector.fromXY(18, 0), false).until(() -> r.sensors.getAbsPitchRoll() < 30));
         //stop until we are at the wanted pitch/roll
         sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain).until(() -> r.sensors.getAbsPitchRoll() < 2));
         //move back a little bit
-        sg.addCommands(new DistanceDrive(r, Vector.fromXY(-3, 0)));
+        sg.addCommands(new DistanceDrive(r, Vector.fromXY(-3, 0), false));
         //park
         sg.addCommands(new InstantCommand(r.driveTrain::parkMode, r.driveTrain));
         //wait

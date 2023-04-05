@@ -27,7 +27,7 @@ public class Inputs extends SubsystemBase{
     public Joystick cBoardTwo;
 
     public boolean disableAutoGather = true;
-    boolean useButtonsTab = true;
+    boolean useButtonsTab = false;
     boolean[] prevButtonStates = new boolean[27];
 
     Joystick cBoardHead;//The only point of this object is to differentiate between the three cbs
@@ -49,9 +49,9 @@ public class Inputs extends SubsystemBase{
         }
     }
 
-    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).getEntry();
-    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", Position.NONE.toString()).getEntry();
-    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Sel Zone", Zone.NONE.toString()).getEntry();
+    GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).withPosition(0, 2).getEntry();
+    GenericEntry posNT = Shuffleboard.getTab("Comp").add("Sel Pos", Position.NONE.toString()).withPosition(2, 2).getEntry();
+    GenericEntry zoneNT = Shuffleboard.getTab("Comp").add("Sel Zone", Zone.NONE.toString()).withPosition(1, 2).getEntry();
 
     joystickTypes[] portStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};
     joystickTypes[] prevPortStatus = {joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE, joystickTypes.NONE};

@@ -149,43 +149,36 @@ public class DriveToImage extends CommandBase{
                 }
             } else {
 
-                if(r.inputs.isShelf()){
-                    double y = 0;
-                    if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                        y = -AutonPos.GATHER_X_DIFF;
-                    } else {
-                        y = AutonPos.GATHER_X_DIFF;
-                    }
-                    
-                    if(driveStage == 1){
-                        pwrMultiplier = 0.3;
-                        pwrMax = PWR_MAX_CUBE;
-                        //Move it to the correct y position and rotate
-                        Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
-                        err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
-                        angle = 0;
-                        
-                        if(err.r < 5){
-                            driveStage = 2;
-                        }
-                    }
-                    if(driveStage == 2){
-                        pwrMultiplier = 0.35;
-                        pwrMax = PWR_MAX_SHELF_GATHER;
-                        //drive in
-                        Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
-                        err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
-                        angle = 0;
-
-                        if(err.r < 2){
-                            driveStage = 4;
-                        }
-                    }
+                double y = 0;
+                if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
+                    y = -AutonPos.GATHER_X_DIFF;
                 } else {
+                    y = AutonPos.GATHER_X_DIFF;
+                }
+                
+                if(driveStage == 1){
+                    pwrMultiplier = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
+                    //Move it to the correct y position and rotate
+                    Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
+                    err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
+                    angle = 0;
+                    
+                    if(err.r < 5){
+                        driveStage = 2;
+                    }
+                }
+                if(driveStage == 2){
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_SHELF_GATHER;
+                    //drive in
+                    Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
+                    err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
+                    angle = 0;
 
-                    err = Vector.subVectors(target, r.sensors.odo.botLocation);
+                    if(err.r < 2){
+                        driveStage = 4;
+                    }
                 }
             }
 

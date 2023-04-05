@@ -46,8 +46,8 @@ public class DriveTrain extends SubsystemBase {
 
         readAbsOffset();
 
-        driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", "0, 0, 0, 0").getEntry();
-        swerveTempNT = Shuffleboard.getTab("Safety").add("swerveTemps", "0, 0, 0, 0").getEntry();
+        driveTempNT = Shuffleboard.getTab("Safety").add("driveTemps", "0, 0, 0, 0").withSize(2, 1).withPosition(0, 2).getEntry();
+        swerveTempNT = Shuffleboard.getTab("Safety").add("swerveTemps", "0, 0, 0, 0").withSize(2, 1).withPosition(0, 3).getEntry();
     }
 
     public boolean parkMode = false;

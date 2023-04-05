@@ -78,12 +78,12 @@ public class AutonCommand {
 
         MPCals[] mpCalsThere = {AutonCal.driveBase,
                                 AutonCal.driveBase,
-                                AutonCal.bumpThereCals,
+                                AutonCal.driveBase,
                                 AutonCal.bumpThereCals};
 
         MPCals[] mpCalsBack = {AutonCal.driveBase,
                             AutonCal.driveBase,
-                            AutonCal.bumpBackCals,
+                            AutonCal.driveBase,
                             AutonCal.bumpBackCals};
 
         
@@ -148,7 +148,7 @@ public class AutonCommand {
 
         //Drive Out Only
         if(selectedAuton == AutonPaths.DRIVE_OUT || selectedAuton == AutonPaths.SCORE_DRIVE_OUT){
-            if(startPos.ordinal() == 0 || startPos.ordinal() == 3){
+            if(startPos == AutonStarts.SUB || startPos == AutonStarts.FAR){
                 //drive out
                 sg.addCommands(new DriveMotionProfile(r, driveOutTwo[startPos.ordinal()], driveOutOneAng[startPos.ordinal()], mpCalsThere[startPos.ordinal()]));
             } else {
@@ -159,20 +159,24 @@ public class AutonCommand {
         
         //Piece Gather
         if(selectedAuton.ordinal() >= 4){
-            if(startPos.ordinal() == 1 || startPos.ordinal() == 2){
+            if(startPos == AutonStarts.SUB_MID || startPos == AutonStarts.FAR_MID){
                 //get over the charge station
                 sg.addCommands(new AngleMotionProfile(r, driveOutOneAng[startPos.ordinal()]));
                 sg.addCommands(new InstantCommand(() -> r.driveTrain.targetHeading = driveOutOneAng[startPos.ordinal()]));
                 sg.addCommands(new InstantCommand(r.gripper::open));//because this takes too long, do it early
                 sg.addCommands(AutoBalance.getDriveOverStation(r, false));
             }
-            //drive to gather angle
-            sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
-            //drive to gather
-            sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos.ordinal()], driveToPieceAng[startPos.ordinal()], mpCalsThere[startPos.ordinal()])
-                .raceWith(GatherCommand.gatherCommand(r)));
-            //send arm home
-            sg.addCommands(new ArmGoHome(r));
+            if(startPos == AutonStarts.SUB){
+                //drive to gather angle
+                sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
+                //drive to gather
+                sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos.ordinal()], driveToPieceAng[startPos.ordinal()], mpCalsThere[startPos.ordinal()])
+                    .raceWith(GatherCommand.gatherCommand(r)));
+                //send arm home
+                sg.addCommands(new ArmGoHome(r));
+            } else {
+                sg.addCommands(AutonCommandCamera.autonPiecePickup(r, startPos.ordinal()));
+            }
         }
 
         //Score #2

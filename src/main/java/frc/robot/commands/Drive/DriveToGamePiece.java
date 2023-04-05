@@ -2,6 +2,7 @@ package frc.robot.commands.Drive;
 
 import java.time.LocalDate;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Sensors.VisionData;
@@ -22,11 +23,18 @@ public class DriveToGamePiece extends CommandBase{
 
     VisionDataEntry vde;
 
-    double filterConst = 0;
+    double filterConst = 0.5;
+
     double maxRotPwr = 0.2;
-    double maxDrivePwr = 0.2;
+    double rotPwr = 0.3;
+
+    double maxDrivePwr = 0.5;
+    double drivePwr = 0.1;
+
     boolean debug = true;
     int stage;
+
+    double startTime;
 
     @Override
     public void initialize(){
@@ -39,6 +47,8 @@ public class DriveToGamePiece extends CommandBase{
         } else {
             r.vision.setConeMode();
         }
+
+        startTime = Timer.getFPGATimestamp();
     }
 
     @Override 
@@ -73,7 +83,7 @@ public class DriveToGamePiece extends CommandBase{
 
             //drive to angle
             double angleError = Angle.normRad(driveVec.theta - r.sensors.odo.botAngle);
-            double anglePower = angleError * 0.15;
+            double anglePower = angleError * rotPwr;
             if(anglePower > maxRotPwr) anglePower = maxRotPwr;
             else if(anglePower < -maxRotPwr) anglePower = -maxRotPwr;
             //strafe vector to add to rotation so that we rotate around the gatherer
@@ -83,7 +93,7 @@ public class DriveToGamePiece extends CommandBase{
 
             if(stage == 1 || Math.abs(angleError) < Math.toRadians(5)){
                 stage = 1;
-                driveVec.r *= 0.05;
+                driveVec.r *= drivePwr;
                 if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;
                 driveVec.theta -= r.sensors.odo.botAngle;
                 //drivePower.add(driveVec);
@@ -102,7 +112,10 @@ public class DriveToGamePiece extends CommandBase{
 
     @Override
     public boolean isFinished(){
-        return false;
+        //Delay for startup current
+        return startTime + 0.75 < Timer.getFPGATimestamp() &&
+               r.gripper.lGrip.getCurrent() > 11.0 &&
+               r.gripper.rGrip.getCurrent() > 11.0;
     }
 
     @Override

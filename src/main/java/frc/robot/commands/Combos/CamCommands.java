@@ -13,12 +13,14 @@ import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonToolbox.WaitForStage;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Drive.AutoAlign;
+import frc.robot.commands.Drive.DriveToGamePiece;
 import frc.robot.commands.Drive.DriveToImage;
 import frc.robot.commands.Drive.DriveToImageMP;
 import frc.robot.commands.Gripper.GatherCommand;
 import frc.robot.commands.Gripper.IntakeCommand;
 import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.subsystems.Inputs.Inputs.ManScoreMode;
+import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class CamCommands extends SequentialCommandGroup{
@@ -49,6 +51,11 @@ public class CamCommands extends SequentialCommandGroup{
                        .andThen(new ArmGoHome(r)));
 
         return sg.handleInterrupt(() -> r.gripper.setIntakePower(0.07));
+    }
+
+    public static Command AutoPickup(RobotContainer r){
+        return new DriveToGamePiece(r).raceWith(GatherCommand.gatherCommand(r))
+      .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.3, Angle.normRad(r.sensors.odo.botAngle - Math.PI) % (Math.PI*2)), 0.4)));
     }
 
     public static Command scoreOnlyCone(RobotContainer r){

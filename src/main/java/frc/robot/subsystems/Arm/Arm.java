@@ -36,8 +36,8 @@ public class Arm extends SubsystemBase {
 
     GenericEntry maxStendoTempNT = Shuffleboard.getTab("Safety").add("MaxStendoTemp", 0).getEntry();
 
-    GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up Down", 0).getEntry();
-    GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In Out", 0).getEntry();
+    GenericEntry jogUpDownNT = Shuffleboard.getTab("Comp").add("Jog Up Down", 0).withPosition(0, 0).getEntry();
+    GenericEntry jogInOutNT = Shuffleboard.getTab("Comp").add("Jog In Out", 0).withPosition(1, 0).getEntry();
 
     public Arm(RobotContainer r, ArmCal cals){
         this.r = r;

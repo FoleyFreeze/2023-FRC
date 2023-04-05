@@ -204,6 +204,10 @@ public class DriveToImageMP extends CommandBase{
                     
                     if(err.r < 5){
                         driveStage = 2;
+                        mpStartLoc = new Vector(r.sensors.odo.botLocation);
+                        mpStartVel = 0;
+                        mpStartTime = Timer.getFPGATimestamp();
+                        motionProfiling = true;
                     }
                 }
                 if(driveStage == 2){
@@ -214,8 +218,17 @@ public class DriveToImageMP extends CommandBase{
                     err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
                     angle = 0;
 
-                    if(err.r < 2){
-                        driveStage = 4;
+                    if(motionProfiling = true && !mpInterrupted){
+                        //Motion Profile
+                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
+                        if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
+                            driveStage = 3;
+                            motionProfiling = false;
+                        }
+                    } else {
+                        if(err.r < 2){
+                            driveStage = 4;
+                        }
                     }
                 }
             }
