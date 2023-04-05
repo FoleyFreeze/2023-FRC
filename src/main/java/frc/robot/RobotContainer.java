@@ -8,7 +8,7 @@ import frc.robot.commands.Arm.ArmGoHome;
 import frc.robot.commands.Arm.ArmMove;
 import frc.robot.commands.Arm.LearnArmOffset;
 import frc.robot.commands.Auton.AutonBuilder;
-import frc.robot.commands.Auton.AutonToolbox.AutonCommand;
+import frc.robot.commands.Auton.MPAutons.AutonCommand;
 import frc.robot.commands.Combos.CamCommands;
 import frc.robot.commands.Combos.Score;
 import frc.robot.commands.Drive.AutoAlign;
@@ -202,8 +202,8 @@ public class RobotContainer {
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
-    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGather(this));
+    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(CamCommands.AutoDriveToGatherFloor(this));
+    //inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
     //inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
 
     //inputs.autoGather.onTrue(new InstantCommand(() -> inputs.slowModeTrue()));

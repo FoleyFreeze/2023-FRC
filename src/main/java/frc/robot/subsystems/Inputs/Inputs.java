@@ -3,8 +3,10 @@ package frc.robot.subsystems.Inputs;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation; 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,11 +20,15 @@ public class Inputs extends SubsystemBase{
     RobotContainer r;
     InputCal cal;
 
+    GenericEntry[] buttons = new GenericEntry[27];
+
     public Joystick controller;
     public Joystick cBoard;
     public Joystick cBoardTwo;
 
     public boolean disableAutoGather = true;
+    boolean useButtonsTab = true;
+    boolean[] prevButtonStates = new boolean[27];
 
     Joystick cBoardHead;//The only point of this object is to differentiate between the three cbs
 
@@ -34,6 +40,13 @@ public class Inputs extends SubsystemBase{
     public Inputs(RobotContainer r, InputCal cal){
         this.r = r;
         this.cal = cal;
+
+        for(int i = 0; i < 27; i++){
+            prevButtonStates[i] = false;
+
+            int iplusone = i + 1;
+            buttons[i] = Shuffleboard.getTab("Buttons").add("" + iplusone, false).withPosition(i%9, i/9).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        }
     }
 
     GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).getEntry();
@@ -45,7 +58,7 @@ public class Inputs extends SubsystemBase{
     public void periodic(){
         levelNT.setString(selectedLevel.toString());
         posNT.setString(selectedPosition.toString());
-        zoneNT.setString(selectedZone.toString());
+        zoneNT.setString(selectedZone.toString());  
         
         //joystick auto-detection logic
         for(int i = 0; i < 3; i++){
@@ -617,6 +630,17 @@ public class Inputs extends SubsystemBase{
             }
             if(cBoardTwo.getRawButton(cal.SCORE_POS_IDX[26])){
                 idx = 26;
+            }
+        }
+        if(useButtonsTab){
+            for(int i = 0; i < 27; i++){
+                if(buttons[i].getBoolean(false) == true && prevButtonStates[i] == false){
+                    prevButtonStates[i] = true;
+                    for(int toIdx = 0; toIdx < 27; toIdx++){
+                        buttons[toIdx].setBoolean(i == toIdx);
+                    }
+                    idx = i;
+                }
             }
         }
 

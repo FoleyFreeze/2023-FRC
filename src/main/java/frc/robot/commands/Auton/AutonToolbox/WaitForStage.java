@@ -11,10 +11,10 @@ public class WaitForStage extends CommandBase{
     RobotContainer r;
 
     double dist;
-    DriveToImage dti;
+    DriveToImageMP dti;
     boolean scoreMode;
     
-    public WaitForStage(RobotContainer r, double dist, DriveToImage dti, boolean scoreMode){
+    public WaitForStage(RobotContainer r, double dist, DriveToImageMP dti, boolean scoreMode){
         this.r = r;
         this.dist = dist;
         this.dti = dti;

@@ -8,6 +8,7 @@ public class Tabs {
 
     public ShuffleboardTab safetyTab = Shuffleboard.getTab("Safety");
     public ShuffleboardTab compTab = Shuffleboard.getTab("Comp");
+    public ShuffleboardTab buttonsTab = Shuffleboard.getTab("Buttons");
 
     public Tabs(){
 

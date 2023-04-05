@@ -22,7 +22,7 @@ public class DriveToImageMP extends CommandBase{
     public int driveStage;
     public Vector err;
 
-    boolean debug = false;
+    boolean debug = true;
 
     double maxFilterDist = 1.0;//inches
     double maxSingleFrameOffset = 3;//inches
@@ -145,7 +145,7 @@ public class DriveToImageMP extends CommandBase{
                         //Motion Profile
                         motionProfiling = true;
                         mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
-                        if(Timer.getFPGATimestamp() > mpCompletionTime){
+                        if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
                             driveStage = 3;
                             motionProfiling = false;
                         }
@@ -235,14 +235,14 @@ public class DriveToImageMP extends CommandBase{
         }
 
         double zCmd = getJoystickAngle();
-        if(Math.abs(zCmd) > 0.1){
+        if(Math.abs(zCmd) > 0.1){//manual override
             r.driveTrain.driveSwerve(power, zCmd);
             if(motionProfiling){
                 mpInterrupted = true;
             }
-        } else if(motionProfiling && !mpInterrupted){
+        } else if(motionProfiling && !mpInterrupted){//motion profiled steps
             r.driveTrain.swerveMP(mpPwr, angle);
-        } else {
+        } else {//driving to a position
             r.driveTrain.driveSwerveAngle(power, angle);
         }
     }
@@ -326,10 +326,54 @@ public class DriveToImageMP extends CommandBase{
             accelTime =  Math.sqrt(totalDistance.r / mpCals.maxAccel);
             decelTime = 2 * accelTime;
         }
-        startTime = Timer.getFPGATimestamp();
 
-        mpCompletionTime = 0;
-        return null;
+        mpCompletionTime = decelTime;
+
+        
+
+        double t = Timer.getFPGATimestamp() - mpStartTime;
+        Vector targetPos = new Vector(0,totalDistance.theta);
+        Vector targetVel = new Vector(0,totalDistance.theta);
+        double targetAccel = 0;
+        if (t < accelTime){ 
+            //stage 1
+            targetAccel = mpCals.maxAccel;
+            targetPos.r = 0.5 * targetAccel * t * t;
+            targetVel.r = targetAccel * t;
+        } else if (t < maxVelTime) { 
+            //stage 2
+            targetAccel = 0;
+            targetVel.r = mpCals.maxVel;
+            targetPos.r = ((t - accelTime) * targetVel.r) + accelDist;
+        } else if (t < decelTime) { 
+            //stage 3
+            double t3 = t - decelTime;
+            targetAccel = -mpCals.maxAccel;
+            targetPos.r = 0.5 * targetAccel * t3 * t3 + totalDistance.r;
+            targetVel.r = t3 * targetAccel;
+        } else { 
+            //end
+            targetPos.r = totalDistance.r;
+            targetVel.r = 0;
+            targetAccel = 0;
+        }
+
+        //PID
+        Vector distVec = new Vector(mpStartLoc).sub(r.sensors.odo.botLocation).add(targetPos);
+        double errorMag = distVec.r;
+        distVec.r *= mpCals.kP_MP;
+        Vector totalVel = new Vector(targetVel).add(distVec);
+
+        //output
+        totalVel.r *= mpCals.kV;
+        Vector power = new Vector(mpCals.kA * targetAccel, targetVel.theta).add(totalVel);
+        power.r += mpCals.kS;
+
+        //voltage compensation
+        power.r *= 12.0 / r.lights.pdh.getVoltage();
+
+        if(debug) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", t,power.r,errorMag,targetPos.r,totalVel.r/mpCals.kV,targetAccel,accelTime,maxVelTime,decelTime);
+
+        return power;
     }
-
 }
