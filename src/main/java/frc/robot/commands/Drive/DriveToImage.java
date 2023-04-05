@@ -31,6 +31,8 @@ public class DriveToImage extends CommandBase{
 
     @Override
     public void initialize(){
+        r.vision.setTagMode();
+        
         target = null;
         pwrMultiplier = 0.1;
         pwrMax = 0.3;
