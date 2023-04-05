@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    boolean debug = false;
+    boolean debug = true;
 
     //TODO: remove the added offset when the camera is recal'd
     frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
@@ -59,7 +59,7 @@ public class Vision extends SubsystemBase {
         tagsActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Tag Enable").getEntry(false);
         cubesActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Cube Enable").getEntry(false);
         conesActive = NetworkTableInstance.getDefault().getBooleanTopic("/Vision/Cone Enable").getEntry(false);
-        setTagMode(); //default to tags
+        //setTagMode(); //default to tags
         
         poseMsgTag = NetworkTableInstance.getDefault().getTable("Vision").getRawTopic("Tag Pose Data Bytes").subscribe("raw", null);
         tagVisionStack = new LimitedStack<VisionDataEntry>(5);
@@ -95,7 +95,7 @@ public class Vision extends SubsystemBase {
                 poseDataCube = ByteBuffer.wrap(event.valueData.value.getRaw());
                 byte type = poseDataCube.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
                 byte numTags = poseDataCube.get(13);
-                if(type == 1 && numTags <= 4){
+                if(type == 3 && numTags <= 4){
                     VisionDataEntry e = new VisionDataEntry();
                     e.listFin = new Vector<VisionData>();
                     e.seqNum = poseDataCube.getInt(0);
@@ -104,11 +104,11 @@ public class Vision extends SubsystemBase {
                     for(int i = 0, b = 14; i < numTags; i++, b += 25){
                         
                         VisionData visionData = new VisionData(type, poseDataCube.get(b), 
-                            poseDataCube.getFloat(b+1), poseDataCube.getFloat(b+5), poseDataCube.getFloat(b+9), 
+                            Math.toRadians(poseDataCube.getFloat(b+1)), Math.toRadians(poseDataCube.getFloat(b+5)), Math.toRadians(poseDataCube.getFloat(b+9)), 
                             poseDataCube.getFloat(b+13), poseDataCube.getFloat(b+17), poseDataCube.getFloat(b+21));
                         e.listFin.add(visionData);
                     }
-                    coneVisionStack.push(e);
+                    cubeVisionStack.push(e);
                 }
 
             });
@@ -121,7 +121,7 @@ public class Vision extends SubsystemBase {
                 poseDataCone = ByteBuffer.wrap(event.valueData.value.getRaw());
                 byte type = poseDataCone.get(12); // type 1 = tag, type 2 = cone, type 3 = cube
                 byte numTags = poseDataCone.get(13);
-                if(type == 1 && numTags <= 4){
+                if(type == 2 && numTags <= 4){
                     VisionDataEntry e = new VisionDataEntry();
                     e.listFin = new Vector<VisionData>();
                     e.seqNum = poseDataCone.getInt(0);
@@ -130,7 +130,7 @@ public class Vision extends SubsystemBase {
                     for(int i = 0, b = 14; i < numTags; i++, b += 25){
                         
                         VisionData visionData = new VisionData(type, poseDataCone.get(b), 
-                            poseDataCone.getFloat(b+1), poseDataCone.getFloat(b+5), poseDataCone.getFloat(b+9), 
+                            Math.toRadians(poseDataCone.getFloat(b+1)), Math.toRadians(poseDataCone.getFloat(b+5)), Math.toRadians(poseDataCone.getFloat(b+9)), 
                             poseDataCone.getFloat(b+13), poseDataCone.getFloat(b+17), poseDataCone.getFloat(b+21));
                         e.listFin.add(visionData);
                     }
@@ -148,18 +148,21 @@ public class Vision extends SubsystemBase {
     }
 
     public void setTagMode(){
+        System.out.println("TagMode On");
         tagsActive.set(true);
         cubesActive.set(false);
         conesActive.set(false);
     }
 
     public void setCubeMode(){
+        System.out.println("CubeMode On");
         tagsActive.set(false);
         cubesActive.set(true);
         conesActive.set(false);
     }
 
     public void setConeMode(){
+        System.out.println("ConeMode On");
         tagsActive.set(false);
         cubesActive.set(false);
         conesActive.set(true);
@@ -176,6 +179,60 @@ public class Vision extends SubsystemBase {
     public void togglePi(){
         boolean status = active.get();
         active.set(!status);
+    }
+
+    public frc.robot.util.Vector getCubeVector(){
+        if(cubeVisionStack.isEmpty()) return null;
+
+        VisionDataEntry vde = cubeVisionStack.pop();
+        while(!cubeVisionStack.isEmpty()){
+            cubeVisionStack.pop();
+        }
+
+        if(Timer.getFPGATimestamp() - vde.timestamp > 0.5) return null;
+
+        Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(vde.timestamp);
+
+        VisionData vd = vde.listFin.get(0);
+
+        double dist = vd.pose.getZ();
+        double ang = (vd.pose.getRotation().getY());
+        frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
+        if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+
+        cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));
+        cam.theta += oldLoc.angle;
+        cam.add(oldLoc.space);
+        if(debug) System.out.println("Field Cam: " + cam.toStringXY());
+
+        return cam;
+    }
+
+    public frc.robot.util.Vector getConeVector(){
+        if(coneVisionStack.isEmpty()) return null;
+
+        VisionDataEntry vde = coneVisionStack.pop();
+        while(!coneVisionStack.isEmpty()){
+            coneVisionStack.pop();
+        }
+
+        if(Timer.getFPGATimestamp() - vde.timestamp > 0.5) return null;
+
+        Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(vde.timestamp);
+
+        VisionData vd = vde.listFin.get(0);
+
+        double dist = vd.pose.getZ();
+        double ang = -Math.toRadians(vd.pose.getRotation().getY());
+        frc.robot.util.Vector cam = new frc.robot.util.Vector(dist,ang);
+        if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+
+        cam.add(camLocation);
+        cam.theta += oldLoc.angle;
+        cam.add(oldLoc.space);
+        if(debug) System.out.println("Field Cam: " + cam.toStringXY());
+
+        return cam;
     }
 
     public frc.robot.util.Vector getImageVector(int level, int position, boolean scoring){

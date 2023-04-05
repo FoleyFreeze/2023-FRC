@@ -22,7 +22,7 @@ public class DriveToImageMP extends CommandBase{
     public int driveStage;
     public Vector err;
 
-    boolean debug = true;
+    boolean debug = false;
 
     double maxFilterDist = 1.0;//inches
     double maxSingleFrameOffset = 3;//inches
@@ -75,6 +75,8 @@ public class DriveToImageMP extends CommandBase{
 
     @Override
     public void execute(){
+        SmartDashboard.putBoolean("MotionProfiling", motionProfiling);
+        SmartDashboard.putBoolean("MotionProfilingInt", mpInterrupted);
 
         position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
         
@@ -133,6 +135,11 @@ public class DriveToImageMP extends CommandBase{
                         mpStartLoc = new Vector(r.sensors.odo.botLocation);
                         mpStartVel = 0;
                         mpStartTime = Timer.getFPGATimestamp();
+                        if(Math.abs(new Vector(target).sub(r.sensors.odo.botLocation).getY()) > 10.0){
+                            motionProfiling = true;
+                        } else {
+                            motionProfiling = false;
+                        }
                     }
                 } 
                 if(driveStage == 2){
@@ -144,9 +151,8 @@ public class DriveToImageMP extends CommandBase{
                     
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    if(err.getY() > 10.0 && !mpInterrupted){
+                    if(motionProfiling = true && !mpInterrupted){
                         //Motion Profile
-                        motionProfiling = true;
                         mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, yAlign);
                         if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
                             driveStage = 3;

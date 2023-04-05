@@ -14,15 +14,25 @@ public class DriveToGamePiece extends CommandBase{
 
     private boolean cubeMode;
     private Vector target;
-    private double angle;
 
     public DriveToGamePiece(RobotContainer r){
         this.r = r;
         addRequirements(r.driveTrain);
     }
 
+    VisionDataEntry vde;
+
+    double filterConst = 0;
+    double maxRotPwr = 0.2;
+    double maxDrivePwr = 0.2;
+    boolean debug = true;
+    int stage;
+
     @Override
     public void initialize(){
+        target = null;
+        stage = 0;
+
         cubeMode = r.inputs.isCube();
         if(cubeMode){
             r.vision.setCubeMode();
@@ -33,33 +43,58 @@ public class DriveToGamePiece extends CommandBase{
 
     @Override 
     public void execute(){
-        VisionDataEntry vde = null;
+        Vector newTarget = null;
         if(cubeMode){
-            vde = r.vision.cubeVisionStack.pop();
+            newTarget = r.vision.getCubeVector();
         } else {
-            vde = r.vision.coneVisionStack.pop();
+            newTarget = r.vision.getConeVector();
         }
 
-        if(vde != null){
+        if(newTarget != null){
             //update target
-            VisionData vd = vde.listFin.get(0);
-            double localAngle = Math.toRadians(vd.pose.getRotation().getY());
-            double localDist = vd.pose.getTranslation().getZ();
-
-            angle = localAngle + r.sensors.odo.botAngle;
-            Vector target = new Vector(localDist, 0);
+            if(target == null){
+                target = newTarget;
+            } else {
+                //filter in new target
+                newTarget.sub(target);
+                newTarget.r *= filterConst;
+                target.add(newTarget);
+            }
         }
 
         if(target != null){
             //drive to target
-            Vector power = new Vector(target);
-            if(Angle.normRad(r.sensors.odo.botAngle - angle) < Math.toRadians(5)){
-                power.r = target.r * 0.1;
-                if(power.r > 0.25) power.r = 0.25;
-            } else {
-                power.r = 0;
+
+            //gatherer is 27in out at robot angle of 0
+            Vector gatherLoc = new Vector(27,r.sensors.odo.botAngle);
+            gatherLoc.add(r.sensors.odo.botLocation);
+
+            Vector driveVec = Vector.subVectors(target, gatherLoc);
+
+            //drive to angle
+            double angleError = Angle.normRad(driveVec.theta - r.sensors.odo.botAngle);
+            double anglePower = angleError * 0.15;
+            if(anglePower > maxRotPwr) anglePower = maxRotPwr;
+            else if(anglePower < -maxRotPwr) anglePower = -maxRotPwr;
+            //strafe vector to add to rotation so that we rotate around the gatherer
+            Vector drivePower = Vector.fromXY(0, -2.06*anglePower);
+
+            driveVec.add(new Vector(36,r.sensors.odo.botAngle));
+
+            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5)){
+                stage = 1;
+                driveVec.r *= 0.05;
+                if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;
+                driveVec.theta -= r.sensors.odo.botAngle;
+                //drivePower.add(driveVec);
+                drivePower = driveVec;
+                anglePower = 0;
             }
-            r.driveTrain.driveSwerveAngle(power, angle);
+
+            Vector loc = Vector.subVectors(target, gatherLoc);
+            if(debug) System.out.format("RelTgt: %.0f,%.0f, G: %.0f,%.0f, T: %.0f,%.0f, AngE: %.0f, %.0f, %.0f, Pwr: %.2f,%.2f\n",loc.getX(),loc.getY(),gatherLoc.getX(),gatherLoc.getY(),target.getX(),target.getY(),Math.toDegrees(angleError),Math.toDegrees(loc.theta),Math.toDegrees(r.sensors.odo.botAngle),drivePower.getX(),drivePower.getY());
+
+            r.driveTrain.driveSwerve(drivePower, anglePower);
         } else {
             driveManual();
         }
