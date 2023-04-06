@@ -473,6 +473,8 @@ public class Inputs extends SubsystemBase{
         }
     }
 
+    public Trigger isCubeTrigger = new Trigger(this::isCube);
+
     public Trigger isShelfTrigger = new Trigger(this::isShelf);
 
     public boolean isShelf(){

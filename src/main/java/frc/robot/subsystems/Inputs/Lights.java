@@ -348,9 +348,15 @@ public class Lights extends SubsystemBase{
         }
     }
 
+    Color off = new Color(0,0,0);
     public void mirrorLed(int index, Color c){
         ledBuffer.setLED(index, c);
-        ledBuffer.setLED(ledBuffer.getLength() - index - 1, c);
+        int mirrorIdx = ledBuffer.getLength() - index - 1;
+        if(!r.inputs.isShelf() && mirrorIdx > 60 && mirrorIdx < 78){
+            ledBuffer.setLED(mirrorIdx, off);
+        } else {
+            ledBuffer.setLED(mirrorIdx, c);
+        }
     }
 
     BooleanPublisher ledEnable;

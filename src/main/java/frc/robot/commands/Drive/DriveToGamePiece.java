@@ -26,13 +26,16 @@ public class DriveToGamePiece extends CommandBase{
     double filterConst = 0.5;
 
     double maxRotPwr = 0.2;
-    double rotPwr = 0.3;
+    double rotPwr = 0.2;
 
     double maxDrivePwr = 0.5;
     double drivePwr = 0.1;
 
     boolean debug = true;
     int stage;
+
+    Vector startLocation;
+    double totalDist;
 
     double startTime;
 
@@ -49,6 +52,8 @@ public class DriveToGamePiece extends CommandBase{
         }
 
         startTime = Timer.getFPGATimestamp();
+        startLocation = new Vector(r.sensors.odo.botLocation);
+        totalDist = 0;
     }
 
     @Override 
@@ -64,11 +69,12 @@ public class DriveToGamePiece extends CommandBase{
             //update target
             if(target == null){
                 target = newTarget;
-            } else {
+            } else if(stage==0){
                 //filter in new target
                 newTarget.sub(target);
                 newTarget.r *= filterConst;
                 target.add(newTarget);
+                totalDist = Vector.subVectors(target, r.sensors.odo.botLocation).r;
             }
         }
 
@@ -89,9 +95,10 @@ public class DriveToGamePiece extends CommandBase{
             //strafe vector to add to rotation so that we rotate around the gatherer
             Vector drivePower = Vector.fromXY(0, -2.06*anglePower);
 
+            double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
             driveVec.add(new Vector(36,r.sensors.odo.botAngle));
-
-            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5)){
+            
+            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
                 stage = 1;
                 driveVec.r *= drivePwr;
                 if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;
@@ -112,10 +119,13 @@ public class DriveToGamePiece extends CommandBase{
 
     @Override
     public boolean isFinished(){
-        //Delay for startup current
-        return startTime + 0.75 < Timer.getFPGATimestamp() &&
-               r.gripper.lGrip.getCurrent() > 11.0 &&
-               r.gripper.rGrip.getCurrent() > 11.0;
+        //Finished when gripper sees current
+        //or if we have driven 2ft farther than we needed to
+        double totalCurr = r.gripper.getIntakeCurrent();
+        double dist = Vector.subVectors(r.sensors.odo.botLocation, startLocation).r;
+        return startTime + 0.75 < Timer.getFPGATimestamp() 
+               && totalCurr > 20
+               || totalDist != 0 && dist > totalDist + 24;
     }
 
     @Override

@@ -67,5 +67,5 @@ public class InputCal {
 
     //lights stuff
     public final int LED_PORT = 0;
-    public final int BUFFER_LENGTH = 80;
+    public final int BUFFER_LENGTH = 82;
 }

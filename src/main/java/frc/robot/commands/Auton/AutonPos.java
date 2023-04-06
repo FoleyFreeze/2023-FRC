@@ -145,6 +145,8 @@ public class AutonPos {
          new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 7.0 + nodeDist / 2.0, rightHiConeAng)},//sub
     };
 
-    public static final AutonPos GATHER_OFFSET = new AutonPos(636.960-30-10, 265.740, 0).offset(2,0,0);
-    public static final double GATHER_X_DIFF = 24;
+    public static final AutonPos GATHER_OFFSET = new AutonPos(636.960-30-10, 265.740, 0).offset(3,0,0);
+    public static final double GATHER_X_DIFF_L = 0;
+    public static final double GATHER_X_DIFF_R = -2;
+    public static final double GATHER_Y_DIFF = 24;
 }

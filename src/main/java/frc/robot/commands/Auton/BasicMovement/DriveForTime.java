@@ -13,6 +13,7 @@ public class DriveForTime extends CommandBase {
     Vector direction;
     double angle;
     double seconds;
+    boolean fieldOriented;
 
     double startTime;
 
@@ -26,6 +27,12 @@ public class DriveForTime extends CommandBase {
         this.direction = direction;
         this.angle = Angle.toRad(angle);
         this.seconds = seconds;
+        fieldOriented = true;
+    }
+
+    public DriveForTime(RobotContainer r, Vector direction, double seconds, boolean fieldOriented){
+        this(r, direction, -9000, seconds);
+        this.fieldOriented = fieldOriented;
     }
 
     @Override
@@ -37,7 +44,7 @@ public class DriveForTime extends CommandBase {
     @Override
     public void execute(){
         Vector xy = new Vector(direction);
-        xy.theta -= r.sensors.odo.botAngle;
+        if(fieldOriented) xy.theta -= r.sensors.odo.botAngle;
 
         double error = (angle - r.sensors.odo.botAngle) % (2 * Math.PI);
                 

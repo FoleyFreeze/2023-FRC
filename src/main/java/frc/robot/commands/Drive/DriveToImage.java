@@ -151,9 +151,9 @@ public class DriveToImage extends CommandBase{
 
                 double y = 0;
                 if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                    y = -AutonPos.GATHER_X_DIFF;
+                    y = -AutonPos.GATHER_Y_DIFF;
                 } else {
-                    y = AutonPos.GATHER_X_DIFF;
+                    y = AutonPos.GATHER_Y_DIFF;
                 }
                 
                 if(driveStage == 1){

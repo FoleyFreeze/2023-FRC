@@ -210,6 +210,9 @@ public class RobotContainer {
     inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
     inputs.autoGather.onFalse(new ArmGoHome(this));
 
+    inputs.isCubeTrigger.onTrue(new InstantCommand(gripper::open));
+    inputs.isCubeTrigger.onFalse(new InstantCommand(gripper::close));
+
     //1. move the arm, set slow mode true
     //2. conditional command - check between cube/cone and score mode/up mode
     //3. Change up/score state in inputs

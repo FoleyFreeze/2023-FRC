@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
     public Motor angleMotor;
     public Motor stendoMotor; 
     
-    Vector setPoint;
+    public Vector setPoint;
     //Vector setPointTwo;
     boolean isAngleOnly = false;
 
@@ -117,14 +117,15 @@ public class Arm extends SubsystemBase {
     public void periodic(){
 
         if(cals.disabled) return;
-        SmartDashboard.putNumber("Pot Value", armPot.getVoltage());
 
         determineAngleBrake();
 
         if(r.inputs.getFieldMode()){
             angleMotor.setPIDPwrLim(0.75);
+            stendoMotor.setPIDPwrLim(0.95);
         } else {
             angleMotor.setPIDPwrLim(0.25);
+            stendoMotor.setPIDPwrLim(0.4);
         }
 
         if(angleMotor.getTemp() > maxArmTemp) maxArmTemp = angleMotor.getTemp();

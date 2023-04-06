@@ -195,7 +195,7 @@ public class Vision extends SubsystemBase {
 
         VisionData vd = vde.listFin.get(0);
 
-        double dist = vd.pose.getZ();
+        double dist = vd.pose.getZ()+3.25;//to account for bumpers
         double ang = vd.pose.getRotation().getY();
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());

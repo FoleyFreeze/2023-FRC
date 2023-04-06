@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AutonCal.MPCals;
+import frc.robot.subsystems.Inputs.Inputs.Level;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
@@ -22,7 +23,7 @@ public class DriveToImageMP extends CommandBase{
     public int driveStage;
     public Vector err;
 
-    boolean debug = false;
+    boolean debug = true;
 
     double maxFilterDist = 1.0;//inches
     double maxSingleFrameOffset = 3;//inches
@@ -122,7 +123,7 @@ public class DriveToImageMP extends CommandBase{
                 //no else cases, so when we move to next stage we
                 //immediately take the new drive action of that stage
                 double coneMidOffset = 0;
-                if(!r.inputs.isCube()) coneMidOffset = 10;
+                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) coneMidOffset = 10;
                 if(driveStage == 1){
                     pwrMultiplier = 0.4;
                     pwrMax = PWR_MAX_CUBE;
@@ -186,12 +187,15 @@ public class DriveToImageMP extends CommandBase{
                     angle = r.vision.getImageAngle(level, position);
                 }
             } else {
-
+                //drive to shelf gather
                 double y = 0;
+                double x = 0;
                 if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                    y = -AutonPos.GATHER_X_DIFF;
+                    y = -AutonPos.GATHER_Y_DIFF;
+                    x = AutonPos.GATHER_X_DIFF_R;
                 } else {
-                    y = AutonPos.GATHER_X_DIFF;
+                    y = AutonPos.GATHER_Y_DIFF;
+                    x = AutonPos.GATHER_X_DIFF_L;
                 }
                 
                 if(driveStage == 1){
@@ -202,27 +206,39 @@ public class DriveToImageMP extends CommandBase{
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = 0;
                     
-                    if(err.r < 5){
+                    if(err.r < 3){
                         driveStage = 2;
+                    }
+                }
+                if(driveStage == 2){
+                    pwrMultiplier = 0.3;
+                    pwrMax = PWR_MAX_CUBE;
+                    //Move it to the correct y position and rotate
+                    Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
+                    err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
+                    angle = 0;
+
+                    if(r.arm.setPoint != null && Math.abs(r.arm.setPoint.theta - Math.toRadians(r.arm.angleMotor.getPosition())) < Math.toRadians(15)){
+                        driveStage = 3;
                         mpStartLoc = new Vector(r.sensors.odo.botLocation);
                         mpStartVel = 0;
                         mpStartTime = Timer.getFPGATimestamp();
                         motionProfiling = true;
                     }
                 }
-                if(driveStage == 2){
+                if(driveStage == 3){
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_GATHER;
                     //drive in
-                    Vector offsetTarget = Vector.fromXY(target.getX(), target.getY() + y);
+                    Vector offsetTarget = Vector.fromXY(target.getX() + x, target.getY() + y);
                     err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
                     angle = 0;
 
                     if(motionProfiling = true && !mpInterrupted){
                         //Motion Profile
-                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, target);
+                        mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, offsetTarget);
                         if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
-                            driveStage = 3;
+                            driveStage = 4;
                             motionProfiling = false;
                         }
                     } else {
@@ -230,6 +246,10 @@ public class DriveToImageMP extends CommandBase{
                             driveStage = 4;
                         }
                     }
+                }
+                if(driveStage == 4){
+                    err = new Vector(0,0);
+                    angle = 0;
                 }
             }
 
@@ -311,7 +331,7 @@ public class DriveToImageMP extends CommandBase{
 
     @Override
     public boolean isFinished(){
-        return driveStage > 3 || r.inputs.getLeftTrigger();
+        return driveStage > 3 || (r.inputs.getLeftTrigger() && scoreMode);
     }
 
     @Override
