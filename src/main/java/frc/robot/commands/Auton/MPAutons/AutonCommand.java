@@ -58,7 +58,7 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
-        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 9+3),
+        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 9+1),
                                           Vector.fromXY(0, 0),
                                           Vector.fromXY(0, 0),
                                           Vector.fromXY(0, -4)};
