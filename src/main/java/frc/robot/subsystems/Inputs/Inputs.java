@@ -20,20 +20,21 @@ public class Inputs extends SubsystemBase{
     RobotContainer r;
     InputCal cal;
 
+    GenericEntry useButtonsTab;
+
     GenericEntry[] buttons = new GenericEntry[27];
+    GenericEntry floorShelf;
+    GenericEntry cubeCone;
 
     public Joystick controller;
     public Joystick cBoard;
     public Joystick cBoardTwo;
 
     public boolean disableAutoGather = true;
-    boolean useButtonsTab = false;
     boolean[] prevButtonStates = new boolean[27];
 
-    Joystick cBoardHead;//The only point of this object is to differentiate between the three cbs
-
     public enum joystickTypes{
-        FLYSKY, GAMEPAD, NONE, CONTROL_BOARD_PT_ONE, CONTROL_BOARD_PT_TWO, CONTROL_BOARD_HEAD
+        FLYSKY, GAMEPAD, NONE, CONTROL_BOARD_PT_ONE, CONTROL_BOARD_PT_TWO
     }
     public joystickTypes controllerType = joystickTypes.NONE;//differs between flysky vs. gamepad
 
@@ -47,6 +48,9 @@ public class Inputs extends SubsystemBase{
             int iplusone = i + 1;
             buttons[i] = Shuffleboard.getTab("Buttons").add("" + iplusone, false).withPosition(i%9, i/9).withWidget(BuiltInWidgets.kToggleButton).getEntry();
         }
+        useButtonsTab = Shuffleboard.getTab("Buttons").add("Use", false).withPosition(0, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        floorShelf = Shuffleboard.getTab("Buttons").add("Shelf", false).withPosition(2, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        cubeCone = Shuffleboard.getTab("Buttons").add("Cube", false).withPosition(4, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
     }
 
     GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).withPosition(0, 2).getEntry();
@@ -91,8 +95,6 @@ public class Inputs extends SubsystemBase{
                         System.out.println("Control Board Pt One detected at port " + i);
                         cBoard = new Joystick(i);
                         break;
-                    case CONTROL_BOARD_HEAD:
-                        cBoardHead = new Joystick(i);
                     case CONTROL_BOARD_PT_TWO:
                         System.out.println("Control Board Pt Two detected at port " + i);
                         cBoardTwo = new Joystick(i);
@@ -110,6 +112,14 @@ public class Inputs extends SubsystemBase{
         }
 
         scorePosition();
+        if(useButtonsTab.getBoolean(false) == false){
+            for(GenericEntry ge: buttons){
+                ge.setBoolean(false);
+            }
+        }
+
+        SmartDashboard.putBoolean("isShelf", isShelf());
+        SmartDashboard.putBoolean("isCube", isCube());
     } 
 
 
@@ -323,7 +333,7 @@ public class Inputs extends SubsystemBase{
 
     public boolean getLeftTrigger(){
         if(controller != null){
-            return controller.getRawAxis(cal.GATHER_TRIGGER[controllerType.ordinal()]) > 0.5;
+            return controller.getRawAxis(cal.GATHER_TRIGGER[controllerType.ordinal()]) > 0.25;
         } else {
             return false;
         }
@@ -466,7 +476,9 @@ public class Inputs extends SubsystemBase{
 
     public boolean isCube(){
         if(DriverStation.isAutonomous()) return true;
-        if(cBoardTwo != null){
+        if(useButtonsTab.getBoolean(false)){
+            return cubeCone.getBoolean(false);
+        } else if(cBoardTwo != null){
             return !cBoardTwo.getRawButton(cal.CUBE_V_CONE);
         } else {
             return true;
@@ -479,7 +491,9 @@ public class Inputs extends SubsystemBase{
 
     public boolean isShelf(){
         if(DriverStation.isAutonomous()) return false;
-        if(cBoardTwo != null){
+        if(useButtonsTab.getBoolean(false)){
+            return floorShelf.getBoolean(false);
+        } else if(cBoardTwo != null){
             return cBoardTwo.getRawButton(cal.SHELF_V_FLOOR);
         } else {
             return false;
@@ -638,12 +652,12 @@ public class Inputs extends SubsystemBase{
                 idx = 26;
             }
         }
-        if(useButtonsTab){
+        if(useButtonsTab.getBoolean(false)){
             for(int i = 0; i < 27; i++){
                 if(buttons[i].getBoolean(false) == true && prevButtonStates[i] == false){
-                    prevButtonStates[i] = true;
                     for(int toIdx = 0; toIdx < 27; toIdx++){
                         buttons[toIdx].setBoolean(i == toIdx);
+                        prevButtonStates[toIdx] = (i == toIdx);
                     }
                     idx = i;
                 }

@@ -14,6 +14,7 @@ import frc.robot.commands.Auton.AutonToolbox.WaitForStage;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.commands.Drive.DriveToGamePiece;
+import frc.robot.commands.Drive.DriveToGamePieceDemo;
 import frc.robot.commands.Drive.DriveToImage;
 import frc.robot.commands.Drive.DriveToImageMP;
 import frc.robot.commands.Gripper.GatherCommand;
@@ -58,10 +59,16 @@ public class CamCommands extends SequentialCommandGroup{
       .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.3, Math.PI), 0.4, false)));
     }
 
+    public static Command AutoPickupDemo(RobotContainer r){
+        return new DriveToGamePieceDemo(r).raceWith(GatherCommand.gatherCommand(r))
+        .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.1,Math.PI), 0.4, false)));
+    }
+
     public static Command scoreOnlyCone(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         sg.addCommands(new ConditionalCommand(new DriveForTime(r, Vector.fromXY(-0.2, 0), 0.3).andThen(new ConditionalCommand(AutoAlign.autoFieldLeftAlign(r), AutoAlign.autoFieldRightAlign(r), () -> r.inputs.determineLeftAlignment())), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.TOP));
+        sg.addCommands(new ConditionalCommand(new WaitCommand(0.25), new WaitCommand(0), () -> r.inputs.selectedLevel == Level.MIDDLE));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));
         //move the arm to release position
         sg.addCommands(new ConditionalCommand(new RunCommand(() -> 
@@ -80,7 +87,7 @@ public class CamCommands extends SequentialCommandGroup{
     public static Command scoreOnlyCube(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
-        //sg.addCommands(new WaitCommand(0.27));
+        sg.addCommands(new ConditionalCommand(new WaitCommand(0.27), new WaitCommand(0.0), () -> r.inputs.selectedLevel != Level.BOTTOM));
         //eject it
         sg.addCommands(new RunCommand(() -> r.gripper.setIntakePower(r.gripper.cals.cubeScorePower), r.gripper).raceWith(new WaitCommand(0.2)));
         sg.addCommands(new InstantCommand(() -> r.inputs.setMode(ManScoreMode.SCORE)));

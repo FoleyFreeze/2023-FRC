@@ -49,7 +49,6 @@ public class DriveToImageMP extends CommandBase{
         level = r.inputs.selectedLevel.ordinal();
 
         motionProfiling = false;
-        mpInterrupted = false;
     }
 
     public Vector target;
@@ -66,7 +65,6 @@ public class DriveToImageMP extends CommandBase{
     public int position;
 
     boolean motionProfiling;
-    boolean mpInterrupted;
     Vector mpPwr;
     double mpCompletionTime;
 
@@ -74,30 +72,40 @@ public class DriveToImageMP extends CommandBase{
     double mpStartVel;
     double mpStartTime;
 
+    double throwAwayThreshold = 150;
+
     @Override
     public void execute(){
         SmartDashboard.putBoolean("MotionProfiling", motionProfiling);
-        SmartDashboard.putBoolean("MotionProfilingInt", mpInterrupted);
 
         position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
         
         if(target == null){
             Vector v = r.vision.getImageVector(level, position, scoreMode);
             if(v != null) {
-                target = new Vector(v);
-                if(debug) System.out.print("Raw: " + v.toString());
+                if(Vector.subVectors(v, r.sensors.odo.botLocation).r < throwAwayThreshold){
+                    target = new Vector(v);
+                    if(debug) System.out.print("Raw: " + v.toString());
+                } else {
+                    if(debug) System.out.print("Threw away raw: " + v.toString());
+                }
             }
         } else {
             Vector newImage = r.vision.getImageVector(level, position, scoreMode);
             if(newImage != null){
                 if(debug) System.out.print("Raw: " + newImage.toString());
-                Vector delta = Vector.subVectors(newImage, target);
-                if(delta.r > maxFilterDist){
-                    delta.r /= filterDivisor;
-                    if(delta.r > maxSingleFrameOffset){
-                        delta.r = maxSingleFrameOffset;
+                
+                if(Vector.subVectors(newImage, r.sensors.odo.botLocation).r < throwAwayThreshold){
+                    Vector delta = Vector.subVectors(newImage, target);
+                    if(delta.r > maxFilterDist){
+                        delta.r /= filterDivisor;
+                        if(delta.r > maxSingleFrameOffset){
+                            delta.r = maxSingleFrameOffset;
+                        }
+                        target.add(delta);
                     }
-                    target.add(delta);
+                } else {
+                    if(debug) System.out.print("Threw away raw: " + newImage.toString());
                 }
             }
         }
@@ -137,9 +145,9 @@ public class DriveToImageMP extends CommandBase{
                         mpStartVel = 0;
                         mpStartTime = Timer.getFPGATimestamp();
                         if(Math.abs(new Vector(target).sub(r.sensors.odo.botLocation).getY()) > 10.0){
-                            motionProfiling = true;
+                            setMotionProfiling(true);
                         } else {
-                            motionProfiling = false;
+                            setMotionProfiling(false);
                         }
                     }
                 } 
@@ -152,12 +160,12 @@ public class DriveToImageMP extends CommandBase{
                     
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    if(motionProfiling = true && !mpInterrupted){
+                    if(motionProfiling == true){
                         //Motion Profile
                         mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, yAlign);
                         if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
                             driveStage = 3;
-                            motionProfiling = false;
+                            setMotionProfiling(false);
                         }
                     } else {
                         if((err.r < 1.0) || (err.r < 6.0 && level == 1 && r.inputs.isCube()) 
@@ -192,10 +200,10 @@ public class DriveToImageMP extends CommandBase{
                 double x = 0;
                 if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
                     y = -AutonPos.GATHER_Y_DIFF;
-                    x = AutonPos.GATHER_X_DIFF_R;
+                    x = AutonPos.GATHER_X_DIFF_R + r.sensors.gatherDistOffset;
                 } else {
                     y = AutonPos.GATHER_Y_DIFF;
-                    x = AutonPos.GATHER_X_DIFF_L;
+                    x = AutonPos.GATHER_X_DIFF_L + r.sensors.gatherDistOffset;
                 }
                 
                 if(driveStage == 1){
@@ -223,7 +231,7 @@ public class DriveToImageMP extends CommandBase{
                         mpStartLoc = new Vector(r.sensors.odo.botLocation);
                         mpStartVel = 0;
                         mpStartTime = Timer.getFPGATimestamp();
-                        motionProfiling = true;
+                        setMotionProfiling(true);
                     }
                 }
                 if(driveStage == 3){
@@ -234,12 +242,12 @@ public class DriveToImageMP extends CommandBase{
                     err = Vector.subVectors(offsetTarget, r.sensors.odo.botLocation);
                     angle = 0;
 
-                    if(motionProfiling = true && !mpInterrupted){
+                    if(motionProfiling == true){
                         //Motion Profile
                         mpPwr = getMPPwr(mpStartLoc, mpStartVel, mpStartTime, offsetTarget);
                         if(Timer.getFPGATimestamp() - mpStartTime > mpCompletionTime){
                             driveStage = 4;
-                            motionProfiling = false;
+                            setMotionProfiling(false);
                         }
                     } else {
                         if(err.r < 2){
@@ -268,26 +276,26 @@ public class DriveToImageMP extends CommandBase{
             power.r = ((power.r / 12.0) * pwrMultiplier) /*+ iPwr*/;/*power per foot of error*/
             if(power.r > pwrMax) power.r = pwrMax;
 
-            if(Math.abs(r.inputs.getJoystickX()) > 0.1
-            || Math.abs(r.inputs.getJoystickY()) > 0.1){
+            if((Math.abs(r.inputs.getJoystickX()) > 0.1
+            || Math.abs(r.inputs.getJoystickY()) > 0.1) 
+            && !motionProfiling){
                 power = getJoystickPower();
-                if(motionProfiling){
-                    mpInterrupted = true;
-                }
             }
         }
 
         double zCmd = getJoystickAngle();
-        if(Math.abs(zCmd) > 0.1){//manual override
+        if(Math.abs(zCmd) > 0.1 && !motionProfiling){//manual override
             r.driveTrain.driveSwerve(power, zCmd);
-            if(motionProfiling){
-                mpInterrupted = true;
-            }
-        } else if(motionProfiling && !mpInterrupted){//motion profiled steps
+        } else if(motionProfiling){//motion profiled steps
             r.driveTrain.swerveMP(mpPwr, angle);
         } else {//driving to a position
             r.driveTrain.driveSwerveAngle(power, angle);
         }
+    }
+
+    private void setMotionProfiling(boolean mode){
+        motionProfiling = mode;
+        System.out.println("setting mp to " + mode);
     }
 
     private Vector getJoystickPower(){

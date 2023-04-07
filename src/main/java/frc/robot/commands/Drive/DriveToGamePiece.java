@@ -1,20 +1,17 @@
 package frc.robot.commands.Drive;
 
-import java.time.LocalDate;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Sensors.VisionData;
 import frc.robot.subsystems.Sensors.VisionDataEntry;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 
 public class DriveToGamePiece extends CommandBase{
-    private RobotContainer r;
+    protected RobotContainer r;
 
-    private boolean cubeMode;
-    private Vector target;
+    protected boolean cubeMode;
+    protected Vector target;
 
     public DriveToGamePiece(RobotContainer r){
         this.r = r;
@@ -25,11 +22,11 @@ public class DriveToGamePiece extends CommandBase{
 
     double filterConst = 0.5;
 
-    double maxRotPwr = 0.2;
-    double rotPwr = 0.2;
+    protected double maxRotPwr = 0.2;
+    protected double rotPwr = 0.2;
 
-    double maxDrivePwr = 0.5;
-    double drivePwr = 0.1;
+    protected double maxDrivePwr = 0.5;
+    protected double drivePwr = 0.1;
 
     boolean debug = true;
     int stage;
@@ -82,7 +79,8 @@ public class DriveToGamePiece extends CommandBase{
             //drive to target
 
             //gatherer is 27in out at robot angle of 0
-            Vector gatherLoc = new Vector(27,r.sensors.odo.botAngle);
+            double gatherExt = 13+10;
+            Vector gatherLoc = new Vector(gatherExt,r.sensors.odo.botAngle);
             gatherLoc.add(r.sensors.odo.botLocation);
 
             Vector driveVec = Vector.subVectors(target, gatherLoc);
@@ -93,7 +91,7 @@ public class DriveToGamePiece extends CommandBase{
             if(anglePower > maxRotPwr) anglePower = maxRotPwr;
             else if(anglePower < -maxRotPwr) anglePower = -maxRotPwr;
             //strafe vector to add to rotation so that we rotate around the gatherer
-            Vector drivePower = Vector.fromXY(0, -2.06*anglePower);
+            Vector drivePower = Vector.fromXY(0, -(gatherExt/13.1)*anglePower);
 
             double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
             driveVec.add(new Vector(36,r.sensors.odo.botAngle));

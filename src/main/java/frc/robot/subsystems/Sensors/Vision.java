@@ -198,6 +198,7 @@ public class Vision extends SubsystemBase {
         double dist = vd.pose.getZ()+3.25;//to account for bumpers
         double ang = vd.pose.getRotation().getY();
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
+        cam.add(frc.robot.util.Vector.fromXY(0, -2));//offset
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
 
         cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));
@@ -235,6 +236,7 @@ public class Vision extends SubsystemBase {
         return cam;
     }
 
+    int prevId = 0;
     public frc.robot.util.Vector getImageVector(int level, int position, boolean scoring){
         //if image doesnt exists
         if(tagVisionStack.isEmpty()) return null;
@@ -253,12 +255,42 @@ public class Vision extends SubsystemBase {
         double minDist = 99999;
         VisionData bestData = null;
         for(VisionData d : entry.listFin){
-            double dist = getHyp(d.pose.getTranslation());
-            if(dist < minDist){
-                minDist = dist;
-                bestData = d;
+            //ignore tags with wrong heights
+            boolean good = false;
+            double y = -Units.metersToInches(d.pose.getTranslation().getY());
+            switch(d.tagId){
+                case 1:
+                case 2:
+                case 3:
+                    good = scoring && DriverStation.getAlliance() == Alliance.Red && y > -5 && y < 5;
+                break;
+                case 6:
+                case 7:
+                case 8:
+                    good = scoring && DriverStation.getAlliance() == Alliance.Blue && y > -5 && y < 5;
+                break;
+                case 4:
+                    good = !scoring && DriverStation.getAlliance() == Alliance.Blue && y > 4 && y < 14;
+                break;
+                case 5:
+                    good = !scoring && DriverStation.getAlliance() == Alliance.Red && y > 4 && y < 14;
+                break;
+                default:
+                    good = false;
+            }
+            
+            if(good){
+                double dist = getHyp(d.pose.getTranslation());
+                if(dist < minDist){
+                    minDist = dist;
+                    bestData = d;
+                }
+            } else {
+                System.out.println("Tag" + d.tagId + " rejected with y = " + String.format("%.0f",y));
             }
         }
+        if(bestData == null) return null;
+
         //SmartDashboard.putNumber("Min Vis Dist", minDist);
         //SmartDashboard.putString("Best Data", bestData.pose.toString());
 
@@ -270,11 +302,19 @@ public class Vision extends SubsystemBase {
         cam.add(oldLoc.space);
         if(debug) System.out.println("Field Cam: " + cam.toStringXY());
 
-        if(debug) System.out.println("Raw ID: " + bestData.tagId);
+        if(debug || bestData.tagId != prevId) System.out.println("Raw ID: " + bestData.tagId);
+        prevId = bestData.tagId;
         int id = bestData.tagId;
         if(DriverStation.getAlliance() == Alliance.Red){
+            //ignore other teams tags
+            if(id == 4 || id >= 6) return null;
             id = 9 - id;
+        } else {
+            //ignore other teams tags
+            if(id <= 3 || id == 5) return null;
         }
+
+        
 
         frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(id).get().getTranslation());
         if(debug) System.out.println("tag" + id + "Pos: " + tagPos.toStringXY());

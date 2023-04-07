@@ -41,7 +41,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -229,8 +231,11 @@ public class RobotContainer {
     inputs.alignMode.and(inputs.fieldAlignRight).onTrue(AutoAlign.autoFieldRightAlign(this));
     inputs.alignMode.and(inputs.fieldAlignRight.negate()).onTrue(AutoAlign.autoFieldLeftAlign(this));
 
-    inputs.jogDown.onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
-    inputs.jogUp.onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
+    inputs.jogDown.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogDown).ignoringDisable(true));
+    inputs.jogUp.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogUp).ignoringDisable(true));
+
+    inputs.jogDown.and(inputs.shift).onTrue(new InstantCommand(sensors::jogBotDistNegative).ignoringDisable(true));
+    inputs.jogUp.and(inputs.shift).onTrue(new InstantCommand(sensors::jogBotDistPositive).ignoringDisable(true));
 
     inputs.jogRight.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogOut).ignoringDisable(true));
     inputs.jogLeft.and(inputs.shift.negate()).onTrue(new InstantCommand(arm::jogIn).ignoringDisable(true));
@@ -245,6 +250,8 @@ public class RobotContainer {
 
     SmartDashboard.putData("Open Gipper", new InstantCommand(() -> gripper.open()));
     SmartDashboard.putData("Close Gipper", new InstantCommand(() -> gripper.close()));
+
+    SmartDashboard.putData("DemoVisionGather", new SequentialCommandGroup(CamCommands.AutoPickupDemo(this)));
 
     //Vector armUpVec = Vector.fromDeg(38, 110);
     //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));

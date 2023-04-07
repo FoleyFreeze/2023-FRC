@@ -13,6 +13,7 @@
       "/SmartDashboard/Close Gipper": "Command",
       "/SmartDashboard/Cone Pickup": "Command",
       "/SmartDashboard/Cube Pickup": "Command",
+      "/SmartDashboard/DemoVisionGather": "Command",
       "/SmartDashboard/Mid-Field Piece": "String Chooser",
       "/SmartDashboard/Open Gipper": "Command",
       "/SmartDashboard/PI_Toggle": "Command",

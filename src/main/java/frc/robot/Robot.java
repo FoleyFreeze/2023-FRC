@@ -81,12 +81,17 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    //r.vision.setTagMode();
+  }
 
   String prevValue = "";
 
   @Override
   public void disabledPeriodic() {
+
+    //TODO: Delete
+    //r.vision.getImageVector(1, 1, true);
 
     int useSpecialCommand = r.specialAutonChooser.getSelected();
 

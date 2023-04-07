@@ -58,14 +58,14 @@ public class AutonCommand {
                                     AutonPos.drivePieceMidSub.value,
                                     AutonPos.drivePieceMidFar.value,
                                     AutonPos.drivePieceFar.value};
-        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 12),
+        Vector[] driveToPieceRedOffset = {Vector.fromXY(0, 9+3),
                                           Vector.fromXY(0, 0),
                                           Vector.fromXY(0, 0),
-                                          Vector.fromXY(0, -12)};
-        Vector[] driveToPieceBlueOffset = {Vector.fromXY(0, 2),
+                                          Vector.fromXY(0, -4)};
+        Vector[] driveToPieceBlueOffset = {Vector.fromXY(0, 8),
                                             Vector.fromXY(0, 0),
                                             Vector.fromXY(0, 0),
-                                            Vector.fromXY(0, 0)};
+                                            Vector.fromXY(0, -4)};
 
         Vector[] driveToScore = {AutonPos.driveScoreSub.xy,
                                  AutonPos.driveScoreSub.xy,
@@ -166,7 +166,7 @@ public class AutonCommand {
                 sg.addCommands(new InstantCommand(r.gripper::open));//because this takes too long, do it early
                 sg.addCommands(AutoBalance.getDriveOverStation(r, false));
             }
-            if(startPos == AutonStarts.SUB){
+            if(true /*startPos == AutonStarts.SUB*/){
                 //drive to gather angle
                 sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
                 //drive to gather

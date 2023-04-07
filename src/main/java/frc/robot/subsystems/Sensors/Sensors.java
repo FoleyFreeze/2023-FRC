@@ -19,6 +19,8 @@ public class Sensors extends SubsystemBase{
     public AHRS navX;
     private double navXOffset = 0;
 
+    public double gatherDistOffset = 0;
+
     public double prevWheelPos;
 
     public double dt;
@@ -61,6 +63,16 @@ public class Sensors extends SubsystemBase{
         navXOffset -= val;
         odo.botAngle -= val;
         odo.prevBotAng -= val;
+    }
+
+    public void jogBotDistPositive(){
+        gatherDistOffset += cal.jogDistIncrmt;
+        System.out.println("Bot jog dist now " + gatherDistOffset);
+    }
+
+    public void jogBotDistNegative(){
+        gatherDistOffset -= cal.jogDistIncrmt;
+        System.out.println("Bot jog dist now " + gatherDistOffset);
     }
 
     public void resetBotAng(){
