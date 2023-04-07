@@ -97,7 +97,7 @@ public class AutonPos {
     public static double initArmStendo = 32.5;
     public static double initArmAngle = -3.9;
 
-    public static double tagToMidX = 20;
+    public static double tagToMidX = 20+5;
 
     static double postXPlusOffset = 54.25 + 22;
     static double postXPlusOffsetHiCone = 54.25 + 12;

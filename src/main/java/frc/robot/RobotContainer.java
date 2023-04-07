@@ -205,12 +205,12 @@ public class RobotContainer {
     //inputs.resetArm.onTrue(new InstantCommand(() -> arm.learnArmOffset()).ignoringDisable(true));
 
     //inputs.autoGather.whileTrue(GatherCommand.gatherCommand(this));
-    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(CamCommands.AutoPickup(this));
-    inputs.autoGather.and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
-    inputs.autoGather.and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
+    inputs.autoGather.and(inputs.autoScore.negate()).and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger.negate()).whileTrue(CamCommands.AutoPickup(this));
+    inputs.autoGather.and(inputs.autoScore.negate()).and(inputs.cameraModeTrigger).and(inputs.isShelfTrigger).whileTrue(CamCommands.AutoDriveToGatherShelf(this));
+    inputs.autoGather.and(inputs.autoScore.negate()).and(inputs.cameraModeTrigger.negate()).whileTrue(GatherCommand.gatherCommand(this));
 
-    inputs.autoGather.onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
-    inputs.autoGather.onFalse(new ArmGoHome(this));
+    inputs.autoGather.and(inputs.autoScore.negate()).onTrue(new InstantCommand(() -> inputs.setMode(ManScoreMode.UP)));
+    inputs.autoGather.and(inputs.autoScore.negate()).onFalse(new ArmGoHome(this));
 
     inputs.isCubeTrigger.onTrue(new InstantCommand(gripper::open));
     inputs.isCubeTrigger.onFalse(new InstantCommand(gripper::close));

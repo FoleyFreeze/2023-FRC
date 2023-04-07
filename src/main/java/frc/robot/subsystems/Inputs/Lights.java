@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -155,6 +156,8 @@ public class Lights extends SubsystemBase{
     @Override
     public void periodic(){
         if(disabled) return;
+
+        SmartDashboard.putNumber("PDH Voltage", pdh.getVoltage());
 
         //dont underglow when disabled in the pits
         underglow((DriverStation.isFMSAttached() || DriverStation.isEnabled()) && r.inputs.getFieldMode());

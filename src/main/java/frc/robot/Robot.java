@@ -113,12 +113,12 @@ public class Robot extends TimedRobot {
 
     if(!value.equals(prevValue)){
       if(useSpecialCommand > 0){
-        r.autonCommand = AutoAlign.autoFieldRightAlign(r);
+        //r.autonCommand = AutoAlign.autoFieldRightAlign(r);
         //r.autonCommand = new DriveForTime(r, Vector.fromXY(-.17, 0), 0.1);
         //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
         //r.autonCommand = AutoBalance.getDriveOverStation(r, false).andThen(AutoBalance.getAutoBalanceCommand(r, true));
         //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));
-        //r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(60,0),0).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
+        r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(5,0),0).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);
         //r.autonCommand = new RunCommand(() -> r.gripper.setIntakeSpeed(r.gripper.cals.cubeScoreSpeed), r.gripper).raceWith(new WaitCommand(0.3));
       } else {
         r.autonCommand = AutonCommand.autonCommand(r, team, autonChooser, startPos);

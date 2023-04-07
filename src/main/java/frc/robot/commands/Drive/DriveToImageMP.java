@@ -180,7 +180,9 @@ public class DriveToImageMP extends CommandBase{
                     //Final drive in
                     err = Vector.subVectors(target,r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
-                    if(err.r < 40 && !r.inputs.isCube()){
+                    if(level == 1){
+                        pwrMax = 0.4;
+                    } else if(err.r < 40 && !r.inputs.isCube()){
                         pwrMax = PWR_MAX_CONE;
                     } else {
                         pwrMax = PWR_MAX_CUBE;
@@ -235,6 +237,7 @@ public class DriveToImageMP extends CommandBase{
                     }
                 }
                 if(driveStage == 3){
+
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_GATHER;
                     //drive in
@@ -276,8 +279,8 @@ public class DriveToImageMP extends CommandBase{
             power.r = ((power.r / 12.0) * pwrMultiplier) /*+ iPwr*/;/*power per foot of error*/
             if(power.r > pwrMax) power.r = pwrMax;
 
-            if((Math.abs(r.inputs.getJoystickX()) > 0.1
-            || Math.abs(r.inputs.getJoystickY()) > 0.1) 
+            if((Math.abs(r.inputs.getJoystickX()) > 0.25
+            || Math.abs(r.inputs.getJoystickY()) > 0.25) 
             && !motionProfiling){
                 power = getJoystickPower();
             }
@@ -421,7 +424,11 @@ public class DriveToImageMP extends CommandBase{
         power.r += mpCals.kS;
 
         //voltage compensation
-        power.r *= 12.0 / r.lights.pdh.getVoltage();
+        double volts = r.lights.pdh.getVoltage();
+        if(volts < 5 || volts > 15){
+            volts = 12;
+        }
+        power.r *= 12.0 / volts;
 
         if(debug) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", t,power.r,errorMag,targetPos.r,totalVel.r/mpCals.kV,targetAccel,accelTime,maxVelTime,decelTime);
 

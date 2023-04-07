@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonCal.MPCals;
+import frc.robot.subsystems.Inputs.Lights;
 import frc.robot.util.Angle;
 import frc.robot.util.Vector;
 import java.lang.Math;
@@ -94,7 +95,11 @@ public class DriveMotionProfile extends CommandBase{
         power.r += cals.kS;
 
         //voltage compensation
-        power.r *= 12.0 / r.lights.pdh.getVoltage();
+        double volts = r.lights.pdh.getVoltage();
+        if(volts < 5 || volts > 15){
+            volts = 12;
+        }
+        power.r *= 12.0 / volts;
         r.driveTrain.swerveMP(power,targetAngle);
         
         if(DEBUG) System.out.format("t:%.2f, p:%.2f, err:%.0f, x:%.0f, v:%.0f, a:%.0f, t1:%.1f, t2:%.1f, t3:%.1f\n", runTime,power.r,errorMag,targetPos.r,totalVel.r/cals.kV,targetAccel,accelTime,maxVelTime,decelTime);

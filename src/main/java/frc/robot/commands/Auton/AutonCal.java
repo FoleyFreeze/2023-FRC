@@ -23,8 +23,8 @@ public class AutonCal {
 
     public static MPCals scoreBase = new MPCals();
     static {
-        scoreBase.maxAccel = 80;
-        scoreBase.maxVel = 70;
+        scoreBase.maxAccel = 90;
+        scoreBase.maxVel = 120;
         scoreBase.kP_MP = 5.0;
         scoreBase.kA = 0.001;
         scoreBase.kV = 0.006;

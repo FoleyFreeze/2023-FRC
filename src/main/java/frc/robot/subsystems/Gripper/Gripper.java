@@ -80,6 +80,9 @@ public class Gripper extends SubsystemBase{
     public void periodic(){
         if(cals.disabled == true) return;
 
+        SmartDashboard.putNumber("lGrip Current", lGrip.getCurrent());
+        SmartDashboard.putNumber("rGrip Current", rGrip.getCurrent());
+
         if(Timer.getFPGATimestamp() > servoDisableTime && servoDisabled == false){
             choiceGrip.setDisabled();
             servoDisabled = true;
