@@ -258,6 +258,7 @@ public class Vision extends SubsystemBase {
             //ignore tags with wrong heights
             boolean good = false;
             double y = -Units.metersToInches(d.pose.getTranslation().getY());
+            double x = Units.metersToInches(d.pose.getTranslation().getZ());
             switch(d.tagId){
                 case 1:
                 case 2:
@@ -278,6 +279,10 @@ public class Vision extends SubsystemBase {
                 default:
                     good = false;
             }
+            if(x < 0) {
+                System.out.println("Image behind us: " + x);
+                good = false;
+            }
             
             if(good){
                 double dist = getHyp(d.pose.getTranslation());
@@ -296,7 +301,6 @@ public class Vision extends SubsystemBase {
 
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
-        if(cam.getY() < 0) return null;//don't pay attention to tags that are behind us
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;

@@ -54,12 +54,12 @@ public class ArmCal {
     //cone arm positions
     public Vector positionConeHiAngle = Vector.fromDeg(31, 110.7);
     public Vector positionConeHiStendo = Vector.fromDeg(31, -5.4);
-    public Vector positionConeHiHold = Vector.fromDeg(39, 110.7);
+    public Vector positionConeHiHold = Vector.fromDeg(39, 114.7);
     public Vector positionConeHiRelease = Vector.fromDeg(39, 97.3);
-    public Vector positionConeMedHold = Vector.fromDeg(32.0, 93.0);
+    public Vector positionConeMedHold = Vector.fromDeg(32.0, 97.0);
     public Vector positionConeMedRelease = Vector.fromDeg(32.0, 72.6);
     public Vector positionConeLowRelease = Vector.fromDeg(30.6, 19.8);
-  
+
     //cube arm positions
     public Vector positionCubeHi = Vector.fromDeg(35, 102.3);
     public Vector positionCubeMed = Vector.fromDeg(30.6, 74.5);
