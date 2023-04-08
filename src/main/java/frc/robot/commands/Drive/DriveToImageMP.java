@@ -55,6 +55,7 @@ public class DriveToImageMP extends CommandBase{
 
     double pwrMultiplier;
     double pwrMax;
+    final double PWR_MAX_X_MOVE = 0.5;
     final double PWR_MAX_CUBE = 0.3;
     final double PWR_MAX_CONE = 0.2;
     final double PWR_MAX_GATHER = 0.45;
@@ -132,9 +133,10 @@ public class DriveToImageMP extends CommandBase{
                 //immediately take the new drive action of that stage
                 double coneMidOffset = 0;
                 if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) coneMidOffset = 10;
+                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.MIDDLE) coneMidOffset = -10;
                 if(driveStage == 1){
-                    pwrMultiplier = 0.4;
-                    pwrMax = PWR_MAX_CUBE;
+                    pwrMultiplier = 0.6;
+                    pwrMax = PWR_MAX_X_MOVE;
                     //Move it to a mid-substation x position first
                     Vector xOffset = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, r.sensors.odo.botLocation.getY());
                     err = Vector.subVectors(xOffset, r.sensors.odo.botLocation);

@@ -296,6 +296,7 @@ public class Vision extends SubsystemBase {
 
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
+        if(cam.getY() < 0) return null;//don't pay attention to tags that are behind us
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;

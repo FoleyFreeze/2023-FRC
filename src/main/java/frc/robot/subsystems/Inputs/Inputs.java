@@ -167,7 +167,7 @@ public class Inputs extends SubsystemBase{
 
     public double getJoystickX(){
         if(controller != null){
-            double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]);
+            double value = controller.getRawAxis(cal.L_JOYSTICK_X[controllerType.ordinal()]) - 0.1;
             if(Math.abs(value) < 0.08) value = 0;
             return value;
         } else {
