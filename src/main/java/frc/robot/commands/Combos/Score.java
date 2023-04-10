@@ -17,8 +17,34 @@ import frc.robot.util.Vector;
 
 public class Score extends CommandBase{
 
+    /* THIS CLASS IS TOTALLY OBSOLETE AND DOES NOTHING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     *
+     * 
+     * 
+     * 
+     * 
+     * GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+     * AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+     * AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+     * HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+     * 
+     * 
+     * 
+     * 
+     * 
+     * DONT YOU DARE TRY USING IT FOR ANYTHING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * 
+     * 
+     * 
+     * 
+     * 
+     * HERE FOR THE SAKE OF ARCHIVING!
+     */
+
+
+
     //position is 0-8, level is 0-2
-    public static Command DriveScore(RobotContainer r, int position, int level, boolean isCube){
+    /*public static Command DriveScore(RobotContainer r, int position, int level, boolean isCube){
         SequentialCommandGroup sg = new SequentialCommandGroup();
 
         if(isCube){
@@ -149,5 +175,5 @@ public class Score extends CommandBase{
         }
 
         return command;
-    }
+    }*/
 }

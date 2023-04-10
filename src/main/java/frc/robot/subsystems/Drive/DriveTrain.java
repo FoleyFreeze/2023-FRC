@@ -248,6 +248,11 @@ public class DriveTrain extends SubsystemBase {
         driveSwerve(power, 0);
     }
 
+    public void swerveMPAng(Vector strafePwr, double angPwr){
+        //TODO: Add in anglepwr logic
+        driveSwerve(strafePwr, 0);
+    }
+
     public void swerveMPA(double power){
         driveSwerve(new Vector(0,0), power);
     }

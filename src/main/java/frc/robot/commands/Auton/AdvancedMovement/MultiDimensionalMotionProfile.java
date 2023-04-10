@@ -5,11 +5,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
+import frc.robot.commands.Auton.AutonCal.MPCals;
 import frc.robot.util.Vector;
 
 public class MultiDimensionalMotionProfile extends CommandBase {
 
     public RobotContainer r;
+    MPCals mpCals;
+
     Vector startLoc;
     double startAngle;
 
@@ -17,8 +20,9 @@ public class MultiDimensionalMotionProfile extends CommandBase {
 
     final double MIN_R;
 
-    public MultiDimensionalMotionProfile(RobotContainer r, AutonPos... wayPoints){
+    public MultiDimensionalMotionProfile(RobotContainer r, MPCals mpCals, AutonPos... wayPoints){
         this.r = r;
+        this.mpCals = mpCals;
 
         this.wayPoints = wayPoints;
 
@@ -26,7 +30,13 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         addRequirements(r.driveTrain);
     }
 
+    /*makes new before/after arc points that are a wheel location
+     * distance away from the hard midpoint; the values of each
+     * autonpos object are equal to the lengths of their respective 
+     * following segments
+     */
     public static AutonPos[] formulateArcs(double minR, Vector startPos, AutonPos... wayPoints){
+        //add all waypoints + start position to a new array
         Vector[] pointsWStart = new Vector[wayPoints.length + 1];
         pointsWStart[0] = startPos;
         for(int i = 1; i < pointsWStart.length; i++){
@@ -87,8 +97,6 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         return result;
     }
 
-    //the distances are individual
-    //but the times are cumulative
     double totalDistStrafe = 0;
     double totalDistAng = 0;
     double totalDist = 0;
@@ -109,7 +117,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         for(int i = 0; i < locations.length; i++){
             totalDistStrafe += locations[i].value;
         }
-        totalDistAng += locations[locations.length-1].value * MIN_R;
+        totalDistAng = (startAngle - locations[locations.length-1].value) * MIN_R;
 
         totalDist = totalDistAng + totalDistStrafe;
 
@@ -136,10 +144,11 @@ public class MultiDimensionalMotionProfile extends CommandBase {
     }
 
     int interpIdx = 0;
-    //returns the theta of our drive vector
+    //returns the theta of our drive vector based on which segment is being driven
     double interpWaypoints(double minR, Vector currPos, double expectedLoc, double totalDist, AutonPos[] locations){
 
         for(; interpIdx < locations.length - 2; interpIdx++){
+            //find the line segment we should be at based on distance travelled
             if(locations[interpIdx].value <= (totalDist - expectedLoc) && (totalDist - expectedLoc) < locations[interpIdx+1].value) break;
         }
         
@@ -157,6 +166,7 @@ public class MultiDimensionalMotionProfile extends CommandBase {
                 angleDiff = firstSegmentAng + Math.PI/2;
             }
 
+            //center of arc being driven
             Vector centerOfRot = Vector.addVectors(locations[interpIdx].xy, new Vector(minR, angleDiff));
 
             if(secondSegmentAng < firstSegmentAng){
@@ -212,9 +222,9 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         Vector targetPosStrafe = new Vector(strafeRPos, strafeAng);
         Vector targetVelStrafe = new Vector(strafeRVel, strafeAng);
 
-        //PID
-        targetPosStrafe.add(currentPos).negate();//error value
-        targetPosStrafe.r *= AutonCal.driveBase.kP_MP;
+        //PID strafe err correction
+        targetPosStrafe.sub(currentPos);//error value
+        targetPosStrafe.r *= mpCals.kP_MP;
         targetVelStrafe.add(targetPosStrafe);
 
 
@@ -225,19 +235,27 @@ public class MultiDimensionalMotionProfile extends CommandBase {
         double angleRVel = targetVelR * angRatio;
         double angleRAcc = targetAccel * angRatio;
         
-        //PID
+        //PID angle err correction
         double angleError = angleRPos - currentAng;
-        angleError *= AutonCal.driveBase.kP_MP;
+        angleError *= mpCals.kP_MP;
         angleRVel += angleError;
 
 
         //output
         Vector drivePwr = new Vector(targetVelStrafe);
-        drivePwr.r = (AutonCal.driveBase.kA * strafeRAcc) + (AutonCal.driveBase.kV * targetVelStrafe.r) + AutonCal.driveBase.kS;
+        drivePwr.r = (mpCals.kA * strafeRAcc) + (mpCals.kV * targetVelStrafe.r) + mpCals.kS;
 
-        double anglePwr = (AutonCal.driveBase.kA * angleRAcc) + (AutonCal.driveBase.kV * angleRVel) + AutonCal.driveBase.kS;
-        
-        r.driveTrain.driveSwerve(drivePwr, anglePwr);
+        double anglePwr = (mpCals.kA * angleRAcc) + (mpCals.kV * angleRVel) + mpCals.kS;
+
+        //voltage compensation
+        double volts = r.lights.pdh.getVoltage();
+        if(volts < 5 || volts > 15){
+            volts = 12;
+        }
+        drivePwr.r *= 12.0 / volts;
+        anglePwr *= 12.0 / volts;
+
+        r.driveTrain.swerveMP(drivePwr, anglePwr);
     }
 
     public boolean isFinished(){
