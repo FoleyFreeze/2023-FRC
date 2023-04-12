@@ -101,4 +101,7 @@ public class DriveCal {
     public double autoAlignKi = 1.0;
     public double autoAlignKd = 0.01;
     public double autoAlignMaxPower = 0.2;
+
+    public boolean autoAngleDuringCoast = true;
+    public double autoCoastAngleMinVel = 8;
 }

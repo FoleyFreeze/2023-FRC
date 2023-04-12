@@ -49,6 +49,8 @@ public class DriveToImageMP extends CommandBase{
         level = r.inputs.selectedLevel.ordinal();
 
         motionProfiling = false;
+
+        System.out.println("DriveToImageMP Init. Score: " + scoreMode);
     }
 
     public Vector target;
@@ -73,7 +75,11 @@ public class DriveToImageMP extends CommandBase{
     double mpStartVel;
     double mpStartTime;
 
-    double throwAwayThreshold = 150;
+    double throwAwayThreshold = 225;
+    double stage1ShelfXTarget = 0;
+
+    double lastImageError = 0;
+    final double stage1ErrThresh = 24;
 
     @Override
     public void execute(){
@@ -82,6 +88,7 @@ public class DriveToImageMP extends CommandBase{
         position = (r.inputs.selectedZone.ordinal() - 1) * 3 + r.inputs.selectedPosition.ordinal();
         
         if(target == null){
+            //no active target
             Vector v = r.vision.getImageVector(level, position, scoreMode);
             if(v != null) {
                 if(Vector.subVectors(v, r.sensors.odo.botLocation).r < throwAwayThreshold){
@@ -90,14 +97,17 @@ public class DriveToImageMP extends CommandBase{
                 } else {
                     if(debug) System.out.print("Threw away raw: " + v.toString());
                 }
+                lastImageError = 0;
             }
         } else {
+            //update existing target
             Vector newImage = r.vision.getImageVector(level, position, scoreMode);
             if(newImage != null){
                 if(debug) System.out.print("Raw: " + newImage.toString());
                 
                 if(Vector.subVectors(newImage, r.sensors.odo.botLocation).r < throwAwayThreshold){
                     Vector delta = Vector.subVectors(newImage, target);
+                    lastImageError = delta.r;
                     if(delta.r > maxFilterDist){
                         delta.r /= filterDivisor;
                         if(delta.r > maxSingleFrameOffset){
@@ -115,6 +125,7 @@ public class DriveToImageMP extends CommandBase{
 
         Vector power;
         if(target == null){
+            //no target yet
             if(scoreMode){
                 angle = Math.PI;
             } else {
@@ -123,33 +134,48 @@ public class DriveToImageMP extends CommandBase{
             power = getJoystickPower();
 
         } else {
+            //target exists
             if(debug) System.out.println(" Target: " + target.toString());
-            if(driveStage == 0) driveStage = 1;
 
             //different logic based on if you're gathering or scoring
             if(scoreMode){
 
                 //no else cases, so when we move to next stage we
                 //immediately take the new drive action of that stage
-                double coneMidOffset = 0;
-                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) coneMidOffset = 10;
-                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.MIDDLE) coneMidOffset = -10;
+                double strafeXOffset = 0;
+                //for high cones offset extra towards the charge station
+                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) strafeXOffset = 10;
+                //for mid cones offset extra away from the charge station
+                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.MIDDLE) strafeXOffset = -10;
+                //for low scores offset extra away from the charge station
+                if(r.inputs.selectedLevel == Level.BOTTOM) strafeXOffset = -10;
+                
+                if(driveStage == 0){
+                    driveStage = 1;
+                }
                 if(driveStage == 1){
                     pwrMultiplier = 0.6;
                     pwrMax = PWR_MAX_X_MOVE;
                     //Move it to a mid-substation x position first
-                    Vector xOffset = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, r.sensors.odo.botLocation.getY());
+                    Vector xOffset = Vector.fromXY(target.getX() + AutonPos.tagToMidX + strafeXOffset, r.sensors.odo.botLocation.getY());
                     err = Vector.subVectors(xOffset, r.sensors.odo.botLocation);
                     angle = Math.PI;
                     if(Math.abs(err.getX()) < 4.0){
-                        driveStage = 2;
-                        mpStartLoc = new Vector(r.sensors.odo.botLocation);
-                        mpStartVel = 0;
-                        mpStartTime = Timer.getFPGATimestamp();
-                        if(Math.abs(new Vector(target).sub(r.sensors.odo.botLocation).getY()) > 10.0){
-                            setMotionProfiling(true);
+                        if(lastImageError < stage1ErrThresh){
+                            driveStage = 2;
+                            mpStartLoc = new Vector(r.sensors.odo.botLocation);
+                            mpStartVel = 0;
+                            mpStartTime = Timer.getFPGATimestamp();
+                            if(Math.abs(new Vector(target).sub(r.sensors.odo.botLocation).getY()) > 10.0){
+                                setMotionProfiling(true);
+                            } else {
+                                setMotionProfiling(false);
+                            }
                         } else {
-                            setMotionProfiling(false);
+                            //new images dont agree with old target
+                            driveStage = 0;
+                            target = null;
+                            System.out.println("Returning to stage 0 due to error of: " + lastImageError);
                         }
                     }
                 } 
@@ -158,7 +184,7 @@ public class DriveToImageMP extends CommandBase{
                     pwrMultiplier = 0.35;
                     pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position next
-                    Vector yAlign = Vector.fromXY(target.getX() + AutonPos.tagToMidX + coneMidOffset, target.getY());
+                    Vector yAlign = Vector.fromXY(target.getX() + AutonPos.tagToMidX + strafeXOffset, target.getY());
                     
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = r.vision.getImageAngle(level, position);
@@ -203,18 +229,23 @@ public class DriveToImageMP extends CommandBase{
                 double y = 0;
                 double x = 0;
                 if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                    y = -AutonPos.GATHER_Y_DIFF;
+                    y = -AutonPos.GATHER_Y_DIFF + 7;
                     x = AutonPos.GATHER_X_DIFF_R + r.sensors.gatherDistOffset;
                 } else {
                     y = AutonPos.GATHER_Y_DIFF;
                     x = AutonPos.GATHER_X_DIFF_L + r.sensors.gatherDistOffset;
                 }
-                
+
+                if(driveStage == 0){
+                    double currX = r.sensors.odo.botLocation.getX();
+                    stage1ShelfXTarget = Math.min(currX + 24, target.getX() + x - 36);
+                    driveStage = 1;
+                }
                 if(driveStage == 1){
                     pwrMultiplier = 0.3;
                     pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position and rotate
-                    Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
+                    Vector yAlign = Vector.fromXY(stage1ShelfXTarget, target.getY() + y);
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = 0;
                     
@@ -226,7 +257,7 @@ public class DriveToImageMP extends CommandBase{
                     pwrMultiplier = 0.3;
                     pwrMax = PWR_MAX_CUBE;
                     //Move it to the correct y position and rotate
-                    Vector yAlign = Vector.fromXY(r.sensors.odo.botLocation.getX(), target.getY() + y);
+                    Vector yAlign = Vector.fromXY(stage1ShelfXTarget, target.getY() + y);
                     err = Vector.subVectors(yAlign, r.sensors.odo.botLocation);
                     angle = 0;
 

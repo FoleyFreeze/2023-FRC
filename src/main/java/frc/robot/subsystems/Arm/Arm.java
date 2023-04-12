@@ -103,10 +103,11 @@ public class Arm extends SubsystemBase {
     }
 
     public void learnArmOffset(){
-        double currentAngle = -11.6;
+        double currentAngle = -8.9;
+        double currentStendo = 33.2;
         angleMotor.setEncoderPosition(currentAngle);
 
-        stendoMotor.setEncoderPosition(cals.initialStendoPosition + getStendoPulleyOffset(currentAngle));
+        stendoMotor.setEncoderPosition(currentStendo + getStendoPulleyOffset(currentAngle));
         System.out.println("Reset arm angle/extension");
         jogOffset = new Vector(0,0);
     }

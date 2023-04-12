@@ -76,7 +76,7 @@ public class DriveTrain extends SubsystemBase {
             } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() > lastRotateTime) {
                 //select setpoint
                 double setpoint = targetHeading;
-                boolean usePID = drivePower > 0;
+                boolean usePID = drivePower > 0 || cals.autoAngleDuringCoast && r.sensors.odo.deltaBotLocation.r > cals.autoCoastAngleMinVel;
                 if(r.inputs.cameraMode() && !(r.inputs.autoGather.getAsBoolean() && r.inputs.disableAutoGather) && !DriverStation.isAutonomous() && r.inputs.getFieldMode()){
                     usePID |= r.inputs.autoGather.getAsBoolean() || r.inputs.autoScore.getAsBoolean();
                 } else if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){
@@ -162,7 +162,19 @@ public class DriveTrain extends SubsystemBase {
         if(cals.disabled) return;
 
         //maintain selected heading
-        z = swerveAutoAngle(xy.r, z);
+        double newZ = swerveAutoAngle(xy.r, z);
+        boolean coasting = cals.autoAngleDuringCoast && z == 0 && xy.r == 0 && Math.abs(newZ) > 0;
+        if(coasting){
+            //if we are trying to maintain an angle while coasting
+            //create a fake drive vector so that the robot can still coast
+            //and then only change wheel angles so that it coasts in the correct direction
+            Vector vel = new Vector(r.sensors.odo.deltaBotLocation);
+            vel.r /= 120.0;
+            vel.r = Util.bound(vel.r, 0.1, 0.8);
+            //TODO: unsure if targetHeading or botAngle is better for the field oriented offset here 
+            xy = new Vector(vel.r, vel.theta - r.sensors.odo.botAngle);   
+        }
+        z = newZ;
 
         //Grabs the calculated drive vectors and sets it into the actual wheel array
         Vector[] wheelLocations = new Vector[wheels.length];
@@ -176,7 +188,7 @@ public class DriveTrain extends SubsystemBase {
         }
 
         for(Wheel w: wheels){
-            w.drive(parkMode);
+            w.drive(parkMode,coasting);
             if(parkMode){
                 w.driveMotor.setBrakeMode(true);
             } else {

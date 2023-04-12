@@ -19,6 +19,7 @@ public class Odometry implements AutoCloseable {
     public WheelCal[] wCal;
 
     public Vector botLocation;
+    public Vector deltaBotLocation;
     public double botAngle;
     public double deltaBotAngle;
 
@@ -50,7 +51,7 @@ public class Odometry implements AutoCloseable {
         
         OldLocation newLocation = new OldLocation();
         newLocation.time = time;
-        double angleDiff = currLoc.angle - prevLoc.angle;
+        double angleDiff = Angle.normRad(currLoc.angle - prevLoc.angle);
         newLocation.angle = x * angleDiff + prevLoc.angle;
         Vector vecDiff = Vector.subVectors(currLoc.space, prevLoc.space);
         //SmartDashboard.putString("AT_VectorDiff",vecDiff.toString());
@@ -88,10 +89,12 @@ public class Odometry implements AutoCloseable {
     public int badWheels = 0;
     private Vector[] prevWheelStates;
     public double prevBotAng;
+    public Vector prevBotLoc;
     public void update(double botAng, Vector[] wheelStates){
         if(prevWheelStates == null) {
             prevWheelStates = wheelStates;
             prevBotAng = botAng;
+            prevBotLoc = new Vector(botLocation);
         }
         int wheelNum = wheelStates.length;
 
@@ -112,9 +115,13 @@ public class Odometry implements AutoCloseable {
         //getStdDevOdo(botAng, realVecs);
         
         deltaBotAngle = Angle.normRad(botAngle - prevBotAng) / r.sensors.dt;
+        deltaBotLocation = Vector.subVectors(botLocation, prevBotLoc);
+        deltaBotLocation.r /= r.sensors.dt;
+        SmartDashboard.putString("Bot Vel",deltaBotLocation.toStringXY());
 
         prevWheelStates = wheelStates;
         prevBotAng = botAng;
+        prevBotLoc = new Vector(botLocation);
     }
 
     /* This iteration of odometry looks at the real wheel values and formulates

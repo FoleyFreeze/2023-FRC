@@ -135,6 +135,7 @@ public class AutonPos {
          new AutonPos(postXPlusOffsetMidAll, initNodeY + nodeDist * 8.0, 180)},//sub
 
         //High
+        
         {new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist / 2.0, leftHiConeAng),//wall
          new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
          new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, leftHiConeAng),

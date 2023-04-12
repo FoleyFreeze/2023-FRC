@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 
     RobotContainer r;
 
-    boolean debug = false;
+    boolean debug = true;
 
     //TODO: remove the added offset when the camera is recal'd
     frc.robot.util.Vector camLocation = frc.robot.util.Vector.fromXY(9.75, -8.75);
@@ -243,12 +243,14 @@ public class Vision extends SubsystemBase {
 
         //clear image queue
         VisionDataEntry entry = tagVisionStack.pop();
-        while(!tagVisionStack.isEmpty()){
-            tagVisionStack.pop();
-        }
+        //while(!tagVisionStack.isEmpty()){
+        //    tagVisionStack.pop();
+        //}
+    
+        tagVisionStack.clear(); //This replaces the above three lines to clear the vision stack - JC
 
         //if image is too old
-        if(Timer.getFPGATimestamp() - entry.timestamp > 0.5) return null;
+        if(Timer.getFPGATimestamp() - entry.timestamp > 0.12) return null;
 
         Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(entry.timestamp);
 
@@ -285,7 +287,10 @@ public class Vision extends SubsystemBase {
             }
             
             if(good){
-                double dist = getHyp(d.pose.getTranslation());
+                //moved away from picking lowest hypoteneuse to lowest abs Y
+                //this should prevent "bad" corner data from winning arbitration
+                //double dist = getHyp(d.pose.getTranslation());
+                double dist = Math.abs(d.pose.getTranslation().getX());
                 if(dist < minDist){
                     minDist = dist;
                     bestData = d;
@@ -301,11 +306,13 @@ public class Vision extends SubsystemBase {
 
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
+        
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
-        if(debug) System.out.println("Field Cam: " + cam.toStringXY());
+        if(debug) System.out.print("Field Cam: " + cam.toStringXY());
+        if(debug) System.out.println("tdiff: " +(Timer.getFPGATimestamp() - entry.timestamp));
 
         if(debug || bestData.tagId != prevId) System.out.println("Raw ID: " + bestData.tagId);
         prevId = bestData.tagId;

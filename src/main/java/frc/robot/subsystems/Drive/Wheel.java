@@ -60,7 +60,7 @@ public class Wheel {
     double prevAngleSetpoint = 0;
     double angleTargetStartTime = 0;
     //Uses the drive vector obtained from the drive command in DriveTrain
-    public void drive(boolean parkMode){
+    public void drive(boolean parkMode, boolean coasting){
         double rawRelEnc = swerveMotor.getPosition();
         double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
 
@@ -99,7 +99,11 @@ public class Wheel {
             // if the wheel doesnt need to move, dont move it
             if(Math.abs(outputPower) > 0.03 || parkMode){
                 swerveMotor.setPosition(targetRelEnc);
-                driveMotor.setPower(outputPower);
+                if(coasting){
+                    driveMotor.setPower(0);
+                } else {
+                    driveMotor.setPower(outputPower);
+                }
             } else {
                 driveMotor.setPower(0);
             }
