@@ -115,6 +115,10 @@ public class Vector {
         return (this.getX() * v.getY()) - (this.getY() * v.getX());
     }
 
+    public double dot(Vector v){
+        return getX()*v.getX() + getY()*v.getY();
+    }
+
     public Vector add(Vector v){
         double x = getX() + v.getX();
         double y = getY() + v.getY();
