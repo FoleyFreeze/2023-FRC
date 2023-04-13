@@ -196,7 +196,17 @@ public class AutonCommand {
         }
 
         //Balance
-        if(selectedAuton.ordinal() >= 3 && selectedAuton != AutonPaths.TWO_SCORE){
+        if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS && startPos == AutonStarts.FAR_MID){
+            //if we are doing 2cube over the charge station close to bump side
+            sg.addCommands(new AngleMotionProfile(r, driveToBalanceAngle[0])); //point at the driverstation
+            sg.addCommands(new InstantCommand(() -> r.driveTrain.targetHeading = driveToBalanceAngle[0]));
+            sg.addCommands(new DriveForTime(r, Vector.fromXY(-0.4,0), 0.3));
+            sg.addCommands(AutoBalance.getAutoBalanceCommand(r, true)
+                    .alongWith(new WaitCommand(15).until(() -> r.sensors.getAbsPitchRoll() > 20)
+                        .andThen(new ArmMove(r, Vector.fromDeg(35,75), true))));
+            
+
+        } else if(selectedAuton.ordinal() >= 3 && selectedAuton != AutonPaths.TWO_SCORE){
             final Vector SELECTED_DRIVE_TO_BALANCE;
             if(selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE || selectedAuton == AutonPaths.SCORE_PICKUP_BALANCE_TOSS){
                 SELECTED_DRIVE_TO_BALANCE = driveToBalanceOutside;

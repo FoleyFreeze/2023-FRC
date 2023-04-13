@@ -89,6 +89,9 @@ public class AutonPos {
     public static AutonPos driveToBalComm = new AutonPos(86, 108, 180);
     public static AutonPos driveToBalOutside = new AutonPos(230, 108, 180);
 
+    //public static AutonPos driveToBalSubEdge = new AutonPos(86, 108, 180);
+    //public static AutonPos driveToBalBumpEdge = new AutonPos(230, 108, 180);
+
     //Bump Positions
     public static AutonPos preBumpPos = new AutonPos(driveFar.xy.getX(), 59.36 - 25, 0);
     public static AutonPos postBumpPos = new AutonPos(driveFar.xy.getX() + 60.0, 59.36 - 25, 180);
@@ -135,7 +138,7 @@ public class AutonPos {
          new AutonPos(postXPlusOffsetMidAll, initNodeY + nodeDist * 8.0, 180)},//sub
 
         //High
-        
+
         {new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist / 2.0, leftHiConeAng),//wall
          new AutonPos(postXPlusOffset, initNodeY + nodeDist, 180),
          new AutonPos(postXPlusOffsetHiCone, initNodeY + nodeDist * 2.0 + nodeDist / 2.0, leftHiConeAng),

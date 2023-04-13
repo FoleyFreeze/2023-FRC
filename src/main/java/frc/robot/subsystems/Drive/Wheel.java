@@ -119,7 +119,7 @@ public class Wheel {
         double currAng = rawRelEnc / cal.swerveRotationsPerRev * 2 * Math.PI + encAngOffset;
 
         //Make sure we go the shortest way
-        double delta = (driveVec.theta - currAng) % (2 * Math.PI);
+        double delta = (angle - currAng) % (2 * Math.PI);
         if(delta < 0) delta += 2*Math.PI;
         //delta is now between 0-2pi
 
@@ -127,10 +127,10 @@ public class Wheel {
             delta -= 2*Math.PI;
         }
         //delta is now between -pi-pi
-        System.out.println("delta: " + delta);
+        //System.out.println("delta: " + delta);
 
         double targetRelEnc = rawRelEnc + (delta / 2.0 / Math.PI * cal.swerveRotationsPerRev);
-        SmartDashboard.putNumber("Tgt Angle Enc", targetRelEnc);
+        //SmartDashboard.putNumber("Tgt Angle Enc", targetRelEnc);
 
         swerveMotor.setPosition(targetRelEnc);
     }

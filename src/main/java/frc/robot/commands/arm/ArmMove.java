@@ -9,7 +9,14 @@ public class ArmMove extends CommandBase{
     RobotContainer r;
     Vector position;
     PositionProvider provider;
+
+    boolean instant = false;
     
+    public ArmMove(RobotContainer r, Vector position, boolean instant){
+        this(r,position);
+        this.instant = instant;
+    }
+
     public ArmMove(RobotContainer r, Vector position){
         this.r = r;
         this.position = position;
@@ -41,6 +48,8 @@ public class ArmMove extends CommandBase{
     //stop if less than error
     @Override
     public boolean isFinished(){
+        if(instant) return true;
+        
         Vector v = r.arm.getError();
         return (Math.abs(v.r) < 2.0) && Math.abs(v.theta) < Math.toRadians(3) ;
     }

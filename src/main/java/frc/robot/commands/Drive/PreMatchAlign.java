@@ -17,7 +17,8 @@ public class PreMatchAlign extends CommandBase {
     @Override
     public void execute(){
         double angle = AutonCommand.startAngle;
-        r.driveTrain.driveAngleOnly(angle);
+        //negative of the target heading (like how field oriented works)
+        r.driveTrain.driveAngleOnly(-angle);
     }
 
     @Override
