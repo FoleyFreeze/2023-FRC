@@ -129,6 +129,7 @@ public class DriveToGamePiece extends CommandBase{
     @Override
     public void end(boolean interrupted){
         r.driveTrain.driveSwerve(new Vector(0,0), 0);
+        r.vision.allOff();
     }
 
     private void driveManual(){

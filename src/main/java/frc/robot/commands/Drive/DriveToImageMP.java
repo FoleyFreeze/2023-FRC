@@ -144,7 +144,7 @@ public class DriveToImageMP extends CommandBase{
                 //immediately take the new drive action of that stage
                 double strafeXOffset = 0;
                 //for high cones offset extra towards the charge station
-                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) strafeXOffset = 10;
+                if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.TOP) strafeXOffset = 5;
                 //for mid cones offset extra away from the charge station
                 if(!r.inputs.isCube() && r.inputs.selectedLevel == Level.MIDDLE) strafeXOffset = -10;
                 //for low scores offset extra away from the charge station
@@ -381,6 +381,7 @@ public class DriveToImageMP extends CommandBase{
     @Override
     public void end(boolean interrupted){
         r.driveTrain.driveSwerve(Vector.fromXY(0, 0), 0);
+        r.vision.allOff();
     }
 
 

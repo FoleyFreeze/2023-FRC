@@ -75,12 +75,17 @@ public class Vision extends SubsystemBase {
                     e.seqNum = poseDataTag.getInt(0);
                     double current = Timer.getFPGATimestamp();
                     e.timestamp = current - ((current -  poseDataTag.getFloat(4) + poseDataTag.getFloat(8)) / 2.0);
-                    for(int i = 0, b = 14; i < numTags; i++, b += 25){
+                    // added tag decision margin (1 float) and error bits (1 byte) to message
+                    // this takes each tag struct from 25 bytes to 30 bytes
+                    // old: for(int i = 0, b = 14; i < numTags; i++, b += 25){ 
+                    for(int i = 0, b = 14; i < numTags; i++, b += 30) { 
                         
                         VisionData visionData = new VisionData(type, poseDataTag.get(b), 
-                            poseDataTag.getFloat(b+1), poseDataTag.getFloat(b+5), poseDataTag.getFloat(b+9), 
-                            poseDataTag.getFloat(b+13), poseDataTag.getFloat(b+17), poseDataTag.getFloat(b+21));
+                            poseDataTag.get(b+1), poseDataTag.getFloat(b+2), 
+                            poseDataTag.getFloat(b+6), poseDataTag.getFloat(b+10), poseDataTag.getFloat(b+14), 
+                            poseDataTag.getFloat(b+18), poseDataTag.getFloat(b+22), poseDataTag.getFloat(b+26));
                         e.listFin.add(visionData);
+
                     }
                     tagVisionStack.push(e);
                 }
@@ -166,6 +171,12 @@ public class Vision extends SubsystemBase {
         tagsActive.set(false);
         cubesActive.set(false);
         conesActive.set(true);
+    }
+
+    public void allOff(){
+        tagsActive.set(false);
+        cubesActive.set(false);
+        conesActive.set(false);
     }
 
     public void activate(boolean state) {
@@ -285,6 +296,9 @@ public class Vision extends SubsystemBase {
                 System.out.println("Image behind us: " + x);
                 good = false;
             }
+            if(d.eBits > 0){
+                good = false;
+            }
             
             if(good){
                 //moved away from picking lowest hypoteneuse to lowest abs Y
@@ -296,7 +310,7 @@ public class Vision extends SubsystemBase {
                     bestData = d;
                 }
             } else {
-                System.out.println("Tag" + d.tagId + " rejected with y = " + String.format("%.0f",y));
+                System.out.println("Tag" + d.tagId + " rejected with y = " + String.format("%.0f",y) + " Err of: " + d.eBits + " DM: " + d.decisionMargin);
             }
         }
         if(bestData == null) return null;
@@ -307,7 +321,7 @@ public class Vision extends SubsystemBase {
         //Get tag location in field coordinates
         frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
         
-        if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+        if(debug) System.out.println("Raw Cam: " + cam.toStringXY() + " Err of: " + bestData.eBits + " DM: " + bestData.decisionMargin);
         cam.add(camLocation);
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);

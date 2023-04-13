@@ -33,7 +33,7 @@ public class CamCommands extends SequentialCommandGroup{
         DriveToImageMP dti = new DriveToImageMP(r, true, AutonCal.scoreBase);
         sg.addCommands(dti.alongWith(new WaitForStage(r, 30, dti, true)
                                     .andThen(new ArmMove(r, r.inputs.armScorePos)))
-                                    .andThen(new ConditionalCommand(new DriveForTime(r, Vector.fromXY(-0.01, 0), 180, 0.1).andThen(new DriveForTime(r, Vector.fromXY(-0.25, 0), 180, 0.3)), 
+                                    .andThen(new ConditionalCommand(new DriveForTime(r, Vector.fromXY(-0.01, 0), 180, 0.1).andThen(new DriveForTime(r, Vector.fromXY(-0.20, 0), 180, 0.25)), 
                                                                     new WaitCommand(0), 
                                                                     () -> (r.inputs.selectedLevel == Level.MIDDLE && !r.inputs.isCube()))));
         
