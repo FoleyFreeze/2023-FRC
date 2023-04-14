@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
@@ -22,6 +24,8 @@ import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.AngleMotionProfile;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
+import frc.robot.commands.Auton.AdvancedMovement.FancyMotionProfile;
+import frc.robot.commands.Auton.AdvancedMovement.Tag;
 import frc.robot.commands.Auton.AutonToolbox.AutoBalance;
 import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
@@ -182,6 +186,35 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
+
+    r.sensors.resetNavXAng(Math.toRadians(-165));
+    r.sensors.odo.setBotLocation(AutonPos.far.xy);
+    ArrayList<Vector> wps = new ArrayList<>();
+    wps.add(Vector.addVectors(AutonPos.drivePieceFar.xy,Vector.fromXY(60,40)));
+    wps.add(Vector.addVectors(AutonPos.drivePieceFar.xy,Vector.fromXY(-15,-15)));
+    wps.add(AutonPos.driveScoreFar.xy);
+    ArrayList<Tag> tags = new ArrayList<>();
+    tags.add(Tag.Angle(0.9,Math.toRadians(150)));
+    tags.add(Tag.Vel(0.92,70));
+    tags.add(Tag.Flag(0.93,1));//start gather
+    tags.add(Tag.Vision(0.95,-1));//-1 = cubes +X = looking for tag X (blue, red flipped)
+    tags.add(Tag.Vision(1.9,0));
+    tags.add(Tag.Flag(1.91,2));//stop gather
+    tags.add(Tag.Vel(1.92,120));
+    tags.add(Tag.Angle(2.7,Math.toRadians(170)));
+    tags.add(Tag.Flag(2.71,3));//raise arm for score
+    tags.add(Tag.Vision(2.72,8));
+    FancyMotionProfile fmp = new FancyMotionProfile(r, AutonCal.driveBase, wps, tags);
+    fmp.initialize();
+    for(int i=0;i<20;i++){
+      try {
+        wait(20);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      fmp.execute();
+    }
 
     /* 
     r.sensors.resetNavXAng(Math.PI);

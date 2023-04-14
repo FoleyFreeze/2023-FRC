@@ -63,20 +63,13 @@ public class FancyMotionProfile extends CommandBase {
 
 
     //local classes
-    public enum Type {
-        ANGLE,VEL,FLAG,VISION
-    }
+    
 
-    public class Tag{
-        double step;
-        Type type;
-        double value;
-    }
-
-    public class Step{
+    private class Step{
         boolean isArc;
         Vector endPos;
         double endVel;
+        double velLimit;
         double endAngle;
         double endTime;
         double dist;
@@ -88,6 +81,7 @@ public class FancyMotionProfile extends CommandBase {
         Step s = new Step();
         s.endAngle = startAng;
         s.endPos = startLoc;
+        s.velLimit = cals.maxVel;
         steps.add(s);
 
         Step prevStep;
@@ -97,7 +91,7 @@ public class FancyMotionProfile extends CommandBase {
             Vector waypoint = waypoints.get(waypointIdx);
 
             //construct next step(s)
-            prevStep = steps.get(steps.size()-1);
+            prevStep = steps.getLast();
             if(waypointIdx < waypoints.size()-1){
                 //multiple waypoints left, connect with arc
                 Vector nextWaypoint = waypoints.get(waypointIdx+1);
@@ -116,8 +110,9 @@ public class FancyMotionProfile extends CommandBase {
                 s.endPos = arcStart;
                 s.endAngle = prevStep.endAngle;
                 s.endVel = cals.maxVel;
-                s.length = Vector.subVectors(arcStart, waypoint).r;
+                s.length = Vector.subVectors(arcStart, prevStep.endPos).r;
                 s.dist = s.length;
+                s.velLimit = cals.maxVel;
                 steps.add(s);
 
                 //drive the arc
@@ -128,6 +123,7 @@ public class FancyMotionProfile extends CommandBase {
                 s.endVel = cals.maxVel;
                 s.length = minR * arcAngle;
                 s.dist = s.length;
+                s.velLimit = cals.maxVel;
                 steps.add(s);
 
             } else {
@@ -138,6 +134,7 @@ public class FancyMotionProfile extends CommandBase {
                 s.endVel = 0;
                 s.length = Vector.subVectors(waypoint, prevStep.endPos).r;
                 s.dist = s.length;
+                s.velLimit = cals.maxVel;
                 steps.add(s);
             }
 
@@ -190,7 +187,7 @@ public class FancyMotionProfile extends CommandBase {
             
 
             //angle tags modify the path
-            if(tag.type == Type.ANGLE){
+            if(tag.type == Tag.Type.ANGLE){
                 double stepDist = currStep.length * targetIndex;
                 Step s = new Step();
                 s.endPos = Vector.subVectors(currStep.endPos, prevStep.endPos);
@@ -198,8 +195,10 @@ public class FancyMotionProfile extends CommandBase {
                 s.endPos.add(prevStep.endPos);
                 s.length = stepDist;
                 s.dist = s.length;
+                s.velLimit = cals.maxVel;
                 currStep.length -= stepDist;
-                if(tag.type == Type.ANGLE){
+                currStep.dist -= stepDist;
+                if(tag.type == Tag.Type.ANGLE){
                     currStep.endAngle = tag.value;
                     s.endAngle = tag.value;
                     s.endVel = maxVel;
@@ -207,12 +206,14 @@ public class FancyMotionProfile extends CommandBase {
                     //modify all steps between currStep and angleStep to perform the rotation
                     backStepList.add(s);
                     double totalLength = s.length;
+                    stepIter.previous();//this returns currStep
                     Step step = stepIter.previous();
                     while(!step.equals(angleStep)){
                         if(!step.isArc || allowArcAngle){
-                            backStepList.add(step);
+                            //dont turn during arc steps, but still put them in the backlog so their angles can be updated
                             totalLength += step.length;
                         }
+                        backStepList.add(step);
                         step = stepIter.previous();
                     }
                     double anglePerLen = Angle.normRad(tag.value - angleStep.endAngle) / totalLength;
@@ -222,10 +223,11 @@ public class FancyMotionProfile extends CommandBase {
                     for(Step backStep : backStepList){
                         if(!backStep.isArc || allowArcAngle){
                             startAngle -= anglePerLen*angleDist;
-                            backStep.endAngle = startAngle;
                             angleDist += backStep.length;
                             backStep.length += Math.abs(anglePerLen*backStep.length*botRadius);
                         }
+                        //still update the angle on arc steps
+                        backStep.endAngle = startAngle;
                     }
                     //get iter back to the current step
                     while(stepIter.next() != currStep);
@@ -242,13 +244,13 @@ public class FancyMotionProfile extends CommandBase {
                     if(stepIter.hasNext()) {
                         currStep = stepIter.next();
                         stepIdx++;
-                        tagStep++;
+                        //tagStep++;
                     }
                     
                 } 
 
             } else {
-                if(tag.type == Type.VEL){
+                if(tag.type == Tag.Type.VEL){
                     Tag t = new Tag();
                     t.type = tag.type;
                     t.value = tag.value;
@@ -272,14 +274,17 @@ public class FancyMotionProfile extends CommandBase {
         ListIterator<Tag> vTagIter = vList.listIterator();
         Tag currTag = vTagIter.next();
 
-        prevStep = stepIter.next();
-        stepIdx = 2;
+        currStep = stepIter.next();
+        stepIdx = 0;
         while(stepIter.hasNext()){
+            prevStep = currStep;
             currStep = stepIter.next();
+            stepIdx++;
             
             //add new step for the velocity change
-            if(vTagIter.hasNext() && currTag.step - stepIdx < 1){
-                double stepDist = currStep.dist * (currTag.step - stepIdx);
+            double targetIndex = currTag.step - stepIdx;
+            if(targetIndex >= 0 && targetIndex < 1){
+                double stepDist = currStep.dist * targetIndex;
                 Step s = new Step();
                 s.endPos = Vector.subVectors(currStep.endPos, prevStep.endPos);
                 s.endPos.r = stepDist;
@@ -296,11 +301,13 @@ public class FancyMotionProfile extends CommandBase {
                 
                 if(currTag.value > maxVel){
                     //accel, no need to do anything fancy
-                    maxVel = currTag.value;
-                    maxVel = Math.min(maxVel, cals.maxVel);
 
                     s.endVel = Math.sqrt(prevStep.endVel*prevStep.endVel + 2*cals.maxAccel*s.length);
-                    s.endVel = Math.min(maxVel, s.endVel);
+                    s.endVel = Math.min(maxVel,s.endVel);//this step is still limited to the old vel limit
+                    s.velLimit = currStep.velLimit;
+
+                    maxVel = currTag.value;
+                    maxVel = Math.min(maxVel, cals.maxVel);
 
                     currStep.endVel = Math.sqrt(s.endVel*s.endVel + 2*cals.maxAccel*currStep.length);
                     currStep.endVel = Math.min(maxVel, currStep.endVel);
@@ -310,12 +317,29 @@ public class FancyMotionProfile extends CommandBase {
                     currStep.endVel = maxVel;
                     
                     s.endVel = maxVel;
-                    Step step = stepIter.previous();
-                    double lowestVel = Math.sqrt(step.endVel*step.endVel - 2*cals.maxAccel*s.length);
-                    while(lowestVel > maxVel) {
-
+                    Step secondStep = s;
+                    Step firstStep = stepIter.previous();
+                    //back calculate how fast step 2 can start if it wants to end at the new velocity
+                    double startVel = Math.sqrt(secondStep.endVel*secondStep.endVel + 2*cals.maxAccel*secondStep.length);
+                    while(startVel < firstStep.endVel) {
+                        //if it must start slower than it can, the the previous step also needs to slow down
+                        firstStep.endVel = startVel;
+                        secondStep = firstStep;
+                        firstStep = stepIter.previous();
+                        startVel = Math.sqrt(secondStep.endVel*secondStep.endVel + 2*cals.maxAccel*secondStep.length);
                     }
+
+                    //get iter back to currStep
+                    while(!stepIter.next().equals(currStep));
                 }
+
+                //go back a step to add s before currStep
+                stepIter.previous();
+                stepIter.add(s);
+                stepIter.next();
+                incrementTags(tagList, stepIdx, targetIndex);
+                stepIdx++;//increment for s
+                prevStep = s;
             }
 
             //assume accel until proven otherwise
@@ -324,8 +348,44 @@ public class FancyMotionProfile extends CommandBase {
         }
 
         //decel to zero for the last step
-
+        if(!stepIter.hasNext()){
+            currStep.endVel = 0;
+            Step secondStep = currStep;
+            Step firstStep = stepIter.previous();
+            //back calculate how fast step 2 can start if it wants to end at the new velocity
+            double startVel = Math.sqrt(secondStep.endVel*secondStep.endVel + 2*cals.maxAccel*secondStep.length);
+            while(startVel < firstStep.endVel) {
+                //if it must start slower than it can, the the previous step also needs to slow down
+                firstStep.endVel = startVel;
+                secondStep = firstStep;
+                firstStep = stepIter.previous();
+                startVel = Math.sqrt(secondStep.endVel*secondStep.endVel + 2*cals.maxAccel*secondStep.length);
+            }
+            //get iter back to currStep
+            while(!stepIter.next().equals(currStep));
+        }
 
         return tagList;
+    }
+
+    private void incrementTags(LinkedList<Tag> tagList, int step, double split){
+        for(Tag t : tagList){
+            if(t.step > step){
+                if(t.step < step+1){
+                    //on the split step
+                    double frac = t.step-step;
+                    if(frac > split){
+                        double newfrac = (frac - split) / (1-split);
+                        t.step = step + 1 + newfrac;
+                    } else {
+                        double newfrac = frac / split;
+                        t.step = step + newfrac;
+                    }
+                } else {
+                    //after this step
+                    t.step++;
+                }
+            }
+        }
     }
 }
