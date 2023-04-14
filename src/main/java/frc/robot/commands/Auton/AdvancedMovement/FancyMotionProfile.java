@@ -1,9 +1,7 @@
 package frc.robot.commands.Auton.AdvancedMovement;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ListIterator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -30,6 +28,7 @@ public class FancyMotionProfile extends CommandBase {
     LinkedList<Step> path;
     LinkedList<Tag> pathTags;
     Vector startLoc;
+    double flag;
     double startAng;
 
     public FancyMotionProfile(RobotContainer r, MPCals cals, ArrayList<Vector> waypoints, ArrayList<Tag> tags){
@@ -65,7 +64,7 @@ public class FancyMotionProfile extends CommandBase {
 
     //local classes
     public enum Type {
-        ANGLE,VEL,TAG,VISION
+        ANGLE,VEL,FLAG,VISION
     }
 
     public class Tag{
@@ -80,6 +79,7 @@ public class FancyMotionProfile extends CommandBase {
         double endVel;
         double endAngle;
         double endTime;
+        double dist;
         double length;//includes angle change
     }
 
@@ -117,6 +117,7 @@ public class FancyMotionProfile extends CommandBase {
                 s.endAngle = prevStep.endAngle;
                 s.endVel = cals.maxVel;
                 s.length = Vector.subVectors(arcStart, waypoint).r;
+                s.dist = s.length;
                 steps.add(s);
 
                 //drive the arc
@@ -126,6 +127,7 @@ public class FancyMotionProfile extends CommandBase {
                 s.endAngle = prevStep.endAngle;
                 s.endVel = cals.maxVel;
                 s.length = minR * arcAngle;
+                s.dist = s.length;
                 steps.add(s);
 
             } else {
@@ -133,7 +135,9 @@ public class FancyMotionProfile extends CommandBase {
                 s = new Step();
                 s.endPos = waypoint;
                 s.endAngle = prevStep.endAngle;
+                s.endVel = 0;
                 s.length = Vector.subVectors(waypoint, prevStep.endPos).r;
+                s.dist = s.length;
                 steps.add(s);
             }
 
@@ -146,12 +150,14 @@ public class FancyMotionProfile extends CommandBase {
     //later scheduled tags (flags/vision) are put in their own list to be called during execute as they are reached
     private LinkedList<Tag> addTags(LinkedList<Step> path, ArrayList<Tag> tags){
         LinkedList<Tag> tagList = new LinkedList<>();
+
+        ArrayList<Tag> vList = new ArrayList<>();
         
         ListIterator<Step> stepIter = path.listIterator();
         Step prevStep = stepIter.next();//this is the start position
         Step currStep = stepIter.next();//this is the first drive
         int stepIdx = 1;//the index of currStep
-        int tagStep = 0;//the non-arc or start step the tag belongs to, effectively the waypoint index
+        int tagStep = 0;//the non-arc or non-start-step the tag belongs to, effectively the waypoint index
         Step angleStep = prevStep; //the last step with a forced angle
         Step velStep = prevStep; //the last step with a forced velocity
 
@@ -183,14 +189,15 @@ public class FancyMotionProfile extends CommandBase {
             }
             
 
-            //these tags modify the path
-            if(tag.type == Type.ANGLE || tag.type == Type.VEL){
+            //angle tags modify the path
+            if(tag.type == Type.ANGLE){
                 double stepDist = currStep.length * targetIndex;
                 Step s = new Step();
                 s.endPos = Vector.subVectors(currStep.endPos, prevStep.endPos);
                 s.endPos.r = stepDist;
                 s.endPos.add(prevStep.endPos);
                 s.length = stepDist;
+                s.dist = s.length;
                 currStep.length -= stepDist;
                 if(tag.type == Type.ANGLE){
                     currStep.endAngle = tag.value;
@@ -238,26 +245,86 @@ public class FancyMotionProfile extends CommandBase {
                         tagStep++;
                     }
                     
-                } else if(tag.type == Type.VEL){
-                    if(maxVel > tag.value){
-                        //allowing acceleration from this point on
-                        //TODO: accel
-                    } else {
-                        //decel so we reach the slower velocity at this point
-                        //TODO: decel
-                    }
-                }
+                } 
 
             } else {
-                //add tag to tags list so it runs during execute
-                Tag t = new Tag();
-                t.type = tag.type;
-                t.value = tag.value;
-                //this math will need to change if we are ok with vision/flags on a curve
-                t.step = tag.step - tagStep + stepIdx;
-                tagList.add(t);
+                if(tag.type == Type.VEL){
+                    Tag t = new Tag();
+                    t.type = tag.type;
+                    t.value = tag.value;
+                    t.step = tag.step - tagStep + stepIdx;
+                    vList.add(t);
+                } else {
+                    //add tag to tags list so it runs during execute
+                    Tag t = new Tag();
+                    t.type = tag.type;
+                    t.value = tag.value;
+                    //this math will need to change if we are ok with vision/flags on a curve
+                    t.step = tag.step - tagStep + stepIdx;
+                    tagList.add(t);
+                }
             }
         }
+
+
+        //loop through the velocity tags and calculate start/end velocities for each step
+        stepIter = path.listIterator();
+        ListIterator<Tag> vTagIter = vList.listIterator();
+        Tag currTag = vTagIter.next();
+
+        prevStep = stepIter.next();
+        stepIdx = 2;
+        while(stepIter.hasNext()){
+            currStep = stepIter.next();
+            
+            //add new step for the velocity change
+            if(vTagIter.hasNext() && currTag.step - stepIdx < 1){
+                double stepDist = currStep.dist * (currTag.step - stepIdx);
+                Step s = new Step();
+                s.endPos = Vector.subVectors(currStep.endPos, prevStep.endPos);
+                s.endPos.r = stepDist;
+                s.endPos.add(prevStep.endPos);
+                double deltaAngle = Angle.normRad(currStep.endAngle - prevStep.endAngle);
+                double newAngle = prevStep.endAngle + deltaAngle * (stepDist/currStep.dist);
+                s.endAngle = newAngle;
+                s.length = stepDist;
+                s.dist = s.length;
+                currStep.dist -= stepDist;
+                double deltaLength = newAngle * botRadius;
+                s.length += deltaLength;
+                currStep.length -= stepDist + deltaLength;
+                
+                if(currTag.value > maxVel){
+                    //accel, no need to do anything fancy
+                    maxVel = currTag.value;
+                    maxVel = Math.min(maxVel, cals.maxVel);
+
+                    s.endVel = Math.sqrt(prevStep.endVel*prevStep.endVel + 2*cals.maxAccel*s.length);
+                    s.endVel = Math.min(maxVel, s.endVel);
+
+                    currStep.endVel = Math.sqrt(s.endVel*s.endVel + 2*cals.maxAccel*currStep.length);
+                    currStep.endVel = Math.min(maxVel, currStep.endVel);
+                } else {
+                    //decel, look back to make sure we can slow down
+                    maxVel = currTag.value;
+                    currStep.endVel = maxVel;
+                    
+                    s.endVel = maxVel;
+                    Step step = stepIter.previous();
+                    double lowestVel = Math.sqrt(step.endVel*step.endVel - 2*cals.maxAccel*s.length);
+                    while(lowestVel > maxVel) {
+
+                    }
+                }
+            }
+
+            //assume accel until proven otherwise
+            currStep.endVel = Math.sqrt(prevStep.endVel*prevStep.endVel + 2*cals.maxAccel*currStep.length);
+            currStep.endVel = Math.min(maxVel, currStep.endVel);
+        }
+
+        //decel to zero for the last step
+
 
         return tagList;
     }
