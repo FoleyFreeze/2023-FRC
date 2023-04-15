@@ -106,13 +106,11 @@ public class Vision extends SubsystemBase {
                     e.seqNum = poseDataCube.getInt(0);
                     double current = Timer.getFPGATimestamp();
                     e.timestamp = current - ((current -  poseDataCube.getFloat(4) + poseDataCube.getFloat(8)) / 2.0);
-                    for(int i = 0, b = 14; i < numTags; i++, b += 25){
-                        
-                        VisionData visionData = new VisionData(type, poseDataCube.get(b), 
-                            Math.toRadians(poseDataCube.getFloat(b+1)), Math.toRadians(poseDataCube.getFloat(b+5)), Math.toRadians(poseDataCube.getFloat(b+9)), 
-                            poseDataCube.getFloat(b+13), poseDataCube.getFloat(b+17), poseDataCube.getFloat(b+21));
-                        e.listFin.add(visionData);
-                    }
+                    
+                    // cube only reports angle and distance
+                    VisionData visionData = new VisionData(type, 0, Math.toRadians(poseDataCube.getFloat(14)), 0, 0, 0, poseDataCube.getFloat(18));
+                    e.listFin.add(visionData);
+
                     cubeVisionStack.push(e);
                 }
 
@@ -206,13 +204,13 @@ public class Vision extends SubsystemBase {
 
         VisionData vd = vde.listFin.get(0);
 
-        double dist = vd.pose.getZ()+3.25;//to account for bumpers
-        double ang = vd.pose.getRotation().getY();
+        double dist = vd.pose.getZ();//to account for bumpers
+        double ang = vd.pose.getRotation().getY() - Math.toRadians(2.0);//camera not mounted straight offset
         frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
-        cam.add(frc.robot.util.Vector.fromXY(0, -2));//offset
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
-
-        cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));
+        
+        cam.add(frc.robot.util.Vector.fromXY(3.25, -8.75));//camera offset
+        cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));//robot length
         cam.theta += oldLoc.angle;
         cam.add(oldLoc.space);
         if(debug) System.out.println("Field Cam: " + cam.toStringXY());
@@ -323,7 +321,7 @@ public class Vision extends SubsystemBase {
         
         if(debug) System.out.println("Raw Cam: " + cam.toStringXY() + " Err of: " + bestData.eBits + " DM: " + bestData.decisionMargin);
         cam.add(camLocation);
-        cam.theta += oldLoc.angle;
+        cam.theta += oldLoc.angle + Math.toRadians(2.0);//camera angle offset
         cam.add(oldLoc.space);
         if(debug) System.out.print("Field Cam: " + cam.toStringXY());
         if(debug) System.out.println("tdiff: " +(Timer.getFPGATimestamp() - entry.timestamp));

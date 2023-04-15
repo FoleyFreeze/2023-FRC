@@ -29,6 +29,9 @@ public class DriveToImageMP extends CommandBase{
     double maxSingleFrameOffset = 3;//inches
     double filterDivisor = 4.0;
 
+    AutonPos allowedLowCubeStg3Error = new AutonPos(Vector.fromXY(5,5), 10);
+    AutonPos allowedNormStg3Error = new AutonPos(Vector.fromXY(2,1), 2);
+
     public DriveToImageMP(RobotContainer r, boolean scoreMode, MPCals mpCals){
         this.r = r;
         this.scoreMode = scoreMode;
@@ -216,7 +219,14 @@ public class DriveToImageMP extends CommandBase{
                         pwrMax = PWR_MAX_CUBE;
                     }
                     double angError = Angle.normRad(r.sensors.odo.botAngle - angle);
-                    if(Math.abs(err.getX()) < 2.0 && Math.abs(err.getY()) < 1.0 && Math.abs(angError) < Math.toRadians(2.0)){
+
+                    AutonPos thresh;
+                    if(r.inputs.isCube() && r.inputs.selectedLevel == Level.BOTTOM){
+                        thresh = allowedLowCubeStg3Error;
+                    } else {
+                        thresh = allowedNormStg3Error;
+                    }
+                    if(Math.abs(err.getX()) < thresh.xy.getX() && Math.abs(err.getY()) < thresh.xy.getY() && Math.abs(angError) < thresh.value){
                         driveStage = 4;
                     }
                 }

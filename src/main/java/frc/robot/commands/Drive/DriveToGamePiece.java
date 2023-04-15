@@ -23,7 +23,7 @@ public class DriveToGamePiece extends CommandBase{
     double filterConst = 0.5;
 
     protected double maxRotPwr = 0.2;
-    protected double rotPwr = 0.2;
+    protected double rotPwr = 0.25;
 
     protected double maxDrivePwr = 0.5;
     protected double drivePwr = 0.1;
@@ -69,9 +69,11 @@ public class DriveToGamePiece extends CommandBase{
             } else if(stage==0){
                 //filter in new target
                 newTarget.sub(target);
-                newTarget.r *= filterConst;
-                target.add(newTarget);
-                totalDist = Vector.subVectors(target, r.sensors.odo.botLocation).r;
+                if(newTarget.r < 24){
+                    newTarget.r *= filterConst;
+                    target.add(newTarget);
+                    totalDist = Vector.subVectors(target, r.sensors.odo.botLocation).r;
+                }
             }
         }
 
@@ -79,7 +81,7 @@ public class DriveToGamePiece extends CommandBase{
             //drive to target
 
             //gatherer is 27in out at robot angle of 0
-            double gatherExt = 13+10;
+            double gatherExt = 13+8;
             Vector gatherLoc = new Vector(gatherExt,r.sensors.odo.botAngle);
             gatherLoc.add(r.sensors.odo.botLocation);
 
@@ -94,9 +96,9 @@ public class DriveToGamePiece extends CommandBase{
             Vector drivePower = Vector.fromXY(0, -(gatherExt/13.1)*anglePower);
 
             double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
-            driveVec.add(new Vector(36,r.sensors.odo.botAngle));
+            driveVec.add(new Vector(12,r.sensors.odo.botAngle));
             
-            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
+            if(stage == 1 || Math.abs(angleError) < Math.toRadians(3) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
                 stage = 1;
                 driveVec.r *= drivePwr;
                 if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;
@@ -119,6 +121,8 @@ public class DriveToGamePiece extends CommandBase{
     public boolean isFinished(){
         //Finished when gripper sees current
         //or if we have driven 2ft farther than we needed to
+        //if(stage > 0) return true;
+
         double totalCurr = r.gripper.getIntakeCurrent();
         double dist = Vector.subVectors(r.sensors.odo.botLocation, startLocation).r;
         return startTime + 0.75 < Timer.getFPGATimestamp() 

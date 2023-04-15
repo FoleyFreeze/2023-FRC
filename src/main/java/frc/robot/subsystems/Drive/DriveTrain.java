@@ -76,7 +76,7 @@ public class DriveTrain extends SubsystemBase {
             } else if(DriverStation.isAutonomousEnabled() || Timer.getFPGATimestamp() > lastRotateTime) {
                 //select setpoint
                 double setpoint = targetHeading;
-                boolean usePID = drivePower > 0 || cals.autoAngleDuringCoast && r.sensors.odo.deltaBotLocation.r > cals.autoCoastAngleMinVel;
+                boolean usePID = drivePower > 0 || (cals.autoAngleDuringCoast && r.sensors.odo.deltaBotLocation.r > cals.autoCoastAngleMinVel);
                 if(r.inputs.cameraMode() && !(r.inputs.autoGather.getAsBoolean() && r.inputs.disableAutoGather) && !DriverStation.isAutonomous() && r.inputs.getFieldMode()){
                     usePID |= r.inputs.autoGather.getAsBoolean() || r.inputs.autoScore.getAsBoolean();
                 } else if(r.inputs.autoGather.getAsBoolean() && r.inputs.isShelf() && !DriverStation.isAutonomous()){

@@ -23,4 +23,8 @@ public class VisionData {
         this.pose = new Pose3d(transX, transY, transZ, new Rotation3d(rotX, rotY, rotZ));
     }
 
+    public VisionData(byte type, double rotX, double rotY, double rotZ, double transX, double transY, double transZ){
+        this.type = type;
+        this.pose = new Pose3d(transX, transY, transZ, new Rotation3d(rotX, rotY, rotZ));
+    }
 }

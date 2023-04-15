@@ -43,7 +43,7 @@ public class Sensors extends SubsystemBase{
     }
 
     public void resetNavXAng(double ang){
-        navX.reset();
+        //navX.reset();
         navXOffset = ang - getRawNavX();
         odo.botAngle = ang;
         odo.prevBotAng = ang;
