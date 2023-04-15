@@ -12,10 +12,7 @@ import frc.robot.commands.Auton.AutonCal;
 import frc.robot.commands.Auton.AutonPos;
 import frc.robot.commands.Auton.AdvancedMovement.DriveMotionProfile;
 import frc.robot.commands.Auton.AutonCal.MPCals;
-import frc.robot.commands.Auton.AutonToolbox.NegativeWait;
-import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Combos.CamCommands;
-import frc.robot.commands.Drive.DriveToGamePiece;
 import frc.robot.util.Vector;
 
 public class AutonCommandCamera {
@@ -46,8 +43,8 @@ public class AutonCommandCamera {
         }
 
         //Motion profile to a spot and then drive to pickup the game piece
-        DriveMotionProfile dmp = new DriveMotionProfile(r, driveToPieceCam[startPos], driveToPieceAngCam[startPos], mpCalsThere[startPos]);
-        sg.addCommands((dmp.alongWith(new NegativeWait(1.0, dmp).andThen(CamCommands.AutoPickup(r)))).raceWith(new WaitCommand(5.0)));
+        sg.addCommands((new DriveMotionProfile(r, driveToPieceCam[startPos], driveToPieceAngCam[startPos], mpCalsThere[startPos])));
+        sg.addCommands(CamCommands.AutoPickup(r).raceWith(new WaitCommand(2.0)));
 
 
         //set the gripper and send the arm back home

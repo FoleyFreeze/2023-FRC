@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.AutonPaths;
 import frc.robot.RobotContainer.AutonStarts;
@@ -166,7 +167,9 @@ public class AutonCommand {
                 sg.addCommands(new InstantCommand(r.gripper::open));//because this takes too long, do it early
                 sg.addCommands(AutoBalance.getDriveOverStation(r, false));
             }
-            if(true /*startPos == AutonStarts.SUB*/){
+            if(false){
+                sg.addCommands(AutonCommandCamera.autonPiecePickup(r, startPos.ordinal()));
+            } else {
                 //drive to gather angle
                 sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
                 //drive to gather
@@ -174,8 +177,6 @@ public class AutonCommand {
                     .raceWith(GatherCommand.gatherCommand(r)));
                 //send arm home
                 sg.addCommands(new ArmGoHome(r));
-            } else {
-                sg.addCommands(AutonCommandCamera.autonPiecePickup(r, startPos.ordinal()));
             }
         }
 
@@ -286,6 +287,12 @@ public class AutonCommand {
         sg.addCommands(new PrintCommand("CubeLaunched"));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
+
+        return sg;
+    }
+
+    public static Command cameraAutonCommand(RobotContainer r, Alliance alliance, AutonPaths selectedAuton, AutonStarts startPos){
+        SequentialCommandGroup sg = new SequentialCommandGroup();
 
         return sg;
     }

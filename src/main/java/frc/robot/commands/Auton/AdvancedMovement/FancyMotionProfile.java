@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal.MPCals;
@@ -41,6 +42,8 @@ public class FancyMotionProfile extends CommandBase {
         botRadius = r.driveTrain.cals.wheelCals[0].wheelLocation.r;
     }
 
+    double startTime;
+
     public void initialize(){
         startLoc = new Vector(r.sensors.odo.botLocation);
         startAng = r.sensors.odo.botAngle;
@@ -48,10 +51,38 @@ public class FancyMotionProfile extends CommandBase {
         pathTags = addTags(path, tags);
         calculateTimes(path);
         globalOffset = new Vector(0,0);
+
+        startTime = Timer.getFPGATimestamp();
     }
 
     public void execute(){
+        /*double runTime = Timer.getFPGATimestamp() - startTime;
 
+        Vector targetVel;
+        Vector targetPos;
+        double targetAccel;
+
+
+
+        //PID
+        Vector currentPos = r.sensors.odo.botLocation;
+        Vector distVec = new Vector(startLoc).sub(currentPos).add(targetPos);
+        double errorMag = distVec.r;
+        distVec.r *= cals.kP_MP;
+        Vector totalVel = new Vector(targetVel).add(distVec);
+
+        //output
+        totalVel.r *= cals.kV;
+        Vector power = new Vector(cals.kA * targetAccel, targetVel.theta).add(totalVel);
+        power.r += cals.kS;
+
+        //voltage compensation
+        double volts = r.lights.pdh.getVoltage();
+        if(volts < 5 || volts > 15){
+            volts = 12;
+        }
+        power.r *= 12.0 / volts;
+        r.driveTrain.swerveMP(power,targetAngle);*/
     }
 
     public boolean isFinished(){
@@ -150,6 +181,49 @@ public class FancyMotionProfile extends CommandBase {
 
         return steps;
     }
+
+    /*private double[] getAVP(double t){
+        double targetAccel;
+        double targetVel;
+        double targetPos;
+        
+        double endAccelTime;
+        double endCvTime;
+        double endDecelTime;
+
+        ListIterator<Step> stepIter = path.listIterator();
+        while(){
+
+        }
+
+        if (t < accelTime){ 
+            //stage 1
+            targetAccel = cals.maxAccel;
+            targetPos = 0.5 * targetAccel * t * t;
+            targetVel = targetAccel * t;
+        } else if (t < maxVelTime) { 
+            //stage 2
+            targetAccel = 0;
+            targetVel = cals.maxVel;
+            targetPos = ((t - accelTime) * targetVel) + accelDist;
+        } else if (t < decelTime) { 
+            //stage 3
+            double t3 = t - decelTime;
+            targetAccel = -cals.maxAccel;
+            targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance.r;
+            targetVel = t3 * targetAccel;
+        } else { 
+            //end
+            targetPos = totalDistance.r;
+            targetVel = 0;
+            targetAccel = 0;
+        }
+
+        avp[0] = targetPos;
+        avp[1] = targetVel;
+        avp[2] = targetAccel;
+        return avp;
+    }*/
 
     //tags are added by adding new steps with angle targets or velocity restrictions
     //later scheduled tags (flags/vision) are put in their own list to be called during execute as they are reached

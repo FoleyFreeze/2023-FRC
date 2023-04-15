@@ -72,9 +72,10 @@ public class AutonPos {
     public static AutonPos drivePieceFar = new AutonPos(266, 36.2, 0).offset(-14, -12.0, 5);
 
     //Drive Towards Piece Camera
-    public static AutonPos drivePieceMidSubCam = new AutonPos(230, 132.2, 0);
-    public static AutonPos drivePieceMidFarCam = new AutonPos(230, 84.2, 0);
-    public static AutonPos drivePieceFarCam = new AutonPos(230, 36.2, 0);
+    public static AutonPos drivePieceSubCam = new AutonPos(220, 180.2, 0).offset(0, 0, 0);
+    public static AutonPos drivePieceMidSubCam = new AutonPos(220, 132.2, 0).offset(0, 0, 0);
+    public static AutonPos drivePieceMidFarCam = new AutonPos(220, 84.2, 0).offset(0, 0, 0);
+    public static AutonPos drivePieceFarCam = new AutonPos(220, 36.2, 0).offset(0, -12.0, 0);
 
     //Drive To Score
     //public static AutonPos driveScoreSub = new AutonPos(70.24, 174.19, 180).offset(12, 12, 0);
