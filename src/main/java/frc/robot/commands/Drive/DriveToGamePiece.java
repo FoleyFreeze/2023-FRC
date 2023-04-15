@@ -1,5 +1,6 @@
 package frc.robot.commands.Drive;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
@@ -41,7 +42,12 @@ public class DriveToGamePiece extends CommandBase{
         target = null;
         stage = 0;
 
-        cubeMode = r.inputs.isCube();
+        if(DriverStation.isAutonomous()){//force cube pickup in auton
+            cubeMode = true;
+        } else {
+            cubeMode = r.inputs.isCube();
+        }
+
         if(cubeMode){
             r.vision.setCubeMode();
         } else {

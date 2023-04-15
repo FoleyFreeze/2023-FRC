@@ -301,7 +301,7 @@ public class Inputs extends SubsystemBase{
             return r.arm.cals.positionGatherShelf;
         }else{
             if(isCube()){
-                if(DriverStation.isTeleop()){
+                if(DriverStation.isTeleop() || r.specialAutonChooser.getSelected() == 1){
                     return r.arm.cals.positionCubeGatherFloor;
                 } else {
                     return r.arm.cals.positionCubeGatherFloorLongBoi;
@@ -575,7 +575,7 @@ public class Inputs extends SubsystemBase{
         }
     }
 
-    /* This is the temporary indexing to the physical positions
+    /* This is the indexing to the physical positions
      * 
      *                 (Driver Station)
      * ---- ---- ----   ---- ---- ----   ---- ---- ----
@@ -589,6 +589,11 @@ public class Inputs extends SubsystemBase{
      * ---- ---- ----   ---- ---- ----   ---- ---- ----
      * 
      */
+
+    int autonScoreIdx = -1;
+    public void setAutonScorePosition(int scoreidx){
+        autonScoreIdx = scoreidx;
+    }
 
     public enum Level {NONE, BOTTOM, MIDDLE, TOP};
     public enum Zone {NONE, LEFT, COMMUNITY, RIGHT};
@@ -665,7 +670,11 @@ public class Inputs extends SubsystemBase{
             }
         }
 
-        if(idx != -1) buttonAssignment = idx + 1;
+        if(DriverStation.isAutonomous()){
+            buttonAssignment = autonScoreIdx;
+        } else if(idx != -1){
+            buttonAssignment = idx + 1;
+        }
         SmartDashboard.putNumber("Button Assignment", buttonAssignment);
         if(buttonAssignment >= 1 && buttonAssignment <= 27){
 

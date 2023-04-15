@@ -31,6 +31,7 @@ import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Auton.MPAutons.AutonCommand;
+import frc.robot.commands.Auton.MPAutons.AutonCommandCamera;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
@@ -133,7 +134,7 @@ public class Robot extends TimedRobot {
                                                     path, 
                                                     piece);*/
       } else {
-        r.autonCommand = AutonCommand.cameraAutonCommand(r, team, autonChooser, startPos);
+        r.autonCommand = AutonCommandCamera.autonCamCommand(r, team, startPos);
       }
     }
 
