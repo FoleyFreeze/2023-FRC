@@ -14,8 +14,15 @@ public class DriveToGamePiece extends CommandBase{
     protected boolean cubeMode;
     protected Vector target;
 
+    Vector piecePosition;
+
     public DriveToGamePiece(RobotContainer r){
+        this(r, Vector.fromXY(0, 0));
+    }
+
+    public DriveToGamePiece(RobotContainer r, Vector piecePosition){
         this.r = r;
+        this.piecePosition = piecePosition;
         addRequirements(r.driveTrain);
     }
 
@@ -61,6 +68,7 @@ public class DriveToGamePiece extends CommandBase{
 
     @Override 
     public void execute(){
+
         Vector newTarget = null;
         if(cubeMode){
             newTarget = r.vision.getCubeVector();
@@ -84,10 +92,17 @@ public class DriveToGamePiece extends CommandBase{
         }
 
         if(target != null){
+            //don't drive in auton until the piece is close enough to its real position
+            if(DriverStation.isAutonomous() && Vector.subVectors(piecePosition, target).r > 24) {
+                target = null;
+                r.driveTrain.driveSwerve(new Vector(0,0), 0);
+                return;
+            }
+
             //drive to target
 
             //gatherer is 27in out at robot angle of 0
-            double gatherExt = 13+8;
+            double gatherExt = 13+11;
             Vector gatherLoc = new Vector(gatherExt,r.sensors.odo.botAngle);
             gatherLoc.add(r.sensors.odo.botLocation);
 
@@ -104,7 +119,7 @@ public class DriveToGamePiece extends CommandBase{
             double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
             driveVec.add(new Vector(12,r.sensors.odo.botAngle));
             
-            if(stage == 1 || Math.abs(angleError) < Math.toRadians(3) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
+            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
                 stage = 1;
                 driveVec.r *= drivePwr;
                 if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;

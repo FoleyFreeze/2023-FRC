@@ -11,7 +11,7 @@ public class ArmCal {
     double stendoCurrLim = 25;
     //                                                                                       used to be 17/66
     public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 18 / 72.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true).setRampRate(0.2);
-    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(stendoCurrLim).setPIDPwrLim(0.95).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
+    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(stendoCurrLim).setPIDPwrLim(0.8).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
     public double armPotOffset = 0.57;// in volts
@@ -46,16 +46,16 @@ public class ArmCal {
     public Vector positionHome = Vector.fromDeg(30.3, -2);//(31.4, -5);
     
     //public Vector positionPreGather = Vector.fromDeg(0, 0);
-    public Vector positionGatherShelf = Vector.fromDeg(33, 92.6+3);
+    public Vector positionGatherShelf = Vector.fromDeg(33, 92.6);
     public Vector positionCubeGatherFloorLongBoi = Vector.fromDeg(38.5, 36.8);
-    public Vector positionCubeGatherFloor = Vector.fromDeg(33, 14.8);
+    public Vector positionCubeGatherFloor = Vector.fromDeg(34.7, 26.6);//33, 14.8);
     public Vector positionConeGatherFloor = Vector.fromDeg(39.2, 40.5);
 
     //cone arm positions
-    public Vector positionConeHiAngle = Vector.fromDeg(31, 110.7);
+    public Vector positionConeHiAngle = Vector.fromDeg(31, 114.7);
     public Vector positionConeHiStendo = Vector.fromDeg(31, -5.4);
     public Vector positionConeHiHold = Vector.fromDeg(39, 114.7);
-    public Vector positionConeHiRelease = Vector.fromDeg(39, 97.3);
+    public Vector positionConeHiRelease = Vector.fromDeg(39.4, 97.3);
     public Vector positionConeMedHold = Vector.fromDeg(32.0, 97.0);
     public Vector positionConeMedRelease = Vector.fromDeg(32.0, 72.6);
     public Vector positionConeLowRelease = Vector.fromDeg(30.6, 19.8);

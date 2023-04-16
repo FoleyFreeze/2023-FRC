@@ -134,7 +134,7 @@ public class Robot extends TimedRobot {
                                                     path, 
                                                     piece);*/
       } else {
-        r.autonCommand = AutonCommandCamera.autonCamCommand(r, team, startPos);
+        r.autonCommand = AutonCommandCamera.autonCamCommand(r, team, autonChooser, startPos);
       }
     }
 
@@ -190,7 +190,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {
 
-    r.sensors.resetNavXAng(Math.toRadians(-165));
+    /*r.sensors.resetNavXAng(Math.toRadians(-165));
     r.sensors.odo.setBotLocation(AutonPos.substation.xy);
     ArrayList<Vector> wps = new ArrayList<>();
     wps.add(Vector.addVectors(AutonPos.substation.xy,Vector.fromXY(30,0)));//drive out
@@ -210,7 +210,7 @@ public class Robot extends TimedRobot {
         e.printStackTrace();
       }
       fmp.execute();
-    }
+    }*/
 
     /* 
     r.sensors.resetNavXAng(Math.PI);

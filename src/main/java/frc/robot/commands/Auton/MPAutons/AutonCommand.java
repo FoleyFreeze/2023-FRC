@@ -251,7 +251,7 @@ public class AutonCommand {
         //move the arm to hi release position
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiRelease));
         //driver backwards and spin gripper backwards
-        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.6)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
+        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.4, 0), 0.35)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 

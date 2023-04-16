@@ -26,6 +26,14 @@ public class Inputs extends SubsystemBase{
     GenericEntry[] buttons = new GenericEntry[27];
     GenericEntry floorShelf;
     GenericEntry cubeCone;
+    GenericEntry gatherToggle;
+
+    GenericEntry shiftToggle;
+
+    GenericEntry jogUpToggle;
+    GenericEntry jogDnToggle;
+    GenericEntry jogLToggle;
+    GenericEntry jogRToggle;
 
     public Joystick controller;
     public Joystick cBoard;
@@ -50,8 +58,16 @@ public class Inputs extends SubsystemBase{
             buttons[i] = Shuffleboard.getTab("Buttons").add("" + iplusone, false).withPosition(i%9, i/9).withWidget(BuiltInWidgets.kToggleButton).getEntry();
         }
         useButtonsTab = Shuffleboard.getTab("Buttons").add("Use", false).withPosition(0, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
-        floorShelf = Shuffleboard.getTab("Buttons").add("Shelf", false).withPosition(2, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
-        cubeCone = Shuffleboard.getTab("Buttons").add("Cube", false).withPosition(4, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        floorShelf = Shuffleboard.getTab("Buttons").add("Shelf", false).withPosition(1, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        cubeCone = Shuffleboard.getTab("Buttons").add("Cube", false).withPosition(2, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        gatherToggle = Shuffleboard.getTab("Buttons").add("Gather", false).withPosition(3, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+
+        shiftToggle = Shuffleboard.getTab("Buttons").add("Shift", false).withPosition(4, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+
+        jogUpToggle = Shuffleboard.getTab("Buttons").add("Jog Up", false).withPosition(5, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        jogDnToggle = Shuffleboard.getTab("Buttons").add("Jog Dn", false).withPosition(6, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        jogLToggle = Shuffleboard.getTab("Buttons").add("Jog L", false).withPosition(7, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+        jogRToggle = Shuffleboard.getTab("Buttons").add("Jog R", false).withPosition(8, 3).withWidget(BuiltInWidgets.kToggleButton).getEntry();
     }
 
     GenericEntry levelNT = Shuffleboard.getTab("Comp").add("Sel Level", Level.NONE.toString()).withPosition(0, 2).getEntry();
@@ -118,6 +134,11 @@ public class Inputs extends SubsystemBase{
                 ge.setBoolean(false);
             }
         }
+
+        //fun lil' lights
+        r.lights.ledOutputSet(27, shift.getAsBoolean());
+        r.lights.ledOutputSet(28, gather.getAsBoolean());
+        r.lights.ledOutputSet(29, intake.getAsBoolean());
 
         SmartDashboard.putBoolean("isShelf", isShelf());
         SmartDashboard.putBoolean("isCube", isCube());
@@ -467,7 +488,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger shift = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoardTwo != null){
+            if(useButtonsTab.getBoolean(false)){
+                return shiftToggle.getBoolean(false);
+            } else if(cBoardTwo != null){
                 return cBoardTwo.getRawButton(cal.SHIFT);
             } else {
                 return false;
@@ -513,7 +536,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger gather = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoardTwo != null){
+            if(useButtonsTab.getBoolean(false)){
+                return gatherToggle.getBoolean(false);
+            } else if(cBoardTwo != null){
                 return cBoardTwo.getRawButton(cal.GATHER);
             } else {
                 return false;
@@ -523,7 +548,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger jogUp = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
+            if(useButtonsTab.getBoolean(false)){
+                return jogUpToggle.getBoolean(false);
+            } else if(cBoard != null){
                 return cBoard.getPOV() == 0;
             } else {
                 return false;
@@ -533,7 +560,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger jogDown = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
+            if(useButtonsTab.getBoolean(false)){
+                return jogDnToggle.getBoolean(false);
+            } else if(cBoard != null){
                 return cBoard.getPOV() == 180;
             } else {
                 return false;
@@ -543,7 +572,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger jogLeft = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
+            if(useButtonsTab.getBoolean(false)){
+                return jogLToggle.getBoolean(false);
+            } else if(cBoard != null){
                 return cBoard.getPOV() == 270;
             } else {
                 return false;
@@ -553,7 +584,9 @@ public class Inputs extends SubsystemBase{
 
     public Trigger jogRight = new Trigger(new BooleanSupplier() {
         public boolean getAsBoolean(){
-            if(cBoard != null){
+            if(useButtonsTab.getBoolean(false)){
+                return jogRToggle.getBoolean(false);
+            } else if(cBoard != null){
                 return cBoard.getPOV() == 90;
             } else {
                 return false;
