@@ -31,6 +31,7 @@ import frc.robot.commands.Auton.AutonToolbox.SimpleScore;
 import frc.robot.commands.Auton.BasicMovement.DistanceDrive;
 import frc.robot.commands.Auton.BasicMovement.DriveForTime;
 import frc.robot.commands.Auton.MPAutons.AutonCommand;
+import frc.robot.commands.Auton.MPAutons.AutonCommandCamera;
 import frc.robot.commands.Drive.AutoAlign;
 import frc.robot.subsystems.Drive.DriveCal;
 import frc.robot.subsystems.Drive.DriveTrain;
@@ -133,7 +134,7 @@ public class Robot extends TimedRobot {
                                                     path, 
                                                     piece);*/
       } else {
-        r.autonCommand = AutonCommand.cameraAutonCommand(r, team, autonChooser, startPos);
+        r.autonCommand = AutonCommandCamera.autonCamCommand(r, team, autonChooser, startPos);
       }
     }
 
@@ -189,7 +190,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {
 
-    r.sensors.resetNavXAng(Math.toRadians(-165));
+    /*r.sensors.resetNavXAng(Math.toRadians(-165));
     r.sensors.odo.setBotLocation(AutonPos.substation.xy);
     ArrayList<Vector> wps = new ArrayList<>();
     wps.add(Vector.addVectors(AutonPos.substation.xy,Vector.fromXY(30,0)));//drive out
@@ -209,7 +210,7 @@ public class Robot extends TimedRobot {
         e.printStackTrace();
       }
       fmp.execute();
-    }
+    }*/
 
     /* 
     r.sensors.resetNavXAng(Math.PI);

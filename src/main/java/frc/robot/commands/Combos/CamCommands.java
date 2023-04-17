@@ -62,6 +62,11 @@ public class CamCommands extends SequentialCommandGroup{
       .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.3, Math.PI), 0.4, false)));
     }
 
+    public static Command AutoPickup(RobotContainer r, Vector piecePosition){
+        return new DriveToGamePiece(r, piecePosition).raceWith(GatherCommand.gatherCommand(r))
+      .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.3, Math.PI), 0.4, false)));
+    }
+
     public static Command AutoPickupDemo(RobotContainer r){
         return new DriveToGamePieceDemo(r).raceWith(GatherCommand.gatherCommand(r))
         .andThen(new ArmGoHome(r).alongWith(new DriveForTime(r, new Vector(0.1,Math.PI), 0.4, false)));

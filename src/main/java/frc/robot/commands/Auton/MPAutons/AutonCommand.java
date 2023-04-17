@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.AutonPaths;
 import frc.robot.RobotContainer.AutonStarts;
@@ -167,17 +166,13 @@ public class AutonCommand {
                 sg.addCommands(new InstantCommand(r.gripper::open));//because this takes too long, do it early
                 sg.addCommands(AutoBalance.getDriveOverStation(r, false));
             }
-            if(false){
-                sg.addCommands(AutonCommandCamera.autonPiecePickup(r, startPos.ordinal()));
-            } else {
-                //drive to gather angle
-                sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
-                //drive to gather
-                sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos.ordinal()], driveToPieceAng[startPos.ordinal()], mpCalsThere[startPos.ordinal()])
-                    .raceWith(GatherCommand.gatherCommand(r)));
-                //send arm home
-                sg.addCommands(new ArmGoHome(r));
-            }
+            //drive to gather angle
+            sg.addCommands(new AngleMotionProfile(r, driveToPieceAng[startPos.ordinal()]));
+            //drive to gather
+            sg.addCommands(new DriveMotionProfile(r, driveToPiece[startPos.ordinal()], driveToPieceAng[startPos.ordinal()], mpCalsThere[startPos.ordinal()])
+                .raceWith(GatherCommand.gatherCommand(r)));
+            //send arm home
+            sg.addCommands(new ArmGoHome(r));
         }
 
         //Score #2
@@ -256,7 +251,7 @@ public class AutonCommand {
         //move the arm to hi release position
         sg.addCommands(new ArmMove(r, r.arm.cals.positionConeHiRelease));
         //driver backwards and spin gripper backwards
-        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.6)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
+        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.4, 0), 0.35)).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(-.3))));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
 
@@ -287,12 +282,6 @@ public class AutonCommand {
         sg.addCommands(new PrintCommand("CubeLaunched"));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(0))));
-
-        return sg;
-    }
-
-    public static Command cameraAutonCommand(RobotContainer r, Alliance alliance, AutonPaths selectedAuton, AutonStarts startPos){
-        SequentialCommandGroup sg = new SequentialCommandGroup();
 
         return sg;
     }

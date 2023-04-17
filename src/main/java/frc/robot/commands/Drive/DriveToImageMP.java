@@ -239,7 +239,7 @@ public class DriveToImageMP extends CommandBase{
                 double y = 0;
                 double x = 0;
                 if(target.getY() - r.sensors.odo.botLocation.getY() > 0.0){
-                    y = -AutonPos.GATHER_Y_DIFF + 7;
+                    y = -AutonPos.GATHER_Y_DIFF;
                     x = AutonPos.GATHER_X_DIFF_R + r.sensors.gatherDistOffset;
                 } else {
                     y = AutonPos.GATHER_Y_DIFF;

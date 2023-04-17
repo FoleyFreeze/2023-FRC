@@ -64,9 +64,11 @@ public class DriveTrain extends SubsystemBase {
     public double lastRotateTime = 0;
     double iAccum = 0;
     public double targetHeading;
+    private boolean overridePID = false;
     public double swerveAutoAngle(double drivePower, double anglePower){
         //auto align, only if the navx exists
         double z = anglePower;
+        overridePID = false;
         if(r.sensors.navX.isConnected() /*r.inputs.getFieldAlign()*/){
             if(anglePower != 0){
                 lastRotateTime = Timer.getFPGATimestamp() + cals.autoAngleWaitTime;
@@ -85,9 +87,11 @@ public class DriveTrain extends SubsystemBase {
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Shelf;
                     usePID = true;
+                    overridePID = true;
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && r.inputs.selectedLevel == Level.TOP && !r.inputs.isCube() && !DriverStation.isAutonomous()){
                     //target score angle for lvl3 cones
                     usePID = true;
+                    overridePID = true;
                     setpoint = Math.toRadians(180);
                     /*if(r.inputs.fieldAlignRight.getAsBoolean()){
                         setpoint = Math.toRadians(-164.25);
@@ -98,6 +102,7 @@ public class DriveTrain extends SubsystemBase {
                     hs = HeadingSource.Score;
                 } else if(r.inputs.scoreMode == ManScoreMode.SCORE && (r.inputs.selectedLevel != Level.TOP || r.inputs.isCube()) && !DriverStation.isAutonomous()){
                     usePID = true;
+                    overridePID = true;
                     setpoint = Math.toRadians(180);
                     targetHeading = r.sensors.odo.botAngle;
                     hs = HeadingSource.Score;
@@ -163,7 +168,7 @@ public class DriveTrain extends SubsystemBase {
 
         //maintain selected heading
         double newZ = swerveAutoAngle(xy.r, z);
-        boolean coasting = cals.autoAngleDuringCoast && z == 0 && xy.r == 0 && Math.abs(newZ) > 0;
+        boolean coasting = cals.autoAngleDuringCoast && z == 0 && xy.r == 0 && Math.abs(newZ) > 0 && !overridePID;
         if(coasting){
             //if we are trying to maintain an angle while coasting
             //create a fake drive vector so that the robot can still coast

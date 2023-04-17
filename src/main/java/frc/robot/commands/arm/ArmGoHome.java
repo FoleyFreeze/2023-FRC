@@ -7,9 +7,16 @@ import frc.robot.util.Vector;
 public class ArmGoHome extends ArmMove{
 
     double initPos;
+    boolean returnInstantly;
     
     public ArmGoHome(RobotContainer r){
         super(r, r.arm.cals.positionHome);
+        this.returnInstantly = false;
+    }
+
+    public ArmGoHome(RobotContainer r, boolean returnInstantly){
+        super(r, r.arm.cals.positionHome);
+        this.returnInstantly = returnInstantly;
     }
 
     @Override
@@ -34,7 +41,7 @@ public class ArmGoHome extends ArmMove{
 
     @Override
     public boolean isFinished(){
-        return (Math.abs(r.arm.getError().r) < 3.0);
+        return (Math.abs(r.arm.getError().r) < 3.0) || returnInstantly;
     }
 
 
