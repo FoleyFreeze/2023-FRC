@@ -261,8 +261,8 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void swerveMPAng(Vector strafePwr, double angPwr){
-        //TODO: Add in anglepwr logic
-        driveSwerve(strafePwr, 0);
+        strafePwr.theta -= r.sensors.odo.botAngle;
+        driveSwerve(strafePwr, angPwr);
     }
 
     public void swerveMPA(double power){

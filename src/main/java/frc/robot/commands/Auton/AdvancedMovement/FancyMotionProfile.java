@@ -58,6 +58,7 @@ public class FancyMotionProfile extends CommandBase {
     public void execute(){
         /*double runTime = Timer.getFPGATimestamp() - startTime;
 
+        double[] avp = getAVP(runTime);
         Vector targetVel;
         Vector targetPos;
         double targetAccel;
@@ -71,6 +72,8 @@ public class FancyMotionProfile extends CommandBase {
         distVec.r *= cals.kP_MP;
         Vector totalVel = new Vector(targetVel).add(distVec);
 
+        double anglePower=0;
+
         //output
         totalVel.r *= cals.kV;
         Vector power = new Vector(cals.kA * targetAccel, targetVel.theta).add(totalVel);
@@ -82,7 +85,7 @@ public class FancyMotionProfile extends CommandBase {
             volts = 12;
         }
         power.r *= 12.0 / volts;
-        r.driveTrain.swerveMP(power,targetAngle);*/
+        r.driveTrain.swerveMPAng(power,anglePower);*/
     }
 
     public boolean isFinished(){
@@ -182,39 +185,50 @@ public class FancyMotionProfile extends CommandBase {
         return steps;
     }
 
-    /*private double[] getAVP(double t){
-        double targetAccel;
-        double targetVel;
-        double targetPos;
-        
-        double endAccelTime;
-        double endCvTime;
-        double endDecelTime;
-
-        ListIterator<Step> stepIter = path.listIterator();
-        while(){
-
+    private double[] avp = new double[3];
+    private Vector targetPosVec;
+    private Vector targetVelVec;
+    private double targetAngle;
+    private double[] getAVP(double t){
+        ListIterator<Step> iter = path.listIterator();
+        Step prevStep = iter.next();
+        Step currStep = iter.next();
+        while(iter.hasNext() && currStep.endDecelTime < t){
+            prevStep = currStep;
+            currStep = iter.next();
         }
 
-        if (t < accelTime){ 
+        double targetAccel;
+        double targetPos;
+        double targetVel;
+
+        if (t < currStep.endAccelTime){ 
             //stage 1
+            double t1 = t - prevStep.endDecelTime;
             targetAccel = cals.maxAccel;
-            targetPos = 0.5 * targetAccel * t * t;
-            targetVel = targetAccel * t;
-        } else if (t < maxVelTime) { 
+            targetPos = prevStep.endVel*t1 + 0.5*targetAccel*t1*t1;
+            targetVel = prevStep.endVel + targetAccel*t1;
+        } else if (t < currStep.endCvTime) { 
             //stage 2
+            double t1 = currStep.endAccelTime - prevStep.endDecelTime;
+            double x1 = prevStep.endVel*t1 + 0.5*cals.maxAccel*t1*t1;
             targetAccel = 0;
-            targetVel = cals.maxVel;
-            targetPos = ((t - accelTime) * targetVel) + accelDist;
-        } else if (t < decelTime) { 
+            targetVel = currStep.velLimit;
+            targetPos = x1 + ((t - t1) * targetVel);
+        } else if (t < currStep.endDecelTime) { 
             //stage 3
-            double t3 = t - decelTime;
+            double t1 = currStep.endAccelTime - prevStep.endDecelTime;
+            double t2 = currStep.endCvTime - currStep.endAccelTime;
+            double t3 = t - currStep.endCvTime;
+            double x1 = prevStep.endVel * t1 + 0.5*cals.maxAccel*t1*t1;
+            double v2 = prevStep.endVel + t1*cals.maxAccel;
+            double x2 = v2*t2;
             targetAccel = -cals.maxAccel;
-            targetPos = 0.5 * targetAccel * t3 * t3 + totalDistance.r;
-            targetVel = t3 * targetAccel;
+            targetPos = v2*t3 + 0.5*targetAccel*t3*t3 + x1 + x2;
+            targetVel = v2 - targetAccel*t3;
         } else { 
             //end
-            targetPos = totalDistance.r;
+            targetPos = currStep.length;
             targetVel = 0;
             targetAccel = 0;
         }
@@ -222,8 +236,19 @@ public class FancyMotionProfile extends CommandBase {
         avp[0] = targetPos;
         avp[1] = targetVel;
         avp[2] = targetAccel;
+
+        //determine split between dist and angle
+        double distFrac = currStep.dist / currStep.length;
+        double posFrac = targetPos * distFrac;
+        double angFrac = targetPos * (1-distFrac);
+
+        targetPosVec = Vector.subVectors(currStep.endPos, prevStep.endPos);
+        targetPosVec.r = posFrac;
+        //targetVelVec = new Vector(targetVel*distFrac, )
+        targetPosVec.add(prevStep.endPos); //target field location
+
         return avp;
-    }*/
+    }
 
     //tags are added by adding new steps with angle targets or velocity restrictions
     //later scheduled tags (flags/vision) are put in their own list to be called during execute as they are reached
@@ -518,12 +543,30 @@ public class FancyMotionProfile extends CommandBase {
                 double accelDist = (velLimSq - velInitSq) / (2 * cals.maxAccel);
                 double decelDist = (velLimSq - velFinSq) / (2 * cals.maxAccel);
                 if(s.length < accelDist + decelDist){//full 2-step, not reaching constant v
-                    double topV = 0;//TODO: This is wrong
-                    double t1 = (topV - prevVel) / cals.maxAccel;
-                    double t2 = (topV - s.endVel) / cals.maxAccel;
-                    s.endAccelTime = prevEndTime + t1;
-                    s.endCvTime = s.endAccelTime;
-                    s.endDecelTime = s.endAccelTime + t2;
+                    double tEqual, xEqual, vEqual, startVel;
+                    if(s.endVel > prevVel){
+                        startVel = s.endVel;
+                        vEqual = s.endVel - prevVel;
+                        xEqual = (s.endVel*s.endVel - prevVel*prevVel) / (2.0 * cals.maxAccel);
+                    } else {
+                        startVel = prevVel;
+                        vEqual = prevVel - s.endVel;
+                        xEqual = (prevVel*prevVel - s.endVel*s.endVel) / (2.0 * cals.maxAccel);
+                    }
+                    tEqual = vEqual / cals.maxAccel;
+                    double xRem = (s.length - xEqual)/2.0;
+                    double maxVel = Math.sqrt(startVel*startVel + 2 * cals.maxAccel * xRem);
+                    double t1 = (maxVel - startVel) / cals.maxAccel;
+                    if(s.endVel > prevVel){
+                        s.endAccelTime = prevEndTime + t1 + tEqual;
+                        s.endCvTime = s.endAccelTime;
+                        s.endDecelTime = s.endCvTime + t1;
+                    } else {
+                        s.endAccelTime = prevEndTime + t1;
+                        s.endCvTime = s.endAccelTime;
+                        s.endDecelTime = s.endCvTime + t1 + tEqual;
+                    }
+
                 } else {//full 3-step, reaches constant v
                     double t1 = (s.velLimit - prevVel) / cals.maxAccel;
                     double t2 = (s.length - accelDist - decelDist) / s.velLimit;
