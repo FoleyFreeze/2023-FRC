@@ -190,7 +190,8 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {
 
-    /*r.sensors.resetNavXAng(Math.toRadians(-165));
+    
+    r.sensors.resetNavXAng(Math.toRadians(-165));
     r.sensors.odo.setBotLocation(AutonPos.substation.xy);
     ArrayList<Vector> wps = new ArrayList<>();
     wps.add(Vector.addVectors(AutonPos.substation.xy,Vector.fromXY(30,0)));//drive out
@@ -202,15 +203,10 @@ public class Robot extends TimedRobot {
     tags.add(Tag.Vision(1.82,-1));//-1 = cubes +X = looking for tag X (blue, red flipped)
     FancyMotionProfile fmp = new FancyMotionProfile(r, AutonCal.driveBase, wps, tags);
     fmp.initialize();
-    for(int i=0;i<20;i++){
-      try {
-        wait(20);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      fmp.execute();
-    }*/
+    for(int i=0;i<200;i++){
+      fmp.execute(i*0.02);
+    }
+    
 
     /* 
     r.sensors.resetNavXAng(Math.PI);
