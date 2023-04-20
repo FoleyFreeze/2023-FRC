@@ -32,18 +32,28 @@ public class AutonCommandCamera {
                              AutonPos.farMid.value,
                              AutonPos.far.value};
 
-        Vector[] driveToPiece = {Vector.fromDeg(0.6, 2.0),
+        Vector[] driveToPiece = {Vector.fromDeg(0.65, 2.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.5, -2.0)};
-        double[] driveToPieceTime = {0.85, 0.0, 0.0, 1.1};
+        double[] driveToPieceTime = {1.0, 0.0, 0.0, 1.45};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
                                    Vector.fromXY(278.3, 36.19 + 48),
                                    Vector.fromXY(278.3, 36.19)};
 
-        double[] driveToPieceAng = {0, -15, 15, 7};
+        Vector driveBackBumpOne = Vector.fromDeg(0.5, -179);
+        Vector driveBackBumpTwo = Vector.fromDeg(0.3, 180);
+
+        Vector driveBackClear = Vector.fromDeg(0.65, 179);
+
+        Vector driveBackBalance[] = {Vector.fromDeg(0.0, 0),
+                                     Vector.fromDeg(0.55, -175),
+                                     Vector.fromDeg(0.55, 175),
+                                     Vector.fromDeg(0.0, 0)};
+
+        double[] driveToPieceAng = {0, 15, -15, 0};
         double[] driveBackAng = {180, 180, 180, 172};
 
         int[] scorePositionsRed = {26, 23, 23, 20};
@@ -59,7 +69,18 @@ public class AutonCommandCamera {
                 driveToPiece[i] = new Vector(driveToPiece[i]).mirrorY();
 
                 piecePositions[i] = new Vector(piecePositions[i]).mirrorY();
+
+                driveToPieceAng[i] = -driveToPieceAng[i];
+                driveBackAng[i] = -driveBackAng[i];
+
+                driveBackBalance[i].mirrorY();
             }
+
+            driveBackBumpOne.mirrorY();
+            driveBackBumpTwo.mirrorY();
+
+            driveBackClear.mirrorY();
+
             scorePosition = scorePositionsRed[startPos.ordinal()];
         } else {
             scorePosition = scorePositionsBlue[startPos.ordinal()];
@@ -81,11 +102,14 @@ public class AutonCommandCamera {
         }
 
         //drive for time and pickup the piece
-        if(startPos == AutonStarts.FAR) sg.addCommands(new DriveForTime(r, Vector.fromXY(0.5, 0), 0.35));
         sg.addCommands(new DriveForTime(r, driveToPiece[startPos.ordinal()], driveToPieceTime[startPos.ordinal()]));
         //profile to an angle
         sg.addCommands(new AngleMotionProfile(r, Math.toRadians(driveToPieceAng[startPos.ordinal()])).alongWith(new InstantCommand(() -> r.gripper.open())));
-        sg.addCommands(CamCommands.AutoPickup(r, piecePositions[startPos.ordinal()]).raceWith(new WaitCommand(2.0)));
+        if(startPos == AutonStarts.FAR || startPos == AutonStarts.SUB){
+            sg.addCommands(CamCommands.AutoPickup(r, piecePositions[startPos.ordinal()]));
+        } else {
+            sg.addCommands(CamCommands.AutoPickup(r, piecePositions[startPos.ordinal()]).raceWith(new WaitCommand(2.0)));
+        }
 
 
         //set the gripper and send the arm back home
@@ -98,7 +122,7 @@ public class AutonCommandCamera {
         //score &| balance
         if(startPos == AutonStarts.FAR_MID || startPos == AutonStarts.SUB_MID){
             if(r.sensors.odo.botLocation.getX() > 193.25 + 13.0 + 18.0){
-                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.55, 176), driveBackAng[startPos.ordinal()], 0.6));
+                sg.addCommands(new DriveForTime(r, driveBackBalance[startPos.ordinal()], driveBackAng[startPos.ordinal()], 0.6));
             }
             sg.addCommands(new InstantCommand(() -> r.driveTrain.targetHeading = Math.toRadians(180)));
             sg.addCommands(AutoBalance.getAutoBalanceCommand(r, true)
@@ -107,10 +131,10 @@ public class AutonCommandCamera {
             sg.addCommands(AutonCommand.launchThatCubeBaby(r));
         } else {
             if(startPos == AutonStarts.FAR){//drive back slower if you're bump side
-                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.5, 179), driveBackAng[startPos.ordinal()], 1.0));
-                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.3, 180), driveBackAng[startPos.ordinal()], 1.3));
+                sg.addCommands(new DriveForTime(r, driveBackBumpOne, driveBackAng[startPos.ordinal()], 1.0));
+                sg.addCommands(new DriveForTime(r, driveBackBumpTwo, driveBackAng[startPos.ordinal()], 1.3));
             } else {
-                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.65, -178), driveBackAng[startPos.ordinal()], 1.0));
+                sg.addCommands(new DriveForTime(r, driveBackClear, driveBackAng[startPos.ordinal()], 1.0));
             }
             sg.addCommands(CamCommands.AutoDriveToScore(r));
             sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.3, 0), 0, 2.0));

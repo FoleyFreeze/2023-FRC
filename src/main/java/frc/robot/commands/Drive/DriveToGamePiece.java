@@ -103,6 +103,7 @@ public class DriveToGamePiece extends CommandBase{
 
             //gatherer is 27in out at robot angle of 0
             double gatherExt = 13+11;
+            if(DriverStation.isAutonomous()) gatherExt = 0;//change to rotate around center in auto
             Vector gatherLoc = new Vector(gatherExt,r.sensors.odo.botAngle);
             gatherLoc.add(r.sensors.odo.botLocation);
 

@@ -57,7 +57,7 @@ public class ArmCal {
     public Vector positionConeHiHold = Vector.fromDeg(39, 114.7);
     public Vector positionConeHiRelease = Vector.fromDeg(39.4, 97.3);
     public Vector positionConeMedHold = Vector.fromDeg(32.0, 97.0);
-    public Vector positionConeMedRelease = Vector.fromDeg(32.0, 72.6);
+    public Vector positionConeMedRelease = Vector.fromDeg(32.0, 72.6-1.5);
     public Vector positionConeLowRelease = Vector.fromDeg(30.6, 19.8);
 
     //cube arm positions
