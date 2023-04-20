@@ -36,7 +36,7 @@ public class AutonCommandCamera {
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.5, -2.0)};
-        double[] driveToPieceTime = {1.3, 0.0, 0.0, 1.45};
+        double[] driveToPieceTime = {1.6, 0.0, 0.0, 1.45};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
@@ -61,6 +61,7 @@ public class AutonCommandCamera {
 
         int scorePosition;
 
+        String piecePositionsString = "";
         if(team == Alliance.Red){
             for(int i = 0; i < 4; i++){
                 startPositions[i] = new Vector(startPositions[i]).mirrorY();
@@ -69,6 +70,7 @@ public class AutonCommandCamera {
                 driveToPiece[i] = new Vector(driveToPiece[i]).mirrorY();
 
                 piecePositions[i] = new Vector(piecePositions[i]).mirrorY();
+                piecePositionsString += " " + piecePositions[i];
 
                 driveToPieceAng[i] = -driveToPieceAng[i];
                 driveBackAng[i] = -driveBackAng[i];
@@ -85,6 +87,9 @@ public class AutonCommandCamera {
         } else {
             scorePosition = scorePositionsBlue[startPos.ordinal()];
         }
+
+        System.out.println("Piece Positions: " + piecePositionsString);
+        System.out.println(startPos.ordinal());
 
         sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));//init arm
         sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotLocation(startPositions[startPos.ordinal()])));//init location
