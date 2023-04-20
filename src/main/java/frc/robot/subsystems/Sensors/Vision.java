@@ -364,6 +364,114 @@ public class Vision extends SubsystemBase {
         return cam;
     }
 
+    public frc.robot.util.Vector getTagForAuton(int tag){
+        //if image doesnt exists
+        if(tagVisionStack.isEmpty()) return null;
+
+        //clear image queue
+        VisionDataEntry entry = tagVisionStack.pop();
+        //while(!tagVisionStack.isEmpty()){
+        //    tagVisionStack.pop();
+        //}
+    
+        tagVisionStack.clear(); //This replaces the above three lines to clear the vision stack - JC
+
+        //if image is too old
+        if(Timer.getFPGATimestamp() - entry.timestamp > 0.12) return null;
+
+        Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(entry.timestamp);
+
+        double minDist = 99999;
+        VisionData bestData = null;
+        for(VisionData d : entry.listFin){
+            //ignore tags with wrong heights
+            boolean good = false;
+            double y = -Units.metersToInches(d.pose.getTranslation().getY());
+            double x = Units.metersToInches(d.pose.getTranslation().getZ());
+            switch(d.tagId){
+                case 1:
+                case 2:
+                case 3:
+                    good = DriverStation.getAlliance() == Alliance.Red && y > -5 && y < 5;
+                break;
+                case 6:
+                case 7:
+                case 8:
+                    good = DriverStation.getAlliance() == Alliance.Blue && y > -5 && y < 5;
+                break;
+                case 4:
+                    good = DriverStation.getAlliance() == Alliance.Blue && y > 4 && y < 14;
+                break;
+                case 5:
+                    good = DriverStation.getAlliance() == Alliance.Red && y > 4 && y < 14;
+                break;
+                default:
+                    good = false;
+            }
+            if(x < 0) {
+                System.out.println("Image behind us: " + x);
+                good = false;
+            }
+            if(d.eBits > 0){
+                good = false;
+            }
+            if(d.tagId != tag){
+                //ignore tags we are not looking for
+                good = false;
+            }
+            
+            if(good){
+                //moved away from picking lowest hypoteneuse to lowest abs Y
+                //this should prevent "bad" corner data from winning arbitration
+                //double dist = getHyp(d.pose.getTranslation());
+                double dist = Math.abs(d.pose.getTranslation().getX());
+                if(dist < minDist){
+                    minDist = dist;
+                    bestData = d;
+                }
+            } else {
+                System.out.println("Tag" + d.tagId + " rejected with y = " + String.format("%.0f",y) + " Err of: " + d.eBits + " DM: " + d.decisionMargin);
+            }
+        }
+        if(bestData == null) return null;
+
+        //SmartDashboard.putNumber("Min Vis Dist", minDist);
+        //SmartDashboard.putString("Best Data", bestData.pose.toString());
+
+        //Get tag location in field coordinates
+        frc.robot.util.Vector cam = fromTranslation3dImage(bestData.pose.getTranslation());
+        
+        if(debug) System.out.println("Raw Cam: " + cam.toStringXY() + " Err of: " + bestData.eBits + " DM: " + bestData.decisionMargin);
+        cam.add(camLocation);
+        cam.theta += oldLoc.angle + Math.toRadians(2.0);//camera angle offset
+        cam.add(oldLoc.space);
+        if(debug) System.out.print("Field Cam: " + cam.toStringXY());
+        if(debug) System.out.println("tdiff: " +(Timer.getFPGATimestamp() - entry.timestamp));
+
+        if(debug || bestData.tagId != prevId) System.out.println("Raw ID: " + bestData.tagId);
+        prevId = bestData.tagId;
+        int id = bestData.tagId;
+        if(DriverStation.getAlliance() == Alliance.Red){
+            //ignore other teams tags
+            if(id == 4 || id >= 6) return null;
+            id = 9 - id;
+        } else {
+            //ignore other teams tags
+            if(id <= 3 || id == 5) return null;
+        }
+
+        frc.robot.util.Vector tagPos = fromTranslation3dTag(AutonPos.tagLayout.getTagPose(id).get().getTranslation());
+        if(debug) System.out.println("tag" + id + "Pos: " + tagPos.toStringXY());
+        
+        if(DriverStation.getAlliance() == Alliance.Red){
+            tagPos.theta = -tagPos.theta;
+        }
+
+        cam.sub(tagPos);
+        if(debug) System.out.println("Cam Delta: " + cam);
+        return cam;
+    }
+
     public double getImageAngle(int level, int position){
         if(level == 0 || position == 0) return 0;
         return AutonPos.SCORING_OFFSETS[level - 1][position - 1].value;
