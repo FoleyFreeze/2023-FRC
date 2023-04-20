@@ -32,11 +32,11 @@ public class AutonCommandCamera {
                              AutonPos.farMid.value,
                              AutonPos.far.value};
 
-        Vector[] driveToPiece = {Vector.fromDeg(0.65, 2.0),
+        Vector[] driveToPiece = {Vector.fromDeg(0.65, 5),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.5, -2.0)};
-        double[] driveToPieceTime = {1.0, 0.0, 0.0, 1.45};
+        double[] driveToPieceTime = {1.3, 0.0, 0.0, 1.45};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
@@ -102,7 +102,7 @@ public class AutonCommandCamera {
         }
 
         //drive for time and pickup the piece
-        sg.addCommands(new DriveForTime(r, driveToPiece[startPos.ordinal()], driveToPieceTime[startPos.ordinal()]));
+        sg.addCommands(new DriveForTime(r, driveToPiece[startPos.ordinal()], 180, driveToPieceTime[startPos.ordinal()]));
         //profile to an angle
         sg.addCommands(new AngleMotionProfile(r, Math.toRadians(driveToPieceAng[startPos.ordinal()])).alongWith(new InstantCommand(() -> r.gripper.open())));
         if(startPos == AutonStarts.FAR || startPos == AutonStarts.SUB){
@@ -137,7 +137,6 @@ public class AutonCommandCamera {
                 sg.addCommands(new DriveForTime(r, driveBackClear, driveBackAng[startPos.ordinal()], 1.0));
             }
             sg.addCommands(CamCommands.AutoDriveToScore(r));
-            sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.3, 0), 0, 2.0));
         }
 
         return sg;
