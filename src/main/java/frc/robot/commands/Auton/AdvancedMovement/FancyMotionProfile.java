@@ -23,6 +23,7 @@ public class FancyMotionProfile extends CommandBase {
     final double botRadius;
     final boolean allowArcAccel = false; //allow velocity to change on arc
     final boolean allowArcAngle = false; //allow angle to change on arc
+    final boolean debug = true;
 
     Vector globalOffset; //vision updates this
 
@@ -55,45 +56,63 @@ public class FancyMotionProfile extends CommandBase {
         startTime = Timer.getFPGATimestamp();
     }
 
-    public void execute(){
-        /*double runTime = Timer.getFPGATimestamp() - startTime;
+    public void execute(double t){
+        if(complete) return;
 
-        double[] avp = getAVP(runTime);
-        Vector targetVel;
-        Vector targetPos;
-        double targetAccel;
-
-
+        getAVP(t);
 
         //PID
         Vector currentPos = r.sensors.odo.botLocation;
-        Vector distVec = new Vector(startLoc).sub(currentPos).add(targetPos);
-        double errorMag = distVec.r;
-        distVec.r *= cals.kP_MP;
-        Vector totalVel = new Vector(targetVel).add(distVec);
+        Vector errVec = Vector.subVectors(targetPosVec, currentPos);
+        errVec.r = 0;
+        double errorMag = errVec.r;
+        errVec.r *= cals.kP_MP;
+        Vector totalVel = new Vector(targetVelVec).add(errVec);
+        double velocity = totalVel.r;
 
-        double anglePower=0;
+
+        double currentAngle = r.sensors.odo.botAngle;
+        double angleError = Angle.normRad(targetAngle - currentAngle);
+        angleError = 0;
+        double totalAngleVel = angleError * botRadius * cals.kP_MP + targetAngleVel;
+        double anglePower = targetAngleAccel*cals.kA + totalAngleVel*cals.kV + cals.kS;
 
         //output
+        Vector powerVec = new Vector(targetAccel, targetVelVec.theta);
         totalVel.r *= cals.kV;
-        Vector power = new Vector(cals.kA * targetAccel, targetVel.theta).add(totalVel);
-        power.r += cals.kS;
+        powerVec.r *= cals.kA;
+        powerVec.add(totalVel);
+        powerVec.r += cals.kS;
+
+        //rotate the strafe vector by the angular velocity (in 20ms) as a feedforward
+        double rotationFeedForward = totalAngleVel * 0.02 / botRadius;
+        powerVec.theta -= rotationFeedForward;
+
+        if(debug) System.out.format("s:%d, t:%.2f, p:%.2f, pA:%.2f err:%.0f, v:%.0f, a:%.0f, eA:%.0f, pA:%.0f, vA:%.0f, aA:%.0f, ffdA:%.1f, t1:%.1f, t2:%.1f, t3:%.1f\n", 
+                stepIdx,t,powerVec.r,anglePower,errorMag,velocity,targetAccel,
+                Math.toDegrees(angleError),Math.toDegrees(targetAngle),totalAngleVel,targetAngleAccel,Math.toDegrees(-rotationFeedForward),
+                currStep.endAccelTime,currStep.endCvTime,currStep.endDecelTime);
 
         //voltage compensation
         double volts = r.lights.pdh.getVoltage();
         if(volts < 5 || volts > 15){
             volts = 12;
         }
-        power.r *= 12.0 / volts;
-        r.driveTrain.swerveMPAng(power,anglePower);*/
+        powerVec.r *= 12.0 / volts;
+        r.driveTrain.swerveMPAng(powerVec,anglePower);
+    }
+
+    public void execute(){
+        double runTime = Timer.getFPGATimestamp() - startTime;
+        execute(runTime);
     }
 
     public boolean isFinished(){
-        return false;
+        return complete;
     }
 
     public void end(boolean interrupted){
-
+        r.driveTrain.swerveMPAng(new Vector(0,0),0);
     }
 
 
@@ -102,6 +121,8 @@ public class FancyMotionProfile extends CommandBase {
 
     private class Step{
         boolean isArc;
+        Vector arcCenter;
+        double arcLen;
         Vector endPos;
         double endVel;
         double velLimit;
@@ -143,7 +164,12 @@ public class FancyMotionProfile extends CommandBase {
                 Vector arcEnd = Vector.subVectors(nextWaypoint, new Vector(btoc.r - dist, btoc.theta));
 
                 Vector circleCenter = Vector.subVectors(waypoint, arcStart);
-                circleCenter.theta += Math.PI/2;
+                double axb = atob.cross2D(btoc);
+                if(axb > 0){
+                    circleCenter.theta += Math.PI/2;
+                } else {
+                    circleCenter.theta -= Math.PI/2;
+                }
                 circleCenter.r = minR;
                 circleCenter.add(arcStart);
 
@@ -160,6 +186,12 @@ public class FancyMotionProfile extends CommandBase {
                 //drive the arc
                 s = new Step();
                 s.isArc = true;
+                if(axb > 0){
+                    s.arcLen = arcAngle;    
+                } else {
+                    s.arcLen = -arcAngle;
+                }
+                s.arcCenter = circleCenter;
                 s.endPos = arcEnd;
                 s.endAngle = prevStep.endAngle;
                 s.endVel = cals.maxVel;
@@ -185,69 +217,104 @@ public class FancyMotionProfile extends CommandBase {
         return steps;
     }
 
-    private double[] avp = new double[3];
     private Vector targetPosVec;
     private Vector targetVelVec;
+    private double targetAccel;
     private double targetAngle;
-    private double[] getAVP(double t){
+    private double targetAngleVel;
+    private double targetAngleAccel;
+    Step prevStep;
+    Step currStep;
+    int stepIdx;
+    boolean complete = false;
+    private void getAVP(double t){
         ListIterator<Step> iter = path.listIterator();
-        Step prevStep = iter.next();
-        Step currStep = iter.next();
+        prevStep = iter.next();
+        currStep = iter.next();
+        stepIdx = 1;
+        complete = false;
         while(iter.hasNext() && currStep.endDecelTime < t){
             prevStep = currStep;
             currStep = iter.next();
+            stepIdx++;
         }
 
-        double targetAccel;
-        double targetPos;
-        double targetVel;
+
+        double targetTotalAccel;
+        double targetTotalPos;
+        double targetTotalVel;
+        int stage;
 
         if (t < currStep.endAccelTime){ 
             //stage 1
+            stage = 1;
             double t1 = t - prevStep.endDecelTime;
-            targetAccel = cals.maxAccel;
-            targetPos = prevStep.endVel*t1 + 0.5*targetAccel*t1*t1;
-            targetVel = prevStep.endVel + targetAccel*t1;
+            targetTotalAccel = cals.maxAccel;
+            targetTotalPos = prevStep.endVel*t1 + 0.5*targetTotalAccel*t1*t1;
+            targetTotalVel = prevStep.endVel + targetTotalAccel*t1;
         } else if (t < currStep.endCvTime) { 
             //stage 2
+            stage = 2;
             double t1 = currStep.endAccelTime - prevStep.endDecelTime;
+            double t2 = t - currStep.endAccelTime;
             double x1 = prevStep.endVel*t1 + 0.5*cals.maxAccel*t1*t1;
-            targetAccel = 0;
-            targetVel = currStep.velLimit;
-            targetPos = x1 + ((t - t1) * targetVel);
+            targetTotalAccel = 0;
+            targetTotalVel = currStep.velLimit;
+            targetTotalPos = x1 + targetTotalVel*t2;
         } else if (t < currStep.endDecelTime) { 
             //stage 3
+            stage = 3;
             double t1 = currStep.endAccelTime - prevStep.endDecelTime;
             double t2 = currStep.endCvTime - currStep.endAccelTime;
             double t3 = t - currStep.endCvTime;
             double x1 = prevStep.endVel * t1 + 0.5*cals.maxAccel*t1*t1;
             double v2 = prevStep.endVel + t1*cals.maxAccel;
             double x2 = v2*t2;
-            targetAccel = -cals.maxAccel;
-            targetPos = v2*t3 + 0.5*targetAccel*t3*t3 + x1 + x2;
-            targetVel = v2 - targetAccel*t3;
-        } else { 
+            targetTotalAccel = -cals.maxAccel;
+            targetTotalPos = v2*t3 + 0.5*targetTotalAccel*t3*t3 + x1 + x2;
+            targetTotalVel = v2 + targetTotalAccel*t3;
+        } else {
             //end
-            targetPos = currStep.length;
-            targetVel = 0;
-            targetAccel = 0;
+            stage = 4;
+            complete = true;
+            targetTotalPos = currStep.length;
+            targetTotalVel = 0;
+            targetTotalAccel = 0;
         }
 
-        avp[0] = targetPos;
-        avp[1] = targetVel;
-        avp[2] = targetAccel;
-
         //determine split between dist and angle
+        double frac = targetTotalPos / currStep.length;
         double distFrac = currStep.dist / currStep.length;
-        double posFrac = targetPos * distFrac;
-        double angFrac = targetPos * (1-distFrac);
+        double posFrac = targetTotalPos * distFrac;
 
-        targetPosVec = Vector.subVectors(currStep.endPos, prevStep.endPos);
-        targetPosVec.r = posFrac;
-        //targetVelVec = new Vector(targetVel*distFrac, )
-        targetPosVec.add(prevStep.endPos); //target field location
+        targetAccel = targetTotalAccel * distFrac;
+        targetAngleVel = targetTotalVel * (1-distFrac);
+        targetAngleAccel = targetTotalAccel * (1-distFrac);
 
-        return avp;
+        if(currStep.isArc){
+            double arcAngle = currStep.arcLen * frac;
+            
+            targetPosVec = Vector.subVectors(prevStep.endPos, currStep.arcCenter);
+            targetPosVec.theta += arcAngle;
+            
+            //for target velocity we will want to look ahead at least 1 timestep (maybe more? whats the swerve angle lag?)
+            double lookAheadFrac = 0.02 / (currStep.dist / (targetTotalVel*posFrac)); //what fraction of this arc is covered in the next 20ms
+            targetVelVec = new Vector(targetPosVec);
+            targetVelVec.theta += currStep.arcLen * lookAheadFrac;
+            targetVelVec.theta -= Math.signum(currStep.arcLen) * Math.PI/2;
+            targetVelVec.r = targetTotalVel * posFrac;
+
+            targetPosVec.add(currStep.arcCenter);
+        } else {
+            targetPosVec = Vector.subVectors(currStep.endPos, prevStep.endPos);
+            targetPosVec.r = posFrac;
+            targetVelVec = new Vector(targetTotalVel*distFrac,targetPosVec.theta);
+            targetPosVec.add(prevStep.endPos); //target field location
+        }
+
+        double totalAngleDelta = Angle.normRad(currStep.endAngle - prevStep.endAngle);
+        targetAngle = totalAngleDelta * frac + prevStep.endAngle; 
+
     }
 
     //tags are added by adding new steps with angle targets or velocity restrictions
@@ -543,6 +610,8 @@ public class FancyMotionProfile extends CommandBase {
                 double accelDist = (velLimSq - velInitSq) / (2 * cals.maxAccel);
                 double decelDist = (velLimSq - velFinSq) / (2 * cals.maxAccel);
                 if(s.length < accelDist + decelDist){//full 2-step, not reaching constant v
+                    //determine distance required to equalize start/end speed
+                    //then see how fast we can get to in half the remaining distance
                     double tEqual, xEqual, vEqual, startVel;
                     if(s.endVel > prevVel){
                         startVel = s.endVel;
