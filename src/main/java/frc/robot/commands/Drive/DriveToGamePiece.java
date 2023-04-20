@@ -71,7 +71,11 @@ public class DriveToGamePiece extends CommandBase{
 
         Vector newTarget = null;
         if(cubeMode){
-            newTarget = r.vision.getCubeVector();
+            if(DriverStation.isAutonomous()){
+                newTarget = r.vision.getCubeVector(piecePosition);
+            } else {
+                newTarget = r.vision.getCubeVector();
+            }
         } else {
             newTarget = r.vision.getConeVector();
         }
@@ -93,7 +97,8 @@ public class DriveToGamePiece extends CommandBase{
 
         if(target != null){
             //don't drive in auton until the piece is close enough to its real position
-            if(DriverStation.isAutonomous() && Vector.subVectors(piecePosition, target).r > 24) {
+            Vector expectedError = Vector.subVectors(piecePosition, target);
+            if(DriverStation.isAutonomous() && (expectedError.getY() > 24 || expectedError.getX() > 36)) {
                 target = null;
                 r.driveTrain.driveSwerve(new Vector(0,0), 0);
                 return;

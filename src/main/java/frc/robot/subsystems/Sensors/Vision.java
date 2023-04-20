@@ -107,10 +107,12 @@ public class Vision extends SubsystemBase {
                     double current = Timer.getFPGATimestamp();
                     e.timestamp = current - ((current -  poseDataCube.getFloat(4) + poseDataCube.getFloat(8)) / 2.0);
                     
-                    // cube only reports angle and distance
-                    VisionData visionData = new VisionData(type, 0, Math.toRadians(poseDataCube.getFloat(14)), 0, 0, 0, poseDataCube.getFloat(18));
-                    e.listFin.add(visionData);
-
+                    for(int i = 0, b = 14; i < numTags; i++, b += 25){
+                        // cube only reports angle and distance
+                        VisionData visionData = new VisionData(type, 0, Math.toRadians(poseDataCube.getFloat(14+b)), 0, 0, 0, poseDataCube.getFloat(18+b));
+                        e.listFin.add(visionData);
+                    }
+                    
                     cubeVisionStack.push(e);
                 }
 
@@ -202,20 +204,66 @@ public class Vision extends SubsystemBase {
 
         Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(vde.timestamp);
 
-        VisionData vd = vde.listFin.get(0);
+        frc.robot.util.Vector bestData = null;
+        double minDelta = 9999;
+        for(VisionData vd : vde.listFin){
+            double dist = vd.pose.getZ();//to account for bumpers
+            double ang = vd.pose.getRotation().getY() - Math.toRadians(2.0);//camera not mounted straight offset
+            frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
+            if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+            
+            double delta = cam.r;
+            if(delta < minDelta){
+                bestData = cam;
+                minDelta = delta;
+            }
 
-        double dist = vd.pose.getZ();//to account for bumpers
-        double ang = vd.pose.getRotation().getY() - Math.toRadians(2.0);//camera not mounted straight offset
-        frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
-        if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+            cam.add(frc.robot.util.Vector.fromXY(3.25, -8.75));//camera offset
+            cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));//robot length
+            cam.theta += oldLoc.angle;
+            cam.add(oldLoc.space);
+            if(debug) System.out.println("Field Cam: " + cam.toStringXY());
+
+        }
         
-        cam.add(frc.robot.util.Vector.fromXY(3.25, -8.75));//camera offset
-        cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));//robot length
-        cam.theta += oldLoc.angle;
-        cam.add(oldLoc.space);
-        if(debug) System.out.println("Field Cam: " + cam.toStringXY());
 
-        return cam;
+        return bestData;
+    }
+
+    public frc.robot.util.Vector getCubeVector(frc.robot.util.Vector target){
+        if(cubeVisionStack.isEmpty()) return null;
+
+        VisionDataEntry vde = cubeVisionStack.pop();
+        while(!cubeVisionStack.isEmpty()){
+            cubeVisionStack.pop();
+        }
+
+        if(Timer.getFPGATimestamp() - vde.timestamp > 0.5) return null;
+
+        Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(vde.timestamp);
+
+        frc.robot.util.Vector bestData = null;
+        double minDelta = 9999;
+        for(VisionData vd : vde.listFin){
+            double dist = vd.pose.getZ();//to account for bumpers
+            double ang = vd.pose.getRotation().getY() - Math.toRadians(2.0);//camera not mounted straight offset
+            frc.robot.util.Vector cam = frc.robot.util.Vector.fromXY(dist,-dist*Math.tan(ang));
+            if(debug) System.out.println("Raw Cam: " + cam.toStringXY());
+            
+            cam.add(frc.robot.util.Vector.fromXY(3.25, -8.75));//camera offset
+            cam.add(frc.robot.util.Vector.fromXY(13.0,0.0));//robot length
+            cam.theta += oldLoc.angle;
+            cam.add(oldLoc.space);
+            if(debug) System.out.println("Field Cam: " + cam.toStringXY());
+
+            double delta = frc.robot.util.Vector.subVectors(cam, target).r;
+            if(delta < minDelta){
+                bestData = cam;
+                minDelta = delta;
+            }
+        }
+
+        return bestData;
     }
 
     public frc.robot.util.Vector getConeVector(){
