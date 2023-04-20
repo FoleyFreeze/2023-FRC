@@ -11,7 +11,7 @@ public class ArmCal {
     double stendoCurrLim = 25;
     //                                                                                       used to be 17/66
     public MotorCal angleMotor = new MotorCal(MotorType.SPARK, 17).invert().setRatio(1 / 45.0 * 18 / 72.0 * 360).setCurrLim(40).setPIDPwrLim(0.75).setPIDF(0.1, 0, 0.7, 0).setBrakeMode(true).setRampRate(0.2);
-    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(stendoCurrLim).setPIDPwrLim(0.8).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
+    public MotorCal lengthMotor = new MotorCal(MotorType.SPARK, 14).invert().setRatio(1/20.0*Math.PI).setCurrLim(stendoCurrLim).setPIDPwrLim(0.85).setPIDF(0.2, 0, 0, 0).setBrakeMode(true);
 
     public int armPotChannel = 4;
     public double armPotOffset = 0.57;// in volts

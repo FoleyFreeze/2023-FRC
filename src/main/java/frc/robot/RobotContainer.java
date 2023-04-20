@@ -112,6 +112,8 @@ public class RobotContainer {
     specialAutonChooser.setDefaultOption("MP Auton", 0);
     specialAutonChooser.setDefaultOption("MP Auton Camera", 1);
     specialAutonChooser.addOption("Simple Auton", 2);
+    specialAutonChooser.addOption("3-Piece Clear", 3);
+    specialAutonChooser.addOption("3-Piece Bump", 4);
     SmartDashboard.putData("Simplicity Chooser", specialAutonChooser);
 
     autonChooser = new SendableChooser<>();

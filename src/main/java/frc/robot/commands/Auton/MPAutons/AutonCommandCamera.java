@@ -32,18 +32,18 @@ public class AutonCommandCamera {
                              AutonPos.farMid.value,
                              AutonPos.far.value};
 
-        Vector[] driveToPiece = {Vector.fromDeg(0.6, 0.0),
+        Vector[] driveToPiece = {Vector.fromDeg(0.6, 2.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
-                                 Vector.fromDeg(0.5, 2.0)};
-        double[] driveToPieceTime = {0.85, 0.0, 0.0, 1.3};
+                                 Vector.fromDeg(0.5, -2.0)};
+        double[] driveToPieceTime = {0.85, 0.0, 0.0, 1.1};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
                                    Vector.fromXY(278.3, 36.19 + 48),
                                    Vector.fromXY(278.3, 36.19)};
 
-        double[] driveToPieceAng = {0, 15, -15, 7};
+        double[] driveToPieceAng = {0, -15, 15, 7};
         double[] driveBackAng = {180, 180, 180, 172};
 
         int[] scorePositionsRed = {26, 23, 23, 20};
@@ -84,7 +84,7 @@ public class AutonCommandCamera {
         if(startPos == AutonStarts.FAR) sg.addCommands(new DriveForTime(r, Vector.fromXY(0.5, 0), 0.35));
         sg.addCommands(new DriveForTime(r, driveToPiece[startPos.ordinal()], driveToPieceTime[startPos.ordinal()]));
         //profile to an angle
-        sg.addCommands(new AngleMotionProfile(r, Math.toRadians(driveToPieceAng[startPos.ordinal()])));
+        sg.addCommands(new AngleMotionProfile(r, Math.toRadians(driveToPieceAng[startPos.ordinal()])).alongWith(new InstantCommand(() -> r.gripper.open())));
         sg.addCommands(CamCommands.AutoPickup(r, piecePositions[startPos.ordinal()]).raceWith(new WaitCommand(2.0)));
 
 
@@ -110,7 +110,7 @@ public class AutonCommandCamera {
                 sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.5, 179), driveBackAng[startPos.ordinal()], 1.0));
                 sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.3, 180), driveBackAng[startPos.ordinal()], 1.3));
             } else {
-                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.65, 177), driveBackAng[startPos.ordinal()], 1.8));
+                sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.65, -178), driveBackAng[startPos.ordinal()], 1.0));
             }
             sg.addCommands(CamCommands.AutoDriveToScore(r));
             sg.addCommands(new DriveForTime(r, Vector.fromDeg(0.3, 0), 0, 2.0));
@@ -119,7 +119,7 @@ public class AutonCommandCamera {
         return sg;
     }
 
-    static Command scoreOnlyCone(RobotContainer r){
+    public static Command scoreOnlyCone(RobotContainer r){
         SequentialCommandGroup sg = new SequentialCommandGroup();
         
         //pull up stendo

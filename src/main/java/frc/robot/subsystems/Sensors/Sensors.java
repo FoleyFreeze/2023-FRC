@@ -2,7 +2,9 @@ package frc.robot.subsystems.Sensors;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -25,6 +27,8 @@ public class Sensors extends SubsystemBase{
 
     public double dt;
     public double prevTime;
+
+    GenericEntry navXConnected = Shuffleboard.getTab("Comp").add("NavX Connected", false).withPosition(8, 0).getEntry();;
 
     public Sensors(RobotContainer r, SensorCal cal){
         this.r = r;
@@ -133,18 +137,18 @@ public class Sensors extends SubsystemBase{
             odo.update(robotYaw, wheelStates);
         }
 
+        navXConnected.setBoolean(navX.isConnected());
+
         SmartDashboard.putNumber("Robot Ang: ", Math.toDegrees(odo.botAngle));
         SmartDashboard.putString("Robot Pos: ", odo.botLocation.toStringXY());
 
         SmartDashboard.putNumber("Wheel Slips", odo.badWheels);
 
-        double temp = getAbsPitchRoll();
+        /*double temp = getAbsPitchRoll();
         SmartDashboard.putNumber("Roll/Pitch", temp);
         if(temp > maxPitchRoll) maxPitchRoll = temp;
         SmartDashboard.putNumber("MaxPitch/Roll", maxPitchRoll);
         SmartDashboard.putNumber("Pitch", getPitch());
-        SmartDashboard.putNumber("Roll", getRoll());
-
-        SmartDashboard.putNumber("AngleJog", Math.toDegrees(navXOffset));
+        SmartDashboard.putNumber("Roll", getRoll());*/
     }
 }
