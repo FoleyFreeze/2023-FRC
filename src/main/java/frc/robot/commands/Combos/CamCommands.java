@@ -51,7 +51,8 @@ public class CamCommands extends SequentialCommandGroup{
         sg.addCommands(dti.raceWith(new WaitForStage(r, 0/*This # is obsolete here*/, dti, false)
                                     .andThen(GatherCommand.gatherCommand(r))));
 
-        sg.addCommands(new DriveForTime(r, Vector.fromXY(-0.4, 0.0), 1.5).raceWith(new IntakeCommand(r))
+        //                                               was 0.4 and 1.5
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(-0.75, 0.0), 0.75).raceWith(new IntakeCommand(r))
                        .andThen(new ArmGoHome(r)));
 
         return sg.handleInterrupt(() -> r.gripper.setIntakePower(r.gripper.cals.pieceHoldPower));
@@ -85,7 +86,8 @@ public class CamCommands extends SequentialCommandGroup{
                             new ArmMove(r, r.inputs.armScorePos), 
                         () -> r.inputs.selectedLevel == Level.BOTTOM));
         //driver backwards
-        sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)));
+        //sg.addCommands((new DriveForTime(r, Vector.fromXY(0.25, 0), 0.9)));
+        sg.addCommands(new DriveForTime(r, Vector.fromXY(-0.01, 0), 0.1).andThen(new DriveForTime(r, Vector.fromXY(-0.75, 0), 0.25)));
         //lower arm
         sg.addCommands(new ArmGoHome(r).alongWith(new InstantCommand(() -> r.gripper.setIntakePower(r.gripper.cals.pieceHoldPower))));
         

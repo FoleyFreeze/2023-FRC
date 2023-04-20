@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer.AutonPaths;
 import frc.robot.RobotContainer.AutonStarts;
@@ -117,8 +118,8 @@ public class Robot extends TimedRobot {
     if(!value.equals(prevValue)){
       if(useSpecialCommand == 2){
         //r.autonCommand = AutoAlign.autoFieldRightAlign(r);
-        //r.autonCommand = new DriveForTime(r, Vector.fromXY(-.17, 0), 0.1);
-        r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
+        r.autonCommand = new DriveForTime(r, Vector.fromXY(-0.01, 0), 0.1).andThen(new DriveForTime(r, Vector.fromXY(-0.75, 0), 0.25));
+        //r.autonCommand = SimpleScore.SimpleHiScore(r, simpleStartPos, simpleBalance, team);
         //r.autonCommand = AutoBalance.getDriveOverStation(r, false).andThen(AutoBalance.getAutoBalanceCommand(r, true));
         //r.autonCommand = new AngleMotionProfile(r, Math.PI).beforeStarting(new InstantCommand(() -> r.sensors.resetBotAng()));
         //r.autonCommand = new DriveMotionProfile(r,Vector.fromXY(5,0),0).beforeStarting(r.sensors::resetBotAng,r.driveTrain).beforeStarting(r.sensors::resetBotPos, r.driveTrain);

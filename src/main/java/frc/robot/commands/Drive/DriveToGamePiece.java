@@ -93,7 +93,7 @@ public class DriveToGamePiece extends CommandBase{
 
         if(target != null){
             //don't drive in auton until the piece is close enough to its real position
-            if(DriverStation.isAutonomous() && (Math.abs(Vector.subVectors(piecePosition, target).getY()) > 24 || Math.abs(Vector.subVectors(piecePosition, target).getX()) > 36)) {
+            if(DriverStation.isAutonomous() && (Math.abs(Vector.subVectors(piecePosition, target).getY()) > 24 || Math.abs(Vector.subVectors(piecePosition, target).getX()) > 50)) {
                 System.out.println("Cube rejected with error " + Vector.subVectors(piecePosition, target).toStringXY());
                 target = null;
                 r.driveTrain.driveSwerve(new Vector(0,0), 0);
