@@ -256,6 +256,10 @@ public class RobotContainer {
 
     SmartDashboard.putData("DemoVisionGather", new SequentialCommandGroup(CamCommands.AutoPickupDemo(this)));
 
+    //These are the "I don't trust Brandon" outputs
+    inputs.autoGather.onTrue(new InstantCommand(() -> System.out.println("Gather Trigger")));
+    inputs.autoScore.onTrue(new InstantCommand(() -> System.out.println("Score Trigger")));
+
     //Vector armUpVec = Vector.fromDeg(38, 110);
     //SmartDashboard.putData("ArmUp", new ArmMove(this, armUpVec));
     //SmartDashboard.putData("ArmMid", new ArmMove(this, Vector.addVectors(armUpVec, Vector.fromXY(5, 0))));

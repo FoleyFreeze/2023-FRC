@@ -54,7 +54,7 @@ public class AutonCommandCamera {
                                      Vector.fromDeg(0.0, 0)};
 
         double[] driveToPieceAng = {0, 15, -15, 0};
-        double[] driveBackAng = {180, 180, 180, 172};
+        double[] driveBackAng = {180, 180, 180, 169};
 
         int[] scorePositionsRed = {26, 23, 23, 20};
         int[] scorePositionsBlue = {20, 23, 23, 26};
