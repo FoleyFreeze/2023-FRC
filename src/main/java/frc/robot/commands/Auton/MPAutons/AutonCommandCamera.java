@@ -36,7 +36,7 @@ public class AutonCommandCamera {
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.5, -2.0)};
-        double[] driveToPieceTime = {1.6, 0.0, 0.0, 1.45};
+        double[] driveToPieceTime = {1.2, 0.0, 0.0, 1.45};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
@@ -98,6 +98,7 @@ public class AutonCommandCamera {
         sg.addCommands(new InstantCommand(() -> r.inputs.setAutonScorePosition(scorePosition)));//set the second score position
 
         //score the first piece
+        sg.addCommands(new InstantCommand(() -> r.gripper.close()));
         sg.addCommands(scoreOnlyCone(r));
 
         //get over the charge station if you're in the middle
