@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Auton.AutonCal.MPCals;
@@ -30,7 +32,8 @@ public class FancyMotionProfile extends CommandBase {
     LinkedList<Step> path;
     LinkedList<Tag> pathTags;
     Vector startLoc;
-    double flag;
+    public double flag;
+    double visionState;
     double startAng;
 
     public FancyMotionProfile(RobotContainer r, MPCals cals, ArrayList<Vector> waypoints, ArrayList<Tag> tags){
@@ -50,8 +53,12 @@ public class FancyMotionProfile extends CommandBase {
         startAng = r.sensors.odo.botAngle;
         path = generatePath(startLoc, startAng, waypoints);
         pathTags = addTags(path, tags);
+        tagIter = pathTags.listIterator();
+        currTag = null;
         calculateTimes(path);
         globalOffset = new Vector(0,0);
+        flag = 0;
+        visionState = 0;
 
         startTime = Timer.getFPGATimestamp();
     }
@@ -59,12 +66,17 @@ public class FancyMotionProfile extends CommandBase {
     public void execute(double t){
         if(complete) return;
 
+        checkTags();
+        runVision();
+
+        //get motion profile
         getAVP(t);
 
+        //global offset provides a offset to the entire path based on vision
+        Vector currentPos = Vector.addVectors(r.sensors.odo.botLocation, globalOffset);
+
         //PID
-        Vector currentPos = r.sensors.odo.botLocation;
         Vector errVec = Vector.subVectors(targetPosVec, currentPos);
-        errVec.r = 0;
         double errorMag = errVec.r;
         errVec.r *= cals.kP_MP;
         Vector totalVel = new Vector(targetVelVec).add(errVec);
@@ -73,7 +85,6 @@ public class FancyMotionProfile extends CommandBase {
 
         double currentAngle = r.sensors.odo.botAngle;
         double angleError = Angle.normRad(targetAngle - currentAngle);
-        angleError = 0;
         double totalAngleVel = angleError * botRadius * cals.kP_MP + targetAngleVel;
         double anglePower = targetAngleAccel*cals.kA + totalAngleVel*cals.kV + cals.kS;
 
@@ -85,6 +96,8 @@ public class FancyMotionProfile extends CommandBase {
         powerVec.r += cals.kS;
 
         //rotate the strafe vector by the angular velocity (in 20ms) as a feedforward
+        //see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964
+        //basically we are offsetting for the discretization of our model (due to not modeling module velocities and accelerations)
         double rotationFeedForward = totalAngleVel * 0.02 / botRadius;
         powerVec.theta -= rotationFeedForward;
 
@@ -226,6 +239,7 @@ public class FancyMotionProfile extends CommandBase {
     Step prevStep;
     Step currStep;
     int stepIdx;
+    double frac;
     boolean complete = false;
     private void getAVP(double t){
         ListIterator<Step> iter = path.listIterator();
@@ -283,7 +297,7 @@ public class FancyMotionProfile extends CommandBase {
         }
 
         //determine split between dist and angle
-        double frac = targetTotalPos / currStep.length;
+        frac = targetTotalPos / currStep.length;
         double distFrac = currStep.dist / currStep.length;
         double posFrac = targetTotalPos * distFrac;
 
@@ -653,5 +667,83 @@ public class FancyMotionProfile extends CommandBase {
 
     private boolean valuesAreClose(double v1, double v2, double maxErr){
         return Math.abs(v1 - v2) < maxErr;
+    }
+
+    double visionFilter = 0.5; //weight each image within the threshold this much
+    double visionThresh = 24; //ignore any image that moves the global offset by more than this
+    private void runVision(){
+        //vision states:
+        //  -1 : cubes
+        //   1 : red side bump
+        //   3 : red side sub
+        //   6 : blue side sub
+        //   8 : blue side bump
+        //Note: this function will flip the selected tag based on reported driverstation color
+
+        if(visionState == 0) return;
+
+        Vector offset = null;
+        if(visionState > 0){
+            //april tags
+            int targetTag = (int) visionState;
+            if(DriverStation.getAlliance() == Alliance.Red){
+                if(visionState > 5) targetTag = 9 - targetTag; 
+            } else { //else blue
+                if(visionState < 4) targetTag = 9 - targetTag;
+            }
+
+            offset = r.vision.getTagForAuton(targetTag);
+
+        } else if(visionState == -1) {
+            //cube
+
+            //TODO: raw cube position, but needs to get converted to an offset
+            //need to build an offset table using the negative numbers, -1 - -4 for the 4 positions
+            offset = r.vision.getCubeVector(); 
+        }
+
+        if(offset == null) return;
+        if(offset.r > visionThresh) return;
+        
+        Vector delta = Vector.subVectors(offset, globalOffset);
+        delta.r *= visionFilter;
+        globalOffset.add(delta);
+        if(debug) System.out.println("VisonOffset is now: " + globalOffset.toStringXY());
+
+    }
+
+    ListIterator<Tag> tagIter;
+    Tag currTag;
+    private void checkTags(){
+        //determines if the next flag tag is active
+        if(currTag == null){
+            if(!tagIter.hasNext()) return;
+            currTag = tagIter.next();
+        }
+
+        while(currTag.step < stepIdx || Math.floor(currTag.step) == stepIdx && frac > currTag.step - stepIdx){
+            //activate tag
+            switch(currTag.type){
+                case FLAG:
+                    flag = currTag.value;
+                    if(debug) System.out.println("Flag set to: " + flag);
+                break;
+
+                case VISION:
+                    visionState = currTag.value;
+                    if(debug) System.out.println("Vision set to: " + visionState);
+                break;
+
+                default:
+                    System.out.println("Error, bad tag: " + currTag.type.name());
+            }
+
+            if(tagIter.hasNext()){
+                currTag = tagIter.next();
+            } else {
+                currTag = null;
+                return;
+            }
+        }
     }
 }
