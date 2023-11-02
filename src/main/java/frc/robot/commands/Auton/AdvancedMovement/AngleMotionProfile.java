@@ -109,6 +109,7 @@ public class AngleMotionProfile extends CommandBase{
 
     public void end(){
         r.driveTrain.driveSwerve(new Vector(0,0), 0);
+        r.driveTrain.targetHeading = endLoc;
         System.out.format("AMP Ending at t:%.1f.\n",Timer.getFPGATimestamp());
     }
 

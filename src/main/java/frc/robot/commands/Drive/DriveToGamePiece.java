@@ -22,7 +22,7 @@ public class DriveToGamePiece extends CommandBase{
 
     public DriveToGamePiece(RobotContainer r, Vector piecePosition){
         this.r = r;
-        this.piecePosition = piecePosition;
+        this.piecePosition = new Vector(piecePosition);
         addRequirements(r.driveTrain);
     }
 
@@ -97,8 +97,8 @@ public class DriveToGamePiece extends CommandBase{
 
         if(target != null){
             //don't drive in auton until the piece is close enough to its real position
-            Vector expectedError = Vector.subVectors(piecePosition, target);
-            if(DriverStation.isAutonomous() && (expectedError.getY() > 24 || expectedError.getX() > 36)) {
+            if(DriverStation.isAutonomous() && (Math.abs(Vector.subVectors(piecePosition, target).getY()) > 24 || Math.abs(Vector.subVectors(piecePosition, target).getX()) > 50)) {
+                System.out.println("Cube rejected with error " + Vector.subVectors(piecePosition, target).toStringXY());
                 target = null;
                 r.driveTrain.driveSwerve(new Vector(0,0), 0);
                 return;
@@ -123,9 +123,9 @@ public class DriveToGamePiece extends CommandBase{
             Vector drivePower = Vector.fromXY(0, -(gatherExt/13.1)*anglePower);
 
             double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
-            driveVec.add(new Vector(12,r.sensors.odo.botAngle));
+            driveVec.add(new Vector(0,r.sensors.odo.botAngle));
             
-            if(stage == 1 || Math.abs(angleError) < Math.toRadians(5) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
+            if(stage == 1 || Math.abs(angleError) < Math.toRadians(8) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
                 stage = 1;
                 driveVec.r *= drivePwr;
                 if(driveVec.r > maxDrivePwr) driveVec.r = maxDrivePwr;
@@ -136,7 +136,7 @@ public class DriveToGamePiece extends CommandBase{
             }
 
             Vector loc = Vector.subVectors(target, gatherLoc);
-            if(debug) System.out.format("RelTgt: %.0f,%.0f, G: %.0f,%.0f, T: %.0f,%.0f, AngE: %.0f, %.0f, %.0f, Pwr: %.2f,%.2f\n",loc.getX(),loc.getY(),gatherLoc.getX(),gatherLoc.getY(),target.getX(),target.getY(),Math.toDegrees(angleError),Math.toDegrees(loc.theta),Math.toDegrees(r.sensors.odo.botAngle),drivePower.getX(),drivePower.getY());
+            if(debug) System.out.format("RelTgt: %.0f,%.0f, G: %.0f,%.0f, T: %.0f,%.0f, AngE: %.0f, %.0f, %.0f, Pwr: %.2f,%.2f,%.2f\n",loc.getX(),loc.getY(),gatherLoc.getX(),gatherLoc.getY(),target.getX(),target.getY(),Math.toDegrees(angleError),Math.toDegrees(loc.theta),Math.toDegrees(r.sensors.odo.botAngle),drivePower.getX(),drivePower.getY(),anglePower);
 
             r.driveTrain.driveSwerve(drivePower, anglePower);
         } else {

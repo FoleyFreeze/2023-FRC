@@ -36,7 +36,7 @@ public class AutonCommandCamera {
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.0, 0.0),
                                  Vector.fromDeg(0.5, -2.0)};
-        double[] driveToPieceTime = {1.3, 0.0, 0.0, 1.45};
+        double[] driveToPieceTime = {1.2, 0.0, 0.0, 1.45};
 
         Vector[] piecePositions = {Vector.fromXY(278.3, 36.19 + 48*3),
                                    Vector.fromXY(278.3, 36.19 + 48*2),
@@ -49,18 +49,19 @@ public class AutonCommandCamera {
         Vector driveBackClear = Vector.fromDeg(0.65, 179);
 
         Vector driveBackBalance[] = {Vector.fromDeg(0.0, 0),
-                                     Vector.fromDeg(0.55, -175),
-                                     Vector.fromDeg(0.55, 175),
+                                     Vector.fromDeg(0.6, -160),
+                                     Vector.fromDeg(0.6, 160),
                                      Vector.fromDeg(0.0, 0)};
 
         double[] driveToPieceAng = {0, 15, -15, 0};
-        double[] driveBackAng = {180, 180, 180, 172};
+        double[] driveBackAng = {180, 180, 180, 169};
 
         int[] scorePositionsRed = {26, 23, 23, 20};
         int[] scorePositionsBlue = {20, 23, 23, 26};
 
         int scorePosition;
 
+        String piecePositionsString = "";
         if(team == Alliance.Red){
             for(int i = 0; i < 4; i++){
                 startPositions[i] = new Vector(startPositions[i]).mirrorY();
@@ -69,6 +70,7 @@ public class AutonCommandCamera {
                 driveToPiece[i] = new Vector(driveToPiece[i]).mirrorY();
 
                 piecePositions[i] = new Vector(piecePositions[i]).mirrorY();
+                piecePositionsString += " " + piecePositions[i];
 
                 driveToPieceAng[i] = -driveToPieceAng[i];
                 driveBackAng[i] = -driveBackAng[i];
@@ -86,6 +88,9 @@ public class AutonCommandCamera {
             scorePosition = scorePositionsBlue[startPos.ordinal()];
         }
 
+        System.out.println("Piece Positions: " + piecePositionsString);
+        System.out.println(startPos.ordinal());
+
         sg.addCommands(new InstantCommand(() -> r.arm.setArmOffset(AutonPos.initArmAngle, AutonPos.initArmStendo)));//init arm
         sg.addCommands(new InstantCommand(() -> r.sensors.odo.setBotLocation(startPositions[startPos.ordinal()])));//init location
         sg.addCommands(new InstantCommand(() -> r.sensors.resetNavXAng(startAng[startPos.ordinal()])));//init angle
@@ -93,6 +98,7 @@ public class AutonCommandCamera {
         sg.addCommands(new InstantCommand(() -> r.inputs.setAutonScorePosition(scorePosition)));//set the second score position
 
         //score the first piece
+        sg.addCommands(new InstantCommand(() -> r.gripper.close()));
         sg.addCommands(scoreOnlyCone(r));
 
         //get over the charge station if you're in the middle
