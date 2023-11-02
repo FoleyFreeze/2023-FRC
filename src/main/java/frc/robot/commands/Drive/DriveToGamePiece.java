@@ -119,7 +119,7 @@ public class DriveToGamePiece extends CommandBase{
             Vector drivePower = Vector.fromXY(0, -(gatherExt/13.1)*anglePower);
 
             double dynamicDelay = Math.max(0,(3 - driveVec.r/12.0)*0.3);
-            driveVec.add(new Vector(12,r.sensors.odo.botAngle));
+            driveVec.add(new Vector(0,r.sensors.odo.botAngle));
             
             if(stage == 1 || Math.abs(angleError) < Math.toRadians(8) && (Timer.getFPGATimestamp() - startTime) > dynamicDelay){
                 stage = 1;

@@ -49,8 +49,8 @@ public class AutonCommandCamera {
         Vector driveBackClear = Vector.fromDeg(0.65, 179);
 
         Vector driveBackBalance[] = {Vector.fromDeg(0.0, 0),
-                                     Vector.fromDeg(0.55, -175),
-                                     Vector.fromDeg(0.55, 175),
+                                     Vector.fromDeg(0.6, -160),
+                                     Vector.fromDeg(0.6, 160),
                                      Vector.fromDeg(0.0, 0)};
 
         double[] driveToPieceAng = {0, 15, -15, 0};

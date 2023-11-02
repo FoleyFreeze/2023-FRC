@@ -147,7 +147,6 @@ public class Vision extends SubsystemBase {
 
         rioTime.set(Timer.getFPGATimestamp());
         NetworkTableInstance.getDefault().flush();
-    
     }
 
     public void setTagMode(){
@@ -259,7 +258,7 @@ public class Vision extends SubsystemBase {
         tagVisionStack.clear(); //This replaces the above three lines to clear the vision stack - JC
 
         //if image is too old
-        if(Timer.getFPGATimestamp() - entry.timestamp > 0.12) return null;
+        if(Timer.getFPGATimestamp() - entry.timestamp > 0.3) return null;//was .12
 
         Odometry.OldLocation oldLoc = r.sensors.odo.getOldRobotLocation(entry.timestamp);
 
